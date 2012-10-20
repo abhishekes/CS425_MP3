@@ -1,0 +1,20 @@
+##command_output_1.txt
+grep -n SCARCE  machine.1.log &> command_output_1.txt
+##command_output_2.txt
+grep -n SCARCE  machine.2.log &> command_output_2.txt
+##command_output_3.txt
+grep -n SCARCE  machine.3.log &> command_output_3.txt
+##command_output_4.txt
+grep -n SCARCE  machine.4.log &> command_output_4.txt
+Thread 1: Unable to connect with server 192.168.2.45 . Dying ...
+Thread 2: Unable to connect with server 192.168.2.3 . Dying ...
+Thread 4: Unable to connect with server 192.17.11.26 . Dying ...
+Thread 3: Unable to connect with server 192.17.11.35 . Dying ...
+
+STATUS: grep command failed to execute on Machine with IP 192.168.2.45
+
+STATUS: grep command failed to execute on Machine with IP 192.168.2.3
+
+STATUS: grep command failed to execute on Machine with IP 192.17.11.35
+
+STATUS: grep command failed to execute on Machine with IP 192.17.11.26
