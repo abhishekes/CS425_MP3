@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include "debug.h"
 #include "time.h"
-#define FILE_PATH_LENGTH 200
-#define MAX_ELEMENTS_PER_PAYLOAD 8
-#define ID_SIZE 20
+#define FILE_PATH_LENGTH                   200
+#define MAX_ELEMENTS_PER_PAYLOAD             8
+#define ID_SIZE                             20
 
 #define my_malloc(bytes) \
 do \
@@ -79,11 +79,36 @@ typedef struct
 
 typedef struct
 {
+	uint8_t flags;
+	char    ID[ID_SIZE];
+}leaderElectionPayload;
+
+typedef struct
+{
   uint8_t flags;
   #define ADD_NODE_REQUEST      0x01
   uint32_t timestamp;
   char ipAddr[16]; 
 }topologyRequestPayload;
+
+typedef struct
+{
+	uint8_t flags;
+	#define INFO_REQUEST    0x01
+	#define INFO_RESPONSE   0x02
+	char    fileName[256];
+	uint8_t noOfSplits;
+	uint8_t noOfReplicas;
+	char    ipAddr[0][16];
+}fileInfoPayload;
+
+typedef struct
+{
+	uint8_t flags;
+	#define PUT_FILE_REQUEST  0x01
+	#define GET_FILE_REQUEST  0x02
+    char fileName[256];
+}fileOperationRequest;
 
 typedef enum {
     RC_FAILURE = 0,

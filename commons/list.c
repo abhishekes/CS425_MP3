@@ -68,6 +68,7 @@ int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {
 int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 	struct Node *tmp, *next_node, *prev_node;
 	int found = 0;
+	int elect_leader = 0;
 
 	tmp = next_node = prev_node = NULL;
 
@@ -79,7 +80,12 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 			DEBUG(("Remove_From_List: List is empty\n"));
 			return 1;
 		}
-		
+		if (!memcmp((*head)->node->IP, ID+4, 16)) { // Is the node being deleted the leader
+		    if ((*head)->node->next != (*head)->node ) {
+			    LOG(INFO, "Leader node with IP %s is being removed from the list. Electing %s "
+		    	          " as the new leader ", ID+4, ((*head)->node->next->IP));
+		        }
+		}
 		tmp = (*head)->node;
 		do {
 			if(!memcmp(tmp->IP, ID+4, 16)) { //Match found	
