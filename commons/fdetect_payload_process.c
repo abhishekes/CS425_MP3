@@ -315,7 +315,7 @@ void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SIZE]
         threads_created = 0;
         for (i=0; i<5 && index < numOfNodesToSend; i++, index ++, threads_created++) {
 	    
- 	    //printf("Num nodes to send = %d", numOfNodesToSend);
+ 	        //printf("Num nodes to send = %d", numOfNodesToSend);
             //my_data[i].ip[15] = 0;
             my_data[i] = calloc(1, sizeof(thread_data) + sizeof(addDeleteNodePayload) + ID_SIZE);
             (*my_data[i]).payload = calloc(1, sizeof(addDeleteNodePayload) + ID_SIZE);

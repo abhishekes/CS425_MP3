@@ -29,6 +29,8 @@ typedef enum {
    MSG_TOPOLOGY_REQUEST,
    MSG_FILE_TRANSFER,
    MSG_EXECUTE_SCRIPT,
+   MSG_FILE_OPERATION_REQUEST,
+   MSG_FILE_INFO,
    NUM_OF_PAYLOADS
 }messageType;
 
@@ -94,8 +96,8 @@ typedef struct
 typedef struct
 {
 	uint8_t flags;
-	#define INFO_REQUEST    0x01
-	#define INFO_RESPONSE   0x02
+    #define FILE_ALREADY_PRESENT 0x01
+	#define FILE_FOUND           0x02
 	char    fileName[256];
 	uint8_t noOfSplits;
 	uint8_t noOfReplicas;
@@ -108,14 +110,15 @@ typedef struct
 	#define PUT_FILE_REQUEST  0x01
 	#define GET_FILE_REQUEST  0x02
     char fileName[256];
-}fileOperationRequest;
+}fileOperationRequestPayload;
 
 typedef enum {
     RC_FAILURE = 0,
     RC_SUCCESS,
     RC_FILE_NOT_FOUND,
     RC_SOCKET_WRITE_FAILURE,
-    RC_SOCKET_READ_FAILURE
+    RC_SOCKET_READ_FAILURE,
+    RC_INPUT_FILE_NOT_FOUND
 }returnCode;
 
 typedef returnCode RC_t;

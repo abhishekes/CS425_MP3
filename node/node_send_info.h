@@ -10,6 +10,8 @@ typedef struct {
     int payload_size;
     int msg_type;
     char *payload;
+    uint16_t flags;
+    #define WAIT_FOR_RESPONSE 0x01
 }thread_data; 
 
 void *send_node_update_payload(void *tdata);

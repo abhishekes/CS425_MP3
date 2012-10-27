@@ -34,9 +34,11 @@ void processPacket(int socket, payloadBuf *packet) {
 		case MSG_HEARTBEAT :
                      processHeartbeatPayload(packet->payload);                     
                      break;
-		
+		case MSG_FILE_INFO :
+			         processFileInfoPayload(packet->payload);
+			         break;
 		case MSG_ADD_DELETE_NODE:
-		     printf("\n************processPacket***************\n");
+		        printf("\n************processPacket***************\n");
                      processNodeAddDeletePayload(packet->payload, packet->length);
                      topology_version++;
                      break;
@@ -121,7 +123,8 @@ void processPacket(int socket, payloadBuf *packet) {
 		     close(socket);	
  		     break;
         	default	:
-			printf("\nIn process packet.. but unknown type\n");
+			    printf("\nIn process packet.. but unknown type\n");
+			    break;
 	}
 	//DEBUG(("*** Freeing memory \n\n"));
         free(packet_ptr); // Freeing

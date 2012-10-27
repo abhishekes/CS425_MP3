@@ -1,7 +1,7 @@
 #include "node_send_info.h"
-extern char myIP[16];
+//extern char myIP[16];
 
-void* send_node_update_payload(void *tdata)
+void send_node_update_payload(void *tdata)
 {
    
     
@@ -13,9 +13,10 @@ void* send_node_update_payload(void *tdata)
         int retryCount = -1;
         int size = my_data->payload_size;
         int msg_type = my_data->msg_type;
+        payloadBuf *packet;
         printf("\nMessage Type = %0x*****************************\n", msg_type);
         printf("\nSize = %0d\n***********************************", size);
-	
+
         int i = 0;
 
         char *payload = my_data->payload;
@@ -27,7 +28,7 @@ void* send_node_update_payload(void *tdata)
             nodeAddress.sin_port          = htons(ADMISSION_CONTACT_PORT);
         }        
 	
-	if((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+	    if((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
                 //LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 free(my_data->payload);
@@ -54,5 +55,11 @@ void* send_node_update_payload(void *tdata)
         sendPayload(sock, msg_type, payload, size);
         free(my_data->payload);
         free(my_data);
+        if (my_data->flags & WAIT_FOR_RESPONSE) {
+        rc = message_decode(sock, &packet);
+            if (rc == RC_SUCCESS) {
+                processPacket(socket, packet);
+            }
+        }
         close(sock);     
 }

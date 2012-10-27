@@ -132,7 +132,7 @@ int main() {
 	//server_topology = (struct Head_Node*)calloc(1, sizeof(struct Head_Node));
         log_init();
 	        
-        payloadBuf *packet;
+    payloadBuf *packet;
 	int rc;
 	
 	log_init();

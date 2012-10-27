@@ -46,7 +46,7 @@ void main()/*interact_with_user()*/
                break;
            
        }
-       strcat(display_buf, "2. Display membership list\n3. Enter File System Command\4. Quit");
+       strcat(display_buf, "2. Display membership list\n3. Enter File System Command\n4. Quit");
        printf("Current membership Status : %s\n\n%s\n\n", buf, display_buf);
        valid = 0;
        do {
@@ -74,13 +74,16 @@ void main()/*interact_with_user()*/
                         //display_membership_list();
                         break;
                    case 3:
-                        if (current_state == INIT) {
+                        /*if (current_state == INIT) {
                              printf("\nOperation invalid in this state\n");
                              getchar();
-                        } else {
+                        } else */{
                             printf("Enter file system command : ");
+                            fflush(stdin);
                             gets(command);
+                            puts(command);
                             parse_command(command);
+                            getchar();
                         }
                         break;
                    case 4:
@@ -122,39 +125,58 @@ void display_membership_list()
 
 void parse_command(char *command)
 {
-     char *args[3];
+     char args[3][255];
      char buffer[255];
      int index = 0;
      int i = 0;
      int string_index = 0;
      int length = 0;
      int valid = 1;
-
+     puts(command);
+     FILE *inputFile = NULL;
      while(command[index]) {
-         if (command[index] == ' ' )
+         if (command[index] == ' ' || command[index] == 0 )
          {
-        	 if(length) {
+        	 /*if(length) {
                 args[i] = malloc(length + 1);
-        	 }
-        	 memcpy(args[i], buffer, length);
-        	 args[length] = 0;
+        	 }*/
+        	 //memcpy(args[i], buffer, length);
+        	 args[i][length] = 0;
         	 while(command[index++] == ' ');
+        	 index--;
         	 string_index = 0;
+        	 length = 0;
         	 i++;
          }
-    	 buffer[string_index++] = command[index];
+    	 args[i][string_index++] = command[index];
     	 index++;
     	 length ++;
-    	 if (i == 0 && length > 3) {
+    	 if (i > 2 || (i == 0 && length > 3)) {
     		 valid = 0;
     		 break;
     	 }
 
      }
-     if (!valid ) {
-    	 printf("\nInvalid Input\n");
+     if (!valid || i < 2) {
+    	 printf("\nInvalid Input. Command Format : <get/put> <local-file-name> <destination-file-name>\n");
+
     	 return;
 
      }
+     args[i][length] = 0;
+     printf("Local File Name : %s Destination File Name: %s. Length = %d", args[1], args[2], length );
+     inputFile = fopen(args[1], "r");
+     if (!inputFile) {
+    	 printf("\nCould not find source file");
+    	 valid = 0;
+     }
+     else {
+    	 fclose(inputFile);
+     }
+     if (!valid) {
+         return;
+     }
+     dfs_file_transfer(FILE_PUT, args[0], args[1]);
+
 }
 

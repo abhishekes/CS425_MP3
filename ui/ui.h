@@ -8,6 +8,8 @@
 #include "../commons/list.h"
 #include <pthread.h>
 #include "../failure_detector/failure_detector.h"
+#include "../dfs/dfs_operation.h"
+
 typedef enum {
     INIT,
     JOIN_REQUEST_SENT,
@@ -17,5 +19,6 @@ typedef enum {
 
 
 void display_membership_list();
+void parse_command(char *command);
 
 #endif
