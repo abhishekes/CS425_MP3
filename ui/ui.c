@@ -1,7 +1,7 @@
 #include "ui.h"
 extern struct Head_Node *server_topology;
 extern pthread_mutex_t node_list_mutex;
-extern pthread_mutex_t timestamp_mutex;
+//extern pthread_mutex_t timestamp_mutex;
 state_machine current_state = INIT;   
 pthread_mutex_t state_machine_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -15,6 +15,7 @@ void main()/*interact_with_user()*/
     char user_input[10]; 
     int (*case1function)(void);    
     int test = 0;
+    char command[500];
  
     log_init();
     //pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -45,7 +46,7 @@ void main()/*interact_with_user()*/
                break;
            
        }
-       strcat(display_buf, "2. Display membership list\n3. Quit");
+       strcat(display_buf, "2. Display membership list\n3. Enter File System Command\4. Quit");
        printf("Current membership Status : %s\n\n%s\n\n", buf, display_buf);
        valid = 0;
        do {
@@ -73,6 +74,16 @@ void main()/*interact_with_user()*/
                         //display_membership_list();
                         break;
                    case 3:
+                        if (current_state == INIT) {
+                             printf("\nOperation invalid in this state\n");
+                             getchar();
+                        } else {
+                            printf("Enter file system command : ");
+                            gets(command);
+                            parse_command(command);
+                        }
+                        break;
+                   case 4:
                         if (current_state == TOPOLOGY_FORMED) {
                             node_exit();
                         }
@@ -109,4 +120,41 @@ void display_membership_list()
      getchar(); 
 }
 
+void parse_command(char *command)
+{
+     char *args[3];
+     char buffer[255];
+     int index = 0;
+     int i = 0;
+     int string_index = 0;
+     int length = 0;
+     int valid = 1;
+
+     while(command[index]) {
+         if (command[index] == ' ' )
+         {
+        	 if(length) {
+                args[i] = malloc(length + 1);
+        	 }
+        	 memcpy(args[i], buffer, length);
+        	 args[length] = 0;
+        	 while(command[index++] == ' ');
+        	 string_index = 0;
+        	 i++;
+         }
+    	 buffer[string_index++] = command[index];
+    	 index++;
+    	 length ++;
+    	 if (i == 0 && length > 3) {
+    		 valid = 0;
+    		 break;
+    	 }
+
+     }
+     if (!valid ) {
+    	 printf("\nInvalid Input\n");
+    	 return;
+
+     }
+}
 

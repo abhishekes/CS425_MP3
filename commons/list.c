@@ -135,13 +135,13 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 ** None.
 ***********************************************************/
 
-RC_t print_all_nodes(struct Head_Node **head) {
+/*RC_t print_all_nodes(struct Head_Node **head) {
 	struct Node* ptr;
 	int numNodes = 0;	
 		
 	
 	
-}
+}*/
 
 RC_t delete_all_nodes(struct Head_Node **head)
 {
@@ -164,4 +164,5 @@ RC_t delete_all_nodes(struct Head_Node **head)
          index++;  
      }    
      (*head) = NULL;
+     return RC_SUCCESS;
 }
