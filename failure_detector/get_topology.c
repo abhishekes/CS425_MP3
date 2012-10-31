@@ -44,7 +44,7 @@ RC_t get_topology() {
 	rc = message_decode(mSocket,&packet);
 	//printf("\nAfter message decode, packet : %lu\n", (long)packet);	
 
-        processPacket(mSocket, packet);
+        processPacket(mSocket, packet, NULL);
 	
 	//process the incoming packet	
 			

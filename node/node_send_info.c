@@ -13,6 +13,7 @@ void send_node_update_payload(void *tdata)
         int retryCount = -1;
         int size = my_data->payload_size;
         int msg_type = my_data->msg_type;
+        void *data = NULL;
         payloadBuf *packet;
         printf("\nMessage Type = %0x*****************************\n", msg_type);
         printf("\nSize = %0d\n***********************************", size);
@@ -33,6 +34,7 @@ void send_node_update_payload(void *tdata)
                 printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 free(my_data->payload);
                 free(my_data);
+                my_data->status = RC_SOCKET_CREATION_FAILED;
                 pthread_exit(NULL);
         }
         printf("IP : %s Socket established...\n", IP);
@@ -40,6 +42,7 @@ void send_node_update_payload(void *tdata)
                 //LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
                 free(my_data->payload);
                 free(my_data);
+                my_data->status = RC_SOCKET_CONNECT_FAILED;
                 pthread_exit(NULL);
         }
         DEBUG(("IP :  %s  Connection Established\n\n", IP));
@@ -58,8 +61,10 @@ void send_node_update_payload(void *tdata)
         if (my_data->flags & WAIT_FOR_RESPONSE) {
         rc = message_decode(sock, &packet);
             if (rc == RC_SUCCESS) {
-                processPacket(socket, packet);
+                processPacket(socket, packet, data);
             }
         }
-        close(sock);     
+        close(sock);
+        my_data->return_data = data;
+        my_data->status = rc;
 }

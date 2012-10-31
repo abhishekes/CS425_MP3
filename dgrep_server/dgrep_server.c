@@ -62,7 +62,7 @@ int main()
 				
                                 rc = message_decode(connectSocket, &packet);     //Call decode function to deode the recieved packet
 				if (rc == RC_SUCCESS)
-					processPacket(connectSocket,  packet);		
+					processPacket(connectSocket,  packet, NULL);
 
 			} while(rc == RC_SUCCESS);
 			return 0;

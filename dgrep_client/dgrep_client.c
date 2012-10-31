@@ -89,7 +89,7 @@ void *doDGrep(void *tdata) {
             if (rc != RC_SUCCESS) {
                 break;
             }
-            processPacket(sock, packet);        
+            processPacket(sock, packet, NULL);
         }while(1);
          
         myData->statusFlag = SUCCESS;        	

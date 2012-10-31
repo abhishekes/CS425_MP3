@@ -94,8 +94,9 @@ RC_t getTopologyFromSomeNode() {
 	
 	payloadBuf *packet;
 	rc = message_decode(sock, &packet);
-	if(rc = RC_SUCCESS) processPacket(sock, packet);
-	
+	if(rc == RC_SUCCESS) {
+		processPacket(sock, packet, NULL);
+	}
 	
 	char *buf, *ipAddrList, *ptr, *ptr1;
 	int nodes_to_send_to, total_nodes;
@@ -198,8 +199,9 @@ int main() {
 		printf("Calling Message Decode\n");	
 		rc = message_decode(connectSocket, &packet);
 		printf("After message decode\n");
-		if(rc == RC_SUCCESS)
-			processPacket(connectSocket, packet);	
+		if(rc == RC_SUCCESS) {
+			processPacket(connectSocket, packet, NULL);
+		}
 		
 		char *buf, *ipAddrList, *ptr, *ptr1;
 		int nodes_to_send_to, total_nodes;

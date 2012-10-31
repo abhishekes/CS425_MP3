@@ -4,7 +4,7 @@
 ** This function is used to send file 
 ** 
 ** Arguments:
-** socket   : socket on which the message was rceived
+** socket   : socket on which the message was received
 ** fileName : Name of file.
 ***********************************************************/
 

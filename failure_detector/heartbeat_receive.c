@@ -79,7 +79,7 @@ void* heartbeat_receive(void* t) {
 			packet = (payloadBuf*)malloc(1000);
                         if(RC_SUCCESS == message_decode_UDP(recvFromSocket, packet, &packetLen, &recvFromAddr, &recvFromAddrLen)) {
 
-                            processPacket(recvFromSocket, packet);
+                            processPacket(recvFromSocket, packet, NULL);
 			}
 			
 			            pthread_mutex_lock(&timestamp_mutex);

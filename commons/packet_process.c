@@ -12,7 +12,7 @@
 ***********************************************************/
 extern topology_version;
 
-void processPacket(int socket, payloadBuf *packet) {
+void processPacket(int socket, payloadBuf *packet, void * return_data) {
 	uint16_t packetType, packetLength, bytesToWrite, bytesWritten = 0;
 	payloadBuf *packet_ptr = packet;
 	uint16_t statusFlag;

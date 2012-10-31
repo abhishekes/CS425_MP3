@@ -10,10 +10,9 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	if (!inputFile) {
 	    	 printf("\nCould not find source file");
 	    	 return RC_INPUT_FILE_NOT_FOUND;
-	     }
-	     else {
+	}else {
 	    	 fclose(inputFile);
-	     }
+	}
     if (server_topology && server_topology->node ) {
 	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
         (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
@@ -25,8 +24,52 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         (*my_data).flags = WAIT_FOR_RESPONSE;
         memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
-        pthread_join(thread, NULL)
+        pthread_join(thread, NULL);
     }
-	return RC_SUCCESS;
+	if (my_data->status == RC_SUCCESS) {
+    //Sachin's function to do splitting of files.
+	}
+    return my_data->status;
 
 }
+
+
+RC_t sendFileWrapper(int numOfAddresses, char (*ip)[16], char * fileName ) {
+	FILE *fp;
+
+    struct sockaddr_in nodeAddress;
+    char *IP = ip;
+    int sock;
+    int rc = RC_FAILURE;
+    struct sockaddr_in nodeAddress;
+    char *IP = ip;
+    int sock;
+
+    int i = 0;
+    fp = open(fileName, "r");
+	if (fp == NULL) {
+	    return RC_FILE_NOT_FOUND;
+	}
+    for ( i =0; i < numOfAddresses; i++, ip++) {
+	    memset(&nodeAddress, 0, sizeof(nodeAddress));
+        nodeAddress.sin_family        = AF_INET;
+        nodeAddress.sin_addr.s_addr   = inet_addr(IP);
+        nodeAddress.sin_port          = htons(TCP_LISTEN_PORT);
+        if((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+            LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
+            printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
+            return RC_SOCKET_CREATION_FAILED;
+
+        }
+        //printf("IP : %s Socket established...\n", IP);
+        if((connect(sock, (struct sockaddr *) &nodeAddress,   sizeof(nodeAddress))) < 0) {
+                //LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
+                return RC_SOCKET_CONNECT_FAILED;
+
+        }
+
+
+    }
+	return RC_SUCCESS;
+}
+

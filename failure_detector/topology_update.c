@@ -70,7 +70,7 @@ void* topology_update(void* t) {
 		//	printf("   ****  %d, ", *(packet + i));
 		//}	
 		
-		processPacket(connectSocket,packet);
+		processPacket(connectSocket,packet, NULL);
 		close(connectSocket);	
 	}
 
