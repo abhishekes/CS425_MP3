@@ -62,7 +62,7 @@ RC_t sendFileWrapper(void *tdata ) {
             rc =  RC_SOCKET_CREATION_FAILED;
 
         }
-        //printf("IP : %s Socket established...\n", IP);
+
         if((connect(sock, (struct sockaddr *) &nodeAddress,   sizeof(nodeAddress))) < 0) {
                 //LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
                 rc = RC_SOCKET_CONNECT_FAILED;
@@ -75,9 +75,10 @@ RC_t sendFileWrapper(void *tdata ) {
     }
     if ( i < dfs_data->numOfAddresses) {
 	   dfs_data->rc = RC_SUCCESS;
+
     }else {
        dfs_data->rc = rc;
     }
-
+    return rc;
 }
 
