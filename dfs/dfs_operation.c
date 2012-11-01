@@ -28,21 +28,22 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
     }
 	if (my_data->status == RC_SUCCESS) {
     //Sachin's function to do splitting of files.
+		//Call all send file wrappers
 	}
     return my_data->status;
 
 }
 
 
-RC_t sendFileWrapper(int numOfAddresses, char (*ip)[16], char * fileName ) {
+RC_t sendFileWrapper(void *tdata ) {
 	FILE *fp;
-
+    dfs_thread_info *dfs_data = (dfs_thread_info *)(tdata);
     struct sockaddr_in nodeAddress;
-    char *IP = ip;
+    char (*IP)[16] = dfs_data->ip;
     int sock;
     int rc = RC_FAILURE;
     struct sockaddr_in nodeAddress;
-    char *IP = ip;
+
     int sock;
 
     int i = 0;
@@ -50,7 +51,7 @@ RC_t sendFileWrapper(int numOfAddresses, char (*ip)[16], char * fileName ) {
 	if (fp == NULL) {
 	    return RC_FILE_NOT_FOUND;
 	}
-    for ( i =0; i < numOfAddresses; i++, ip++) {
+    for ( i =0; i < dfs_data->numOfAddresses ; i++, IP++) {
 	    memset(&nodeAddress, 0, sizeof(nodeAddress));
         nodeAddress.sin_family        = AF_INET;
         nodeAddress.sin_addr.s_addr   = inet_addr(IP);
@@ -58,18 +59,25 @@ RC_t sendFileWrapper(int numOfAddresses, char (*ip)[16], char * fileName ) {
         if((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
             LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
             printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
-            return RC_SOCKET_CREATION_FAILED;
+            rc =  RC_SOCKET_CREATION_FAILED;
 
         }
         //printf("IP : %s Socket established...\n", IP);
         if((connect(sock, (struct sockaddr *) &nodeAddress,   sizeof(nodeAddress))) < 0) {
                 //LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
-                return RC_SOCKET_CONNECT_FAILED;
+                rc = RC_SOCKET_CONNECT_FAILED;
 
         }
-
+        if (sendFile(sock, fileName) == RC_SUCCESS) {
+        	break;
+        }
 
     }
-	return RC_SUCCESS;
+    if ( i < dfs_data->numOfAddresses) {
+	   dfs_data->rc = RC_SUCCESS;
+    }else {
+       dfs_data->rc = rc;
+    }
+
 }
 

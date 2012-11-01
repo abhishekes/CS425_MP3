@@ -22,5 +22,12 @@ typedef enum {
 	FILE_GET
 }fileOperation;
 
+typedef struct {
+    int numOfAddresses;
+    char (*ip)[16];
+    char fileName[500];
+    RC_t rc;
+
+}dfs_thread_info;
  RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName);
 #endif
