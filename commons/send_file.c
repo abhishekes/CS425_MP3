@@ -8,7 +8,7 @@
 ** fileName : Name of file.
 ***********************************************************/
 
-int sendFile(int socket, char *fileName )
+int sendFile(int socket, char *fileName, char *destFileName )
 {
     FILE *fp = fopen(fileName, "r");
     int rc;
@@ -23,7 +23,11 @@ int sendFile(int socket, char *fileName )
         return RC_FILE_NOT_FOUND;
     }
     DEBUG(("\nSendFile:\n"));
-    strcpy(ftpBuf->fileName, fileName);
+    if (destFileName != NULL) {
+    	strcpy(ftpBuf->fileName, destFileName);
+    }else {
+    	strcpy(ftpBuf->fileName, fileName);
+    }
     ftpBuf->statusFlag |= FTP_REQUEST;
     do {
     	 memset(ftpBuf->filePayload,0,790);

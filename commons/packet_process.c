@@ -118,7 +118,7 @@ void processPacket(int socket, payloadBuf *packet, void * return_data) {
 		         DEBUG(("\nHere 3: %d %d %d %d\n", command[0], command[1], command[2], command[3]));
 		         strcpy(fileName, outputFileName + 2);
                      }
- 	      	     sendFile(socket, fileName);
+ 	      	     sendFile(socket, fileName, NULL);
 			
 		     close(socket);	
  		     break;

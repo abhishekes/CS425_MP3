@@ -95,9 +95,15 @@ typedef struct
 
 typedef struct
 {
+  uint8_t flags;
+  char fileName[256];
+}fileRequestPayload;
+
+typedef struct
+{
 	uint8_t flags;
-    #define FILE_ALREADY_PRESENT 0x01
-	#define FILE_FOUND           0x02
+    #define FILE_ALREADY_PRESENT     0x01
+	#define FILE_NOT_FOUND           0x02
 	char    fileName[256];
 	uint8_t noOfSplits;
 	uint8_t noOfReplicas;
