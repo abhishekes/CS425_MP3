@@ -121,7 +121,17 @@ typedef struct
 	#define GET_FILE_REQUEST  0x02
     char fileName[256];
 }fileOperationRequestPayload;
+typedef struct
+{
+	char fileName[256];
+	char replicaIP[NUM_OF_REPLICAS][16];
+}fileDetail;
+typedef struct
+{
+	int numberOfFiles;
+	fileDetail fileInfo[0];
 
+}nodeFileInfo;
 typedef enum {
     RC_FAILURE = 0,
     RC_SUCCESS,

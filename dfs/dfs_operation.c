@@ -1,4 +1,5 @@
 #include "dfs_operation.h"
+#define NUM_OF_REPLICAS 3
 
 fileInfoPayload fileInfo ;
 RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName)
