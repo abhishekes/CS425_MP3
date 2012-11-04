@@ -1,2 +1,2 @@
-neigbourHeartbeat savedHeartbeat[NUM_HEARBEAT_NEIGHBOURS];
+neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
 

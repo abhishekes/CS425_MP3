@@ -4,6 +4,8 @@
 #include "../node/node_send_info.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
+
 
 #define IP_ADDR_LENGTH  16
 #define NUM_OF_SPLITS   4

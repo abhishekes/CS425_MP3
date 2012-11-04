@@ -1,5 +1,5 @@
 #include "dfs_operation.h"
-#define NUM_OF_REPLICAS 3
+
 
 fileInfoPayload fileInfo ;
 RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName)
@@ -8,21 +8,28 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	inputFile = fopen(localFileName, "r");
 	thread_data *my_data;
 	pthread_t thread;
+	fileOperationRequestPayload *payloadBuf = NULL;
+	int size = 0;
 	if (!inputFile) {
-	    	 printf("\nCould not find source file");
+		     printf("\nCould not find source file");
 	    	 return RC_INPUT_FILE_NOT_FOUND;
 	}else {
-	    	 fclose(inputFile);
+	        fseek(inputFile, 0L, SEEK_END);
+	        size = ftell(inputFile);
+		    fclose(inputFile);
 	}
     if (server_topology && server_topology->node ) {
 	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
         (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
-
+        payloadBuf = (fileOperationRequestPayload *)((*my_data).payload);
+        payloadBuf->fileSize = size;
+        strcpy(payloadBuf->fileName, destinationFileName);
         memcpy((*my_data).ip, server_topology->node->IP, 16);
 
         (*my_data).payload_size = sizeof(fileOperationRequestPayload);
         (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
         (*my_data).flags = WAIT_FOR_RESPONSE;
+
         memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
         pthread_join(thread, NULL);
@@ -30,6 +37,10 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	if (my_data->status == RC_SUCCESS) {
     //Sachin's function to do splitting of files.
 		//Call all send file wrappers
+		if (my_data == NULL) {
+			my_data->status = RC_NO_RESPONSE_RECEIVED;
+			return my_data->status;
+		}
 	}
     return my_data->status;
 

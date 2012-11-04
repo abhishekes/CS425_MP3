@@ -4,9 +4,12 @@
 #include <stdint.h>
 #include "debug.h"
 #include "time.h"
+
 #define FILE_PATH_LENGTH                   200
 #define MAX_ELEMENTS_PER_PAYLOAD             8
 #define ID_SIZE                             20
+
+#define NUM_OF_REPLICAS                      3
 
 #define my_malloc(bytes) \
 do \
@@ -119,19 +122,27 @@ typedef struct
 	uint8_t flags;
 	#define PUT_FILE_REQUEST  0x01
 	#define GET_FILE_REQUEST  0x02
-    char fileName[256];
+    uint16_t fileSize;
+	char fileName[256];
+
 }fileOperationRequestPayload;
 typedef struct
 {
 	char fileName[256];
 	char replicaIP[NUM_OF_REPLICAS][16];
 }fileDetail;
+
 typedef struct
 {
 	int numberOfFiles;
 	fileDetail fileInfo[0];
-
 }nodeFileInfo;
+
+typedef struct
+{
+	char ip[16];
+}requestNodeFileInfo;
+
 typedef enum {
     RC_FAILURE = 0,
     RC_SUCCESS,
@@ -142,7 +153,8 @@ typedef enum {
     RC_SOCKET_READ_FAILURE,
     RC_INPUT_FILE_NOT_FOUND,
     RC_INVALID_INPUT,
-    RC_FILE_INFO_SEND_FAILURE
+    RC_FILE_INFO_SEND_FAILURE,
+    RC_NO_RESPONSE_RECEIVED
 }returnCode;
 
 typedef returnCode RC_t;

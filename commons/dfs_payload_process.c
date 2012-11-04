@@ -65,6 +65,7 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
         //Check if a file with this name already exists
     	//If not, send a go ahead to the calling node
     	infoPayload->flags |= FILE_NAME_AVAILABLE;
+    	//Also send details of the nodes on which the replicas have to be placed
     	strcpy(infoPayload->fileName, payload->fileName);
     	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(infoPayload));
     	if (rc != RC_SUCCESS) {
