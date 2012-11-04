@@ -76,10 +76,15 @@ RC_t receiveFileWrapper(void *tdata) {
 
     for ( i = 0; i < dfs_data->numOfAddresses ; i++, IP++) {
         if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
-            if (sendFileRequest(sock, fileName) == RC_SUCCESS) {
+            if (sendFileInfoRequest(sock, fileName) == RC_SUCCESS) {
                 while ((rc = message_decode(sock, &packet)) == RC_SUCCESS) {
                         processPacket(socket, packet, data);
 
+                }
+                if (data) {
+                	if (*((RC_t *)data) == RC_SUCCESS ) {
+                		break;
+                	}
                 }
             }
 

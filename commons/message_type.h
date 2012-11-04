@@ -31,7 +31,8 @@ typedef enum {
    MSG_EXECUTE_SCRIPT,
    MSG_FILE_OPERATION_REQUEST,
    MSG_FILE_INFO,
-   NUM_OF_PAYLOADS
+   NUM_OF_PAYLOADS,
+   MSG_FILE_REQUEST
 }messageType;
 
 typedef struct 
@@ -102,8 +103,11 @@ typedef struct
 typedef struct
 {
 	uint8_t flags;
-    #define FILE_ALREADY_PRESENT     0x01
-	#define FILE_NOT_FOUND           0x02
+    #define FILE_INFO_UPDATE         0x01
+    #define FILE_INFO_RESPONSE       0x02
+	#define FILE_ALREADY_PRESENT     0x04
+	#define FILE_NOT_FOUND           0x08
+    #define FILE_NAME_AVAILABLE      0x10
 	char    fileName[256];
 	uint8_t noOfSplits;
 	uint8_t noOfReplicas;
@@ -126,7 +130,9 @@ typedef enum {
     RC_SOCKET_CONNECT_FAILED,
     RC_SOCKET_CREATION_FAILED,
     RC_SOCKET_READ_FAILURE,
-    RC_INPUT_FILE_NOT_FOUND
+    RC_INPUT_FILE_NOT_FOUND,
+    RC_INVALID_INPUT,
+    RC_FILE_INFO_SEND_FAILURE
 }returnCode;
 
 typedef returnCode RC_t;

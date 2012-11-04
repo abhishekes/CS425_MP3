@@ -91,38 +91,48 @@ void processPacket(int socket, payloadBuf *packet, void * return_data) {
 			
 		     printf("Am I coming here??\n");	
  	   	     sprintf(command, "ls %s", eSPayload->scriptName);
-                     result = system(command);
-                     strcpy(fileName, "error_file.txt");
-                     //The script file is present.
-                     puts(command);
-                     DEBUG(("Here 0 \n"));
-                     if (result == 0) {
-                         sprintf(command, "chmod 777 %s", eSPayload->scriptName);
-                         system(command);
-                         fp = fopen(eSPayload->scriptName, "r");	
-                         fgets(outputFileName, FILE_PATH_LENGTH, fp);
-                         fgets(outputFileName, FILE_PATH_LENGTH, fp); 
-                         fclose(fp);
-                         DEBUG(("Here 1\n"));
-                         puts(command);
-                         outputFileName[strlen(outputFileName)-1] = 0;
-                		
-		         sprintf(command, "rm -rf %s", outputFileName + 2);
-		         system(command);
+             result = system(command);
+             strcpy(fileName, "error_file.txt");
+             //The script file is present.
+             puts(command);
+             DEBUG(("Here 0 \n"));
+             if (result == 0) {
+                   sprintf(command, "chmod 777 %s", eSPayload->scriptName);
+                   system(command);
+                   fp = fopen(eSPayload->scriptName, "r");
+                   fgets(outputFileName, FILE_PATH_LENGTH, fp);
+                   fgets(outputFileName, FILE_PATH_LENGTH, fp);
+                   fclose(fp);
+                   DEBUG(("Here 1\n"));
+                   puts(command);
+                   outputFileName[strlen(outputFileName)-1] = 0;
+
+		           sprintf(command, "rm -rf %s", outputFileName + 2);
+		           system(command);
 		         
 		    
-		         sprintf(command, "./%s", eSPayload->scriptName);
-		         puts(command);
-                         DEBUG(("Here 2\n"));
-                         result = system(command);
-		         DEBUG(("\nHere 3: %d %d %d %d\n", command[0], command[1], command[2], command[3]));
-		         strcpy(fileName, outputFileName + 2);
-                     }
- 	      	     sendFile(socket, fileName, NULL);
+		           sprintf(command, "./%s", eSPayload->scriptName);
+		           puts(command);
+                   DEBUG(("Here 2\n"));
+                   result = system(command);
+		           DEBUG(("\nHere 3: %d %d %d %d\n", command[0], command[1], command[2], command[3]));
+		           strcpy(fileName, outputFileName + 2);
+             }
+             sendFile(socket, fileName, NULL);
 			
 		     close(socket);	
  		     break;
-        	default	:
+		case MSG_FILE_REQUEST:
+			processFileRequest();
+			break;
+		case MSG_FILE_OPERATION_REQUEST:
+            processFileOperationRequest(packet->payload);
+			break;
+		case MSG_FILE_INFO:
+			processFileInfoPayload(packet->payload, return_data);
+
+			break;
+        default	:
 			    printf("\nIn process packet.. but unknown type\n");
 			    break;
 	}
