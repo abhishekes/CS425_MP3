@@ -126,11 +126,17 @@ void processPacket(int socket, payloadBuf *packet, void * return_data) {
 			processFileRequest();
 			break;
 		case MSG_FILE_OPERATION_REQUEST:
-            processFileOperationRequest(packet->payload);
+            processFileOperationRequest(socket, packet->payload);
 			break;
 		case MSG_FILE_INFO:
 			processFileInfoPayload(packet->payload, return_data);
 
+			break;
+		case MSG_NODE_FILE_INFO_REQEST:
+			processNodeFileInfoRequest(socket, packet->payload);
+			break;
+		case MSG_CHUNK_REPLICATION:
+			processChunkReplicationPayload(socket, packet->payload);
 			break;
         default	:
 			    printf("\nIn process packet.. but unknown type\n");

@@ -79,6 +79,42 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     	free(infoPayload);
     }
     return rc;
+}
 
+RC_t processNodeFileInfoRequest(int socket, requestNodeFileInfo *payload)
+{
+     RC_t rc;
+     //Look for the entry corresponding to the IP address.
+     //Send the response
+
+
+     return rc;
 
 }
+
+RC_t processChunkReplicatePayload(int socket, chunkReplicatePayload* payload)
+{
+     RC_t rc;
+     dfs_thread_info *thread_data;
+     pthread_t thread;
+     char *IP;
+     if ( payload->flags & REPLICATE_RESPONSE) {
+         if (server_topology && server_topology->node && server_topology->node != myself) {
+             LOG(ERROR, "Received Replicate %s even though I am not the leader. Dropping the message", "Response");
+         }
+         else {
+        	 //Update the fields.
+         }
+     }else if (payload->flags & REPLICATE_INSTRUCTION) {
+         strcpy(thread_data->fileName, payload->chunkName);
+         thread_data->ip = IP; //TODO
+         pthread_create(&thread, NULL, dfs_replicate_chunk, (thread_data));
+         pthread_join(thread, NULL);
+         if (thread_data->rc != RC_SUCCESS) {
+        	 LOG(ERROR, "Could not send replicate Chunk Payload to %s ", thread_data->ip);
+         }
+
+     }
+     return rc;
+}
+

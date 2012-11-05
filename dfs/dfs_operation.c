@@ -2,6 +2,39 @@
 
 
 fileInfoPayload fileInfo ;
+//ip is the IP address of the node that has crashed.
+//This function is called by the leader
+
+RC_t dfs_replicate_files_of_crashed_node(char *ip) {
+
+	thread_data *my_data;
+	pthread_t thread;
+	RC_t rc;
+    int i = 0;
+    chunkReplicatePayload *payloadBuf = NULL;
+
+	for (int i = 0 ; i < 1; i++/*Other conditions->To be updated */) {
+
+
+		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkReplicatePayload));
+		(*my_data).payload = calloc(1, sizeof(chunkReplicatePayload));
+		payloadBuf = (nodeFileInfo *)((*my_data).payload);
+		memcpy( payloadBuf->ip, ip, 16);//TODO
+		payloadBuf->flags |= REPLICATE_INSTRUCTION;
+		my_data->payload_size = sizeof(chunkReplicatePayload);
+
+		(*my_data).msg_type = MSG_CHUNK_REPLICATION;
+
+
+		pthread_create(&thread, NULL, send_node_update_payload, (my_data));
+		pthread_join(thread, NULL);
+
+		if (my_data->status != RC_SUCCESS) {
+			LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", ip);
+		}
+	}
+	return rc;
+}
 RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName)
 {
 	FILE *inputFile = NULL;
@@ -37,7 +70,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	if (my_data->status == RC_SUCCESS) {
     //Sachin's function to do splitting of files.
 		//Call all send file wrappers
-		if (my_data == NULL) {
+		if (my_data->return_data == NULL) {
 			my_data->status = RC_NO_RESPONSE_RECEIVED;
 			return my_data->status;
 		}
@@ -76,6 +109,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     return my_data->status;
 
 }
+
 RC_t receiveFileWrapper(void *tdata) {
 	RC_t rc;
 	int i = 0;
@@ -162,4 +196,15 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock) {
 
     }
     return RC_SUCCESS;
+}
+
+RC_t dfs_replicate_chunk(void *thread_data) {
+
+	RC_t rc;
+	dfs_thread_info *info = (dfs_thread_info *)(thread_data);
+
+
+    return rc;
+
+
 }

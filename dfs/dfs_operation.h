@@ -32,5 +32,8 @@ typedef struct {
     RC_t rc;
 
 }dfs_thread_info;
- RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName);
+
+RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName);
+RC_t dfs_replicate_chunk(char *fileName, char *ip);
+
 #endif

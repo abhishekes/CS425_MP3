@@ -34,8 +34,10 @@ typedef enum {
    MSG_EXECUTE_SCRIPT,
    MSG_FILE_OPERATION_REQUEST,
    MSG_FILE_INFO,
-   NUM_OF_PAYLOADS,
-   MSG_FILE_REQUEST
+   MSG_FILE_REQUEST,
+   MSG_NODE_FILE_INFO_REQEST,
+   MSG_CHUNK_REPLICATION,
+   NUM_OF_PAYLOADS
 }messageType;
 
 typedef struct 
@@ -126,6 +128,7 @@ typedef struct
 	char fileName[256];
 
 }fileOperationRequestPayload;
+
 typedef struct
 {
 	char fileName[256];
@@ -143,6 +146,19 @@ typedef struct
 	char ip[16];
 }requestNodeFileInfo;
 
+
+typedef struct
+{
+	char chunkName[255];
+	uint8_t flags;
+    #define REPLICATE_INSTRUCTION     0x01
+    #define REPLICATE_RESPONSE        0x02
+    #define REPLICATE_SUCCESSFUL      0x04
+    #define	REPLICATE_FAILURE         0x08
+	char ip[16];
+
+}chunkReplicatePayload;
+
 typedef enum {
     RC_FAILURE = 0,
     RC_SUCCESS,
@@ -156,6 +172,7 @@ typedef enum {
     RC_FILE_INFO_SEND_FAILURE,
     RC_NO_RESPONSE_RECEIVED
 }returnCode;
+
 
 typedef returnCode RC_t;
 
