@@ -156,6 +156,7 @@ typedef struct
     #define REPLICATE_SUCCESSFUL      0x04
     #define	REPLICATE_FAILURE         0x08
 	char ip[16];
+	uint8_t numOfReplicas;
 
 }chunkReplicatePayload;
 

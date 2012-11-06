@@ -108,7 +108,8 @@ RC_t processChunkReplicatePayload(int socket, chunkReplicatePayload* payload)
      }else if (payload->flags & REPLICATE_INSTRUCTION) {
          strcpy(thread_data->fileName, payload->chunkName);
          thread_data->ip = IP; //TODO
-         pthread_create(&thread, NULL, dfs_replicate_chunk, (thread_data));
+         thread_data->numOfAddresses = payload->numOfReplicas;
+         pthread_create(&thread, NULL, receiveFileWrapper, (thread_data));
          pthread_join(thread, NULL);
          if (thread_data->rc != RC_SUCCESS) {
         	 LOG(ERROR, "Could not send replicate Chunk Payload to %s ", thread_data->ip);

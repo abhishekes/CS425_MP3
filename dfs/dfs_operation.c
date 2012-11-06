@@ -113,6 +113,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 RC_t receiveFileWrapper(void *tdata) {
 	RC_t rc;
 	int i = 0;
+
 	int sock;
 	dfs_thread_info *dfs_data = (dfs_thread_info *)(tdata);
     struct sockaddr_in nodeAddress;
@@ -198,13 +199,20 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock) {
     return RC_SUCCESS;
 }
 
-RC_t dfs_replicate_chunk(void *thread_data) {
+/*RC_t dfs_replicate_chunk(void *thread_data) {
 
 	RC_t rc;
 	dfs_thread_info *info = (dfs_thread_info *)(thread_data);
+    char *IP = info->ip;
+    void *data = NULL;
+    payloadBuf *packet;
+    struct sockaddr_in nodeAddress;
+    int sock;
 
+    if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
 
+    }
     return rc;
 
 
-}
+}*/
