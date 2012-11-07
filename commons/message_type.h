@@ -108,11 +108,13 @@ typedef struct
 typedef struct
 {
 	uint8_t flags;
-    #define FILE_INFO_UPDATE         0x01
-    #define FILE_INFO_RESPONSE       0x02
-	#define FILE_ALREADY_PRESENT     0x04
-	#define FILE_NOT_FOUND           0x08
-    #define FILE_NAME_AVAILABLE      0x10
+    #define FILE_INFO_UPDATE                  0x01
+    #define FILE_INFO_RESPONSE                0x02
+	#define FILE_ALREADY_PRESENT              0x04
+	#define FILE_NOT_FOUND                    0x08
+    #define FILE_NAME_AVAILABLE               0x10
+    #define FILE_CHUNKS_PLACED_SUCCESSFULLY   0x20
+    #define FILE_CHUNKS_COULD_NOT_BE_PLACED   0x40
 	char    fileName[256];
 	uint8_t noOfSplits;
 	uint8_t noOfReplicas;

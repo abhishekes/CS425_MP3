@@ -8,5 +8,5 @@
 #include"file_map.h"
 #include"debug.h"
 
-void processPacket(int, payloadBuf *, void *);
+void processPacket(int, payloadBuf *, void **);
 #endif
