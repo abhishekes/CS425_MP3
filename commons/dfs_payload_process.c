@@ -58,16 +58,11 @@ RC_t sendFileRequest(int socket, char *fileName) {
 
 RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payload) {
     RC_t rc = RC_FAILURE;
-    fileInfoPayload *infoPayload = (infoPayload *)calloc(1, sizeof(fileInfoPayload));
+    fileInfoPayload *infoPayload /*= (infoPayload *)calloc(1, sizeof(fileInfoPayload))*/;
     if (payload->flags & GET_FILE_REQUEST) {
     	//Look for file entry and return corresponding entry
     }else if (payload->flags & PUT_FILE_REQUEST ) {
-        //Check if a file with this name already exists
-        //infoPayload->flags |= FILE_ALREADY_PRESENT; Error Case
-
-    	infoPayload->flags |= FILE_NAME_AVAILABLE;
-    	//Also send details of the nodes on which the replicas have to be placed
-    	strcpy(infoPayload->fileName, payload->fileName);
+    	populateFileInfoPayload(infoPayload, payload->fileName);
     	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(infoPayload));
     	if (rc != RC_SUCCESS) {
     		printf("\n Failed to send file information to requesting node");

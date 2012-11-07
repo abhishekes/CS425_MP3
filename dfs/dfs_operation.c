@@ -279,3 +279,33 @@ RC_t create_file_splits(char *fileName , int numOfSplits)
 
 
 }
+
+RC_t make_master(char *prevMasterIP)
+{
+    RC_t rc;
+    rc = create_metadata_from_file();
+    if (rc != RC_SUCCESS) {
+        return rc;
+    }
+    rc = dfs_replicate_files_of_crashed_node(prevMasterIP);
+
+    return rc;
+
+}
+
+RC_t create_metadata_from_file() {
+    return RC_SUCCESS;
+}
+
+
+RC_t populateFileInfoPayload(fileInfoPayload *infoPayload, char *fileName) {
+    //Check if a file with this name already exists
+    //fileInfoPayload->flags |= FILE_ALREADY_PRESENT; Error Case
+
+	infoPayload->flags |= FILE_NAME_AVAILABLE;
+	//Also send details of the nodes on which the replicas have to be placed
+	strcpy(infoPayload->fileName, fileName);
+
+	return RC_SUCCESS;
+}
+

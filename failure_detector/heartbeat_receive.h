@@ -12,6 +12,7 @@
 #include "../commons/message_type.h"
 #include "../commons/fdetect_payload_process.h"
 #include <pthread.h>
+#include "../dfs/dfs_operation.h"
 #define HEARTBEAT_RECV_PORT 5500 //This is not decided yet
 
 void* heartbeat_receive(void* t);

@@ -75,6 +75,12 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
           if (payload->flags & DELETE_PAYLOAD) {
               printf("Node %s is being deleted from the group membership", payload->ID[0] + 4);
               remove_from_list(&server_topology, payload->ID[i]);
+              if (server_topology && server_topology->node ) {
+            	  if (server_topology->node == myself) {//Am I the leader ??
+            		  memcpy(IP, payload->ID +4 , 16);
+            		  dfs_replicate_files_of_crashed_node(IP);
+            	  }
+              }
   
           if (payload->flags & LEAVE_NOTIFICATION) {
               LOG(INFO, "Node %s is voluntarily leaving the group", payload->ID[i]);

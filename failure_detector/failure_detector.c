@@ -78,8 +78,8 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 	char *IPList, *ptr;
 	int i,j;
 	struct Node* nodePtr;
+	int masterDown = 0;
 	
-			
 	sendDeleteNodePayload(ADMISSION_CONTACT_IP, 1, nodeID, 0, reason);
 
 	numNodesToSend = server_topology->num_of_nodes - 2;

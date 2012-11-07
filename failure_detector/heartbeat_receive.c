@@ -103,7 +103,12 @@ void* heartbeat_receive(void* t) {
 		                sendDeleteNotification(NODE_FAILURE, ID, ttl);
 
 		                pthread_mutex_lock(&node_list_mutex);
-                        remove_from_list(&server_topology, ID);
+		                //Check if master went down
+		                if (server_topology && server_topology->node == myself->prev) { //Check if the leader has gone down
+		                	make_master(myself->prev->IP);
+		                }
+		                remove_from_list(&server_topology, ID);
+
 			            pthread_mutex_unlock(&node_list_mutex);
                         pthread_mutex_lock(&timestamp_mutex);
                         strcpy(savedHeartbeat[0].ipAddr, myself->prev->IP); 
