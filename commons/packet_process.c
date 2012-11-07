@@ -34,9 +34,6 @@ void processPacket(int socket, payloadBuf *packet, void * return_data) {
 		case MSG_HEARTBEAT :
                      processHeartbeatPayload(packet->payload);                     
                      break;
-		case MSG_FILE_INFO :
-			         processFileInfoPayload(packet->payload);
-			         break;
 		case MSG_ADD_DELETE_NODE:
 		        printf("\n************processPacket***************\n");
                      processNodeAddDeletePayload(packet->payload, packet->length);
@@ -122,20 +119,19 @@ void processPacket(int socket, payloadBuf *packet, void * return_data) {
 			
 		     close(socket);	
  		     break;
-		case MSG_FILE_REQUEST:
+		case MSG_FILE_REQUEST: //This is to tell Master that a client wants a file
 			processFileRequest();
 			break;
-		case MSG_FILE_OPERATION_REQUEST:
+		case MSG_FILE_OPERATION_REQUEST: //to tell the Master that a client has a file to put
             processFileOperationRequest(socket, packet->payload);
 			break;
-		case MSG_FILE_INFO:
+		case MSG_FILE_INFO: //This is where the Master decides where does a particular chunk-replica needs to go
 			processFileInfoPayload(packet->payload, return_data);
-
 			break;
-		case MSG_NODE_FILE_INFO_REQEST:
+		case MSG_NODE_FILE_INFO_REQEST: //Does nothing for now.
 			processNodeFileInfoRequest(socket, packet->payload);
 			break;
-		case MSG_CHUNK_REPLICATION:
+		case MSG_CHUNK_REPLICATION: //This is to tell failed node's neighbor to replicate content
 			processChunkReplicationPayload(socket, packet->payload);
 			break;
         default	:
