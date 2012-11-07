@@ -272,6 +272,9 @@ RC_t create_file_splits(char *fileName , int numOfSplits)
     	 numOfBytes++;
     	 fputc(ch, fp1);
      }
+     if (fp1 != NULL) {
+    	 fclose(fp1);
+     }
      return RC_SUCCESS;
 
 
