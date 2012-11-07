@@ -10,6 +10,7 @@
 typedef struct {
 	unsigned chunkNumber;
 	char IP[3][16];
+	ChunkInfo *next;
 }ChunkInfo;
 
 typedef struct {
