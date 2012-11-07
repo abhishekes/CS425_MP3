@@ -66,16 +66,44 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
         pthread_join(thread, NULL);
+
+        if (my_data->status == RC_SUCCESS) {
+        	//Sachin's function to do splitting of files.
+        	//Call all send file wrappers
+        	if (my_data->return_data == NULL) {
+        		my_data->status = RC_NO_RESPONSE_RECEIVED;
+        		return my_data->status;
+        	}else {
+        	    //Transfer all parts to destinations
+        		//Send finalize entry to master
+        	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
+                (*my_data).payload = calloc(1, sizeof(fileInfoPayload));
+                payloadBuf = (fileInfoPayload *)((*my_data).payload);
+                payloadBuf->fileSize = sizeof(fileInfoPayload);
+                strcpy(payloadBuf->fileName, destinationFileName);
+                memcpy((*my_data).ip, server_topology->node->IP, 16);
+
+                (*my_data).payload_size = sizeof(fileInfoPayload);
+                (*my_data).msg_type = MSG_FILE_INFO;
+                (*my_data).flags &= ~WAIT_FOR_RESPONSE;
+
+                memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
+                pthread_create(&thread, NULL, send_node_update_payload, (my_data));
+                pthread_join(thread, NULL);
+                if (my_data->status != RC_SUCCESS) {
+                    LOG(ERROR, "Failed to send finalize file metadata message to leader IP %s ", server_topology->node->IP);
+                }
+
+        	}
+
+        }else {
+        	LOG(ERROR,"Failed to get file information from %s", server_topology->node->IP);
+        	printf("Failed to get file information from %s", server_topology->node->IP);
+        }
+
     }
-	if (my_data->status == RC_SUCCESS) {
-    //Sachin's function to do splitting of files.
-		//Call all send file wrappers
-		if (my_data->return_data == NULL) {
-			my_data->status = RC_NO_RESPONSE_RECEIVED;
-			return my_data->status;
-		}
-	}
-    return my_data->status;
+
+	return my_data->status;
 
 }
 
@@ -99,11 +127,15 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
         pthread_join(thread, NULL);
     }
 	if (my_data->status == RC_SUCCESS) {
-        //Sachin's function to do splitting of files.
+
 		//Check if you got the reply
 		if (my_data->return_data != NULL) {
         //Loop through all splits, creating an entry for each
 			//receiveFileWrapper();
+			create_file_splits(((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
+
+
+			//Merge the files
 		}
 	}
     return my_data->status;
@@ -216,3 +248,31 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock) {
 
 
 }*/
+
+RC_t create_file_splits(char *fileName , int numOfSplits)
+{
+     RC_t rc;
+     FILE *fp = fopen(fileName, "r");
+     FILE *fp1;
+     char chunkName[500];
+     char ch ;
+     int i =0;
+     long numOfBytes = 0;
+     while(!FEOF(fp)) {
+         if (numOfBytes == CHUNK_SIZE_IN_MB * 1024 * 1024) {
+             if (fp1 != NULL) {
+                 fclose(fp1);
+                 sprintf(chunkName, "%s.%d", fileName, i );
+                 fp1 = fopen(chunkName, "w");
+                 i ++;
+                 numOfBytes = 0;
+             }
+         }
+    	 ch = fgetc(fp);
+    	 numOfBytes++;
+    	 fputc(ch, fp1);
+     }
+     return RC_SUCCESS;
+
+
+}

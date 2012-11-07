@@ -7,9 +7,10 @@
 #include <stddef.h>
 
 
-#define IP_ADDR_LENGTH  16
-#define NUM_OF_SPLITS   4
-#define NUM_OF_REPLICAS 2
+#define IP_ADDR_LENGTH    16
+#define NUM_OF_SPLITS      4
+#define NUM_OF_REPLICAS    2
+#define CHUNK_SIZE_IN_MB  64
 
 typedef struct {
 	char fileName[255];
@@ -35,5 +36,6 @@ typedef struct {
 
 RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName);
 RC_t dfs_replicate_chunk(char *fileName, char *ip);
+RC_t create_file_splits(char *fileName , int numOfSplits);
 
 #endif

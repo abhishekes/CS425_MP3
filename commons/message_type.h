@@ -30,13 +30,13 @@ typedef enum {
    MSG_HEARTBEAT = 0,
    MSG_ADD_DELETE_NODE,
    MSG_TOPOLOGY_REQUEST,
-   MSG_FILE_TRANSFER,
-   MSG_EXECUTE_SCRIPT,
    MSG_FILE_OPERATION_REQUEST,
    MSG_FILE_INFO,
    MSG_FILE_REQUEST,
    MSG_NODE_FILE_INFO_REQEST,
    MSG_CHUNK_REPLICATION,
+   MSG_FILE_TRANSFER,
+   MSG_EXECUTE_SCRIPT,
    NUM_OF_PAYLOADS
 }messageType;
 
@@ -124,7 +124,7 @@ typedef struct
 	uint8_t flags;
 	#define PUT_FILE_REQUEST  0x01
 	#define GET_FILE_REQUEST  0x02
-    uint16_t fileSize;
+    uint32_t fileSize;
 	char fileName[256];
 
 }fileOperationRequestPayload;

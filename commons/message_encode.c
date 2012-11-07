@@ -23,7 +23,11 @@ int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] =
       {marshal_field_info(topologyRequestPayload, timestamp)
       /*(int)(&(((addNodeRequest*)0)->timestamp)), sizeof(((addNodeRequest*)0)->timestamp) */},
       {0,0} 
-  }/* ADD NODE REQUEST*/
+  },/* MSG_TOPOLOGY_REQUEST*/
+  {
+		  {marshal_field_info(fileOperationRequestPayload, fileSize)},
+		  {0,0}
+  }/* MSG_FILE_OPERATION_REQUEST*/
 };
 
 

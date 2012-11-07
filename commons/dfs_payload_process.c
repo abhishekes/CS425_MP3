@@ -63,7 +63,8 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     	//Look for file entry and return corresponding entry
     }else if (payload->flags & PUT_FILE_REQUEST ) {
         //Check if a file with this name already exists
-    	//If not, send a go ahead to the calling node
+        //infoPayload->flags |= FILE_ALREADY_PRESENT; Error Case
+
     	infoPayload->flags |= FILE_NAME_AVAILABLE;
     	//Also send details of the nodes on which the replicas have to be placed
     	strcpy(infoPayload->fileName, payload->fileName);
@@ -92,7 +93,7 @@ RC_t processNodeFileInfoRequest(int socket, requestNodeFileInfo *payload)
 
 }
 
-RC_t processChunkReplicatePayload(int socket, chunkReplicatePayload* payload)
+RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload* payload)
 {
      RC_t rc;
      dfs_thread_info *thread_data;
