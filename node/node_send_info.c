@@ -61,7 +61,7 @@ void send_node_update_payload(void *tdata)
         if (my_data->flags & WAIT_FOR_RESPONSE) {
         rc = message_decode(sock, &packet);
             if (rc == RC_SUCCESS) {
-                processPacket(socket, packet, data);
+                processPacket(socket, packet, &data);
             }
         }
         close(sock);

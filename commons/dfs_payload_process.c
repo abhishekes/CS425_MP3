@@ -5,8 +5,9 @@
 extern struct Head_Node *server_topology;
 extern struct Node *myself;
 
-RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void *return_data) {
+RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data) {
     RC_t rc;
+    int size;
 	if (infoPayload->flags & FILE_INFO_UPDATE) {
     	 if (server_topology && server_topology->node) {
     		 if (myself) {
@@ -14,15 +15,18 @@ RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void *return_data) {
     				 printf("Received file information even when node is not master");
     				 LOG(DEBUG, "Received file information for the file %s even when though I am not the master ", infoPayload->fileName);
     			 }else {
-                  //Add information to database
+                     //Add information to database
+    				 processFileInfoUpdatePayload(infoPayload);
     			 }
     		 }
     	 }
      }else if (infoPayload->flags & FILE_INFO_RESPONSE) {
      //Allocate memory and return the response
     	 LOG(DEBUG, "Received file information from master for file %s", infoPayload->fileName);
-         //return_data = malloc()
-    	 rc = RC_SUCCESS;
+         size = sizeof(fileInfoPayload) + infoPayload->noOfSplits * 3 *16;
+         *return_data = (fileInfoPayload*)calloc(1, size); //Allocate memory for all the entries
+    	 memcpy(*return_data, infoPayload, size);
+         rc = RC_SUCCESS;
      }
      return rc;
 }

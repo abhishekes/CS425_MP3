@@ -157,7 +157,7 @@ RC_t receiveFileWrapper(void *tdata) {
         if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
             if (sendFileInfoRequest(sock, fileName) == RC_SUCCESS) {
                 while ((rc = message_decode(sock, &packet)) == RC_SUCCESS) {
-                        processPacket(socket, packet, data);
+                        processPacket(socket, packet, &data);
 
                 }
                 if (data) {
@@ -297,7 +297,6 @@ RC_t create_metadata_from_file() {
     return RC_SUCCESS;
 }
 
-
 //This is to send reply to the client with the list of IPs where it can put the file into
 RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName) {
     //Check if a file with this name already exists
@@ -309,3 +308,16 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName) {
 
 	return RC_SUCCESS;
 }
+
+//Some node has sent this payload to us to update a file entry, maybe to update the entry, or, delete it
+RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
+    RC_t rc;
+    int found = 0;
+        if (infoPayload->flags & FILE_CHUNKS_PLACED_SUCCESSFULLY) {
+            //Chunks placed successfully. Mark entry as valid
+
+        }
+    return rc;
+
+}
+
