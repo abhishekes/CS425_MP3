@@ -266,16 +266,26 @@ RC_t receiveFileWrapper(void *tdata) {
     char (*IP)[16] = dfs_data->ip;
     void *data = NULL;
     payloadBuf *packet;
-
+    FILE *fp;
+    LOG(DEBUG, "Trying to fetch file  %s", dfs_data->destFileName);
+    if ((fp =fopen(dfs_data->destFileName, "r")) != NULL) {
+    	fclose(fp);
+    	LOG(DEBUG, "File %s present locally. Hence, not fetching from distributed file system", dfs_data->destFileName);
+    	dfs_data->rc = RC_SUCCESS;//File present locally , return
+        return RC_SUCCESS;
+    }
     for ( i = 0; i < dfs_data->numOfAddresses ; i++, IP++) {
-        if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
-            if (sendFileInfoRequest(sock, fileName) == RC_SUCCESS) {
+    	LOG(DEBUG, "Trying to fetch file  %s from %s", dfs_data->destFileName, IP);
+    	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
+
+        	if (sendFileInfoRequest(sock, dfs_data->destFileName) == RC_SUCCESS) {
                 while ((rc = message_decode(sock, &packet)) == RC_SUCCESS) {
                         processPacket(socket, packet, &data);
 
                 }
                 if (data) {
                 	if (*((RC_t *)data) == RC_SUCCESS ) {
+                		LOG(DEBUG, "Fetched file  %s from %s successfully", dfs_data->destFileName, IP);
                 		break;
                 	}
                 }
@@ -309,7 +319,10 @@ RC_t sendFileWrapper(void *tdata ) {
 	    return RC_FILE_NOT_FOUND;
 	}
     for ( i = 0; i < dfs_data->numOfAddresses ; i++, IP++) {
-        if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
+        if (!strcmp(dfs_data->ip[i], myself->IP)) {
+        	continue; //File already present on local IP
+        }
+    	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
             printf("\nTrying to send file %s to %s\n", dfs_data->fileName, IP);
         	if (sendFile(sock, dfs_data->fileName, dfs_data->destFileName) == RC_SUCCESS) {
         		printf("\nSent file %s to %s successfully\n", dfs_data->fileName, IP);

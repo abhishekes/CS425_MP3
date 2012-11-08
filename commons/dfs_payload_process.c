@@ -106,7 +106,7 @@ RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload* payload)
         	 //Update the fields.
          }
      }else if (payload->flags & REPLICATE_INSTRUCTION) {
-         strcpy(thread_data->fileName, payload->chunkName);
+         strcpy(thread_data->destFileName, payload->chunkName);
          thread_data->ip = IP; //TODO
          thread_data->numOfAddresses = payload->numOfReplicas;
          pthread_create(&thread, NULL, receiveFileWrapper, (thread_data));
