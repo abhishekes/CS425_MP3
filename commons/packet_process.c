@@ -39,46 +39,51 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      processNodeAddDeletePayload(packet->payload, packet->length);
                      topology_version++;
                      break;
-                case MSG_TOPOLOGY_REQUEST:
+		case MSG_TOPOLOGY_REQUEST:
                      processTopologyRequest(socket, packet->payload);
                      break;
-                case MSG_FILE_TRANSFER :
+		case MSG_FILE_TRANSFER :
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
                      DEBUG(("Status flag before = %0x\n", ftpBuf->statusFlag));
                      statusFlag = ntohs(ftpBuf->statusFlag);
 	   
-		     if((statusFlag & FTP_START)) {
-		    	    DEBUG(("\nFilename : %s\n", ftpBuf->fileName));
-			    sprintf(command, "rm -rf %s", ftpBuf->fileName);                      //Delete old entries 
-                            system(command);
-			    ptr = add_entry(ftpBuf->fileName);
-			    if (ptr == NULL) {
-			         DEBUG(("\nprocessPacket : Add Entry failed\n"));	
-			    }
-		     }
-		     else { //This has to be done for both continue and FTP_STOP
-			    ptr = get_entry(ftpBuf->fileName);
-			    if(ptr == NULL) {
-			     	 DEBUG(("\nprocessPacket : Get Entry Failed\n"));
-			  }
-		     }
+                     if((statusFlag & FTP_START)) {
+                    	 DEBUG(("\nFilename : %s\n", ftpBuf->fileName));
+                    	 sprintf(command, "rm -rf %s", ftpBuf->fileName);                      //Delete old entries
+                    	 system(command);
+                    	 ptr = add_entry(ftpBuf->fileName);
+                    	 if (ptr == NULL) {
+                    		 DEBUG(("\nprocessPacket : Add Entry failed\n"));
+                    	 }
+                     }
+                     else { //This has to be done for both continue and FTP_STOP
+                    	 ptr = get_entry(ftpBuf->fileName);
+                    	 if(ptr == NULL) {
+                    		 DEBUG(("\nprocessPacket : Get Entry Failed\n"));
+                    	 }
+                     }
 		
-		     buf = (char*)(ftpBuf->filePayload);
+                     buf = (char*)(ftpBuf->filePayload);
                      bytesToWrite =  packetLength - sizeof(packetLength) - sizeof(packetType) - sizeof(fileTransferPayload);
-		     while(bytesToWrite != 0) {
-		   	    bytesWritten = write(ptr->fd, buf, bytesToWrite);
-			    bytesToWrite -= bytesWritten;
-                            buf += bytesWritten;
-		     }
+                     while(bytesToWrite != 0) {
+                    	 bytesWritten = write(ptr->fd, buf, bytesToWrite);
+                    	 bytesToWrite -= bytesWritten;
+                    	 buf += bytesWritten;
+                     }
 		
-		     if (statusFlag & FTP_STOP) {
-		   	close(ptr->fd);
-			sprintf(command, "chmod 777 %s", ftpBuf->fileName);
-			result = system(command);
-			result = delete_entry(ptr->fd);
-			if (result == -1)
-				DEBUG(("\nprocessPacket : Delete entry failed\n"));
-		     }
+                     if (statusFlag & FTP_STOP) {
+                    	 close(ptr->fd);
+                    	 sprintf(command, "chmod 777 %s", ftpBuf->fileName);
+                    	 result = system(command);
+                    	 result = delete_entry(ptr->fd);
+                    	 if (result == -1)
+                    		 DEBUG(("\nprocessPacket : Delete entry failed\n"));
+
+                         return_data = (RC_t *)malloc(sizeof(RC_t));
+                         LOG(DEBUG, "Received file %s", ftpBuf->fileName);
+                         *((RC_t *)return_data) = RC_SUCCESS;
+                    	 fclose(socket); //Close connectio since last chunk is received
+                     }
 			
 		break;
 			

@@ -209,7 +209,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     		//create_file_splits(((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
     		fileInfo = (fileInfoPayload *)my_data->return_data;
     		*file_thread = calloc(1, sizeof(dfs_thread_info *) * fileInfo->noOfSplits);
-    		threads = calloc(1, sizeof(pthread_t *) * fileInfo->noOfSplits);
+    		threads = calloc(1, sizeof(pthread_t) * fileInfo->noOfSplits);
     		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
     			file_thread[i] = calloc(1, sizeof(dfs_thread_info));
     			//threads[i] = calloc(1, sizeof(pthread_t));
@@ -285,6 +285,9 @@ RC_t receiveFileWrapper(void *tdata) {
 	    dfs_data->rc = RC_SUCCESS;
          }else {
         dfs_data->rc = rc;
+    }
+    if (data) {
+        free(data);
     }
     return rc;
 }
