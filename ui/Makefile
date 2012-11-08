@@ -6,8 +6,8 @@ all :  ui
 debug : CC += -DDEBUG_ENABLE -g
 debug : ui
 
-ui : file_map.o fdetect_payload_process.o message_decode.o message_encode.o packet_process.o failure_detector.o list.o log.o node_send_info.o heartbeat_send.o heartbeat_receive.o get_topology.o send_file.o topology_update.o
-	$(CC) ui.c -o ui ../commons/fdetect_payload_process.o ../commons/message_decode.o ../commons/message_encode.o ../commons/packet_process.o -pthread  ../commons/list.o ../logging/log.o ../node/node_send_info.o ../failure_detector/heartbeat_send.o ../failure_detector/heartbeat_receive.o ../failure_detector/get_topology.o ../commons/send_file.o ../failure_detector/failure_detector.o ../failure_detector/topology_update.o ../commons/file_map.o
+ui : file_map.o fdetect_payload_process.o message_decode.o message_encode.o packet_process.o failure_detector.o list.o log.o node_send_info.o heartbeat_send.o heartbeat_receive.o get_topology.o send_file.o topology_update.o dfs_payload_process.o dfs_operation.o file_metadata.o
+	$(CC) ui.c -o ui ../commons/fdetect_payload_process.o ../commons/message_decode.o ../commons/message_encode.o ../commons/packet_process.o -pthread  ../commons/list.o ../logging/log.o ../node/node_send_info.o ../failure_detector/heartbeat_send.o ../failure_detector/heartbeat_receive.o ../failure_detector/get_topology.o ../commons/send_file.o ../failure_detector/failure_detector.o ../failure_detector/topology_update.o ../commons/file_map.o ../dfs/dfs_operation.o ../commons/dfs_payload_process.o ../commons/file_metadata.o
 
 fdetect_payload_process.o : ../commons/fdetect_payload_process.c
 	$(CC) -c ../commons/fdetect_payload_process.c -o ../commons/fdetect_payload_process.o
@@ -50,7 +50,17 @@ file_map.o : ../commons/file_map.c
 
 topology_update.o : ../failure_detector/topology_update.c
 	$(CC) -c ../failure_detector/topology_update.c -o ../failure_detector/topology_update.o
+
+dfs_payload_process.o : ../commons/dfs_payload_process.c
+	$(CC) -c ../commons/dfs_payload_process.c -o ../commons/dfs_payload_process.o
+
+dfs_operation.o : ../dfs/dfs_operation.c
+	$(CC) -c ../dfs/dfs_operation.c -o ../dfs/dfs_operation.o
+
+file_metadata.o : ../commons/file_metadata.c
+	$(CC) -c ../commons/file_metadata.c -o ../commons/file_metadata.o
+
 clean: 
-	rm -rf core ../commons/*.o ui ../failure_detector/*.o ../logging/*.o ../node/*.o
+	rm -rf core ../commons/*.o ui ../failure_detector/*.o ../logging/*.o ../node/*.o ../dfs/*.o
 
 
