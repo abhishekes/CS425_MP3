@@ -314,6 +314,11 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     int found = 0;
         if (infoPayload->flags & FILE_CHUNKS_PLACED_SUCCESSFULLY) {
             //Chunks placed successfully. Mark entry as valid
+        	while () {
+        		if (!memcmp(infoPayload->fileName, /**/, 16)) { //Etry foundn
+
+        		}
+        	}
 
         }
     return rc;
