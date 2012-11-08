@@ -3,6 +3,8 @@
 #include "../commons/message_type.h"
 #include "../commons/list.h"
 #include "../dfs/dfs_operation.h"
+#include "../commons/file_metadata.h"
+
 RC_t processFileInfoPayload(fileInfoPayload* file_info);
 RC_t processNodeFileInfoRequest(int socket, requestNodeFileInfo *payload);
 RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload *payload);

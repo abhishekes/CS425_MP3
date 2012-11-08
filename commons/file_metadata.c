@@ -5,8 +5,8 @@
 #define FileListType 0x03
 #define ChunkInfoType 0x04
 
-FileMetadata *gFileMetaData; //This is the global File Metadata Pointer
-IPtoFileInfo *gIPToFileInfo; //This is the global IP to File info Pointer
+FileMetadata *gFileMetaData = NULL; //This is the global File Metadata Pointer
+IPtoFileInfo *gIPToFileInfo = NULL; //This is the global IP to File info Pointer
 
 void* init_list_node(int type) {
 	FileMetadata *temp1 = NULL;

@@ -126,6 +126,7 @@ typedef struct
 	uint8_t flags;
 	#define PUT_FILE_REQUEST  0x01
 	#define GET_FILE_REQUEST  0x02
+	#define DEL_FILE_REQUEST  0x04
     uint32_t fileSize;
 	char fileName[256];
 
@@ -173,6 +174,7 @@ typedef enum {
     RC_INPUT_FILE_NOT_FOUND,
     RC_INVALID_INPUT,
     RC_FILE_INFO_SEND_FAILURE,
+    RC_FILE_REPLICA_PLACEMENT_FAILURE,
     RC_NO_RESPONSE_RECEIVED
 }returnCode;
 

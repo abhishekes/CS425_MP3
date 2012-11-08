@@ -2,6 +2,8 @@
 
 
 fileInfoPayload fileInfo ;
+extern FileMetadata *gFileMetaData;
+extern IPtoFileInfo *gIPToFileInfo;
 //ip is the IP address of the node that has crashed.
 //This function is called by the leader
 
@@ -42,7 +44,12 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	thread_data *my_data;
 	pthread_t thread;
 	fileOperationRequestPayload *payloadBuf = NULL;
+	fileInfoPayload *fileInfo = NULL;
+
+	dfs_thread_info **file_thread;
+	pthread_t       **threads;
 	int size = 0;
+	int i = 0;
 	if (!inputFile) {
 		     printf("\nCould not find source file");
 	    	 return RC_INPUT_FILE_NOT_FOUND;
@@ -72,22 +79,70 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         	//Call all send file wrappers
         	if (my_data->return_data == NULL) {
         		my_data->status = RC_NO_RESPONSE_RECEIVED;
+        		free(thread);
+        		free(my_data);
         		return my_data->status;
+        	}else if(!(((fileInfoPayload *)((my_data)->return_data))->flags & FILE_NAME_AVAILABLE)) {
+        		LOG(DEBUG,"Could not get valid replication details from master. Flags : %0x ", ((fileInfoPayload *)((my_data)->return_data))->flags);
+                if (((fileInfoPayload *)((my_data)->return_data))->flags & FILE_ALREADY_PRESENT) {
+                	printf("Operation failed. File name already exists");
+                }
+                free(thread);
+                free(my_data);
+                return RC_FAILURE;
         	}else {
         	    //Transfer all parts to destinations
+        		create_file_splits(((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
+        		fileInfo = (fileInfoPayload *)my_data->return_data;
+        		*file_thread = calloc(1, sizeof(dfs_thread_info *) * fileInfo->noOfSplits);
+        		*threads = calloc(1, sizeof(pthread_t *) * fileInfo->noOfSplits);
+        		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
+        			file_thread[i] = calloc(1, sizeof(dfs_thread_info));
+        			threads[i] = calloc(1, sizeof(pthread_t));
+                    sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
+        			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
+        			memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);
+        			pthread_create(&threads[i], NULL, sendFileWrapper, file_thread[i]);
+
+        		}
+        		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
+        			pthread_join(threads[i], NULL);
+        		}
+        		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
+        			if (file_thread[i]->rc != RC_SUCCESS) {
+        				LOG(DEBUG,"Could not place replicas for file split %d", i+1);
+
+        				break;
+        			}
+        		}
+    			if (i != fileInfo->noOfSplits) {
+    				printf("Failed to Transfer splits to destination");
+    				for (i = 0; i <  fileInfo->noOfSplits; i++) {
+    					free(file_thread[i]);
+    					free(threads[i]);
+    				}
+    				free(my_data);
+    				free(file_thread);
+    				free(threads);
+    				free(fileInfo);
+
+                    return RC_FILE_REPLICA_PLACEMENT_FAILURE;
+
+    			}
         		//Send finalize entry to master
         	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
                 (*my_data).payload = calloc(1, sizeof(fileInfoPayload));
                 payloadBuf = (fileInfoPayload *)((*my_data).payload);
                 payloadBuf->fileSize = sizeof(fileInfoPayload);
+                payloadBuf->flags |= FILE_CHUNKS_PLACED_SUCCESSFULLY;
                 strcpy(payloadBuf->fileName, destinationFileName);
                 memcpy((*my_data).ip, server_topology->node->IP, 16);
 
                 (*my_data).payload_size = sizeof(fileInfoPayload);
                 (*my_data).msg_type = MSG_FILE_INFO;
-                (*my_data).flags &= ~WAIT_FOR_RESPONSE;
 
-                memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
+
+                memcpy((*my_data).payload, payloadBuf, sizeof(fileInfoPayload));
                 pthread_create(&thread, NULL, send_node_update_payload, (my_data));
                 pthread_join(thread, NULL);
                 if (my_data->status != RC_SUCCESS) {
@@ -102,7 +157,14 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         }
 
     }
-
+	for (i = 0; i <  fileInfo->noOfSplits; i++) {
+		free(file_thread[i]);
+		free(threads[i]);
+	}
+	free(my_data);
+	free(file_thread);
+	free(threads);
+	free(fileInfo);
 	return my_data->status;
 
 }
@@ -132,7 +194,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 		if (my_data->return_data != NULL) {
         //Loop through all splits, creating an entry for each
 			//receiveFileWrapper();
-			create_file_splits(((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
+
 
 
 			//Merge the files
@@ -313,15 +375,32 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName) {
 RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     RC_t rc;
     int found = 0;
-        if (infoPayload->flags & FILE_CHUNKS_PLACED_SUCCESSFULLY) {
-            //Chunks placed successfully. Mark entry as valid
-        	while () {
-        		if (!memcmp(infoPayload->fileName, /**/, 16)) { //Etry foundn
+    int i = 0;
+    extern FileMetadata *tmp = gFileMetaData;
 
-        		}
-        	}
 
-        }
+    while (tmp != NULL) {
+    	if (!strcmp(infoPayload->fileName, tmp->fileName)) { //Entry found
+    		found = 1;
+
+    		if (infoPayload->flags & FILE_CHUNKS_PLACED_SUCCESSFULLY) {
+    			//Chunks placed successfully. Mark entry as valid
+
+    				infoPayload->flags |= ENTRY_VALID;
+    				LOG(DEBUG,"Marking entry for %s as active", infoPayload->fileName);
+
+    			}else {
+    				infoPayload->flags &= ~ENTRY_VALID;
+    				LOG(DEBUG,"Marking entry for %s as active", infoPayload->fileName);
+    			}
+    	}
+    	tmp = tmp->next;
+
+
+    }
+    if (!found) {
+    	LOG(DEBUG,"Received file info update payload for %s which was not found", infoPayload->fileName);
+    }
     return rc;
 
 }

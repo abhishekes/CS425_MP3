@@ -13,7 +13,7 @@ void send_node_update_payload(void *tdata)
         int retryCount = -1;
         int size = my_data->payload_size;
         int msg_type = my_data->msg_type;
-        void *data = NULL;
+        fileInfoPayload *data = NULL;
         payloadBuf *packet;
         printf("\nMessage Type = %0x*****************************\n", msg_type);
         printf("\nSize = %0d\n***********************************", size);

@@ -23,9 +23,10 @@ RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data) {
      }else if (infoPayload->flags & FILE_INFO_RESPONSE) {
      //Allocate memory and return the response
     	 LOG(DEBUG, "Received file information from master for file %s", infoPayload->fileName);
-         size = sizeof(fileInfoPayload) + infoPayload->noOfSplits * 3 *16;
+         size = sizeof(fileInfoPayload) + infoPayload->noOfSplits * 3 * 16;
          *return_data = (fileInfoPayload*)calloc(1, size); //Allocate memory for all the entries
-    	 memcpy(*return_data, infoPayload, size);
+         addFileMetaInfo(infoPayload->fileName, 0, infoPayload->flags, infoPayload->noOfSplits);
+         memcpy(*return_data, infoPayload, size);
          rc = RC_SUCCESS;
      }
      return rc;
