@@ -5,11 +5,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../logging/log.h"
+#include "../commons/file_metadata.h"
 
 
 #define IP_ADDR_LENGTH    16
 #define NUM_OF_SPLITS      4
-#define NUM_OF_REPLICAS    2
 #define CHUNK_SIZE_IN_MB  64
 
 typedef struct {
@@ -38,6 +39,10 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 RC_t dfs_replicate_chunk(char *fileName, char *ip);
 RC_t create_file_splits(char *fileName , int numOfSplits);
 RC_t make_master(char *prevMasterIP);
-RC_t populateFileInfoPayload(fileInfoPayload *payload, char *fileName);
-
+RC_t populateFileInfoPayload(fileInfoPayload **payload, char *fileName);
+RC_t merge_file_splits(char *fileName , char *localFileName, int numOfSplits);
+RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock);
+RC_t receiveFileWrapper(void *tdata);
+RC_t sendFileWrapper(void *tdata);
+RC_t create_metadata_from_file(void);
 #endif

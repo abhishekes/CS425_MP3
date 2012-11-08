@@ -17,6 +17,6 @@ typedef struct {
 
 }thread_data; 
 
-void *send_node_update_payload(void *tdata);
+void send_node_update_payload(void *tdata);
 extern pthread_mutex_t timestamp_mutex;
 #endif

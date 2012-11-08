@@ -6,6 +6,7 @@
 #include<stdlib.h>
 #include"message_type.h"
 #include"file_map.h"
+#include "../commons/dfs_payload_process.h"
 #include"debug.h"
 
 void processPacket(int, payloadBuf *, void **);

@@ -7,31 +7,39 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct {
+#include "message_type.h"
+struct ChunkInfoStruct;
+struct FileMetadataStruct;
+struct IPtoFileInfoStruct;
+struct FileListStruct;
+struct ChunkInfoStruct{
 	unsigned chunkNumber;
 	char IP[3][16];
-	ChunkInfo *next;
-}ChunkInfo;
-
-typedef struct {
+	struct ChunkInfoStruct *next;
+};
+typedef struct ChunkInfoStruct ChunkInfo;
+struct FileMetadataStruct{
 	char fileName[NAMEMAX];
-	uint64_t size;
-	uint64_t numberOfChunks;
-	uint64_t flags;
-	ChunkInfo *chunkInfo;
-	struct FileMetadata *next;
-}FileMetadata;
+	uint32_t size;
+	uint32_t numberOfChunks;
+	uint32_t flags;
+	struct ChunkInfoStruct *chunkInfo;
+	struct FileMetadataStruct *next;
+};
+typedef struct  FileMetadataStruct FileMetadata;
 
-typedef struct {
+struct FileListStruct{
 	FileMetadata *fileMetaPtr;
-	struct FileList *next;
-}FileList;
+	struct FileListStruct *next;
+};
+typedef struct FileListStruct FileList;
 
-typedef struct {
+struct IPtoFileInfoStruct{
 	char IP[16];
-	uint64_t numberOfFiles;
+	uint32_t numberOfFiles;
 	FileList *metadataPtr;
-	struct IPtoFileInfo *next;
-}IPtoFileInfo;
+	struct IPtoFileInfoStruct *next;
+};
 
+typedef struct IPtoFileInfoStruct IPtoFileInfo;
 #endif //__FILE_METADATA__

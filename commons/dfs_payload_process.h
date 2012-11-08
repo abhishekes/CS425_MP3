@@ -4,8 +4,10 @@
 #include "../commons/list.h"
 #include "../dfs/dfs_operation.h"
 #include "../commons/file_metadata.h"
+#include "../logging/log.h"
 
-RC_t processFileInfoPayload(fileInfoPayload* file_info);
+
+
 RC_t processNodeFileInfoRequest(int socket, requestNodeFileInfo *payload);
 RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload *payload);
 RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data);

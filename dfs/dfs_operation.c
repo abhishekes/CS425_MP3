@@ -4,6 +4,9 @@
 fileInfoPayload fileInfo ;
 extern FileMetadata *gFileMetaData;
 extern IPtoFileInfo *gIPToFileInfo;
+
+extern char myIP[16];
+extern struct Head_Node *server_topology;
 //ip is the IP address of the node that has crashed.
 //This function is called by the leader
 
@@ -15,7 +18,7 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
     int i = 0;
     chunkReplicatePayload *payloadBuf = NULL;
 
-	for (int i = 0 ; i < 1; i++/*Other conditions->To be updated */) {
+	for (i = 0 ; i < 1; i++/*Other conditions->To be updated */) {
 
 
 		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkReplicatePayload));
@@ -47,7 +50,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	fileInfoPayload *fileInfo = NULL;
 
 	dfs_thread_info **file_thread;
-	pthread_t       **threads;
+	pthread_t       *threads;
 	int size = 0;
 	int i = 0;
 	if (!inputFile) {
@@ -70,7 +73,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
         (*my_data).flags = WAIT_FOR_RESPONSE;
 
-        memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
+        //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
         pthread_join(thread, NULL);
 
@@ -79,7 +82,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         	//Call all send file wrappers
         	if (my_data->return_data == NULL) {
         		my_data->status = RC_NO_RESPONSE_RECEIVED;
-        		free(thread);
+        		//free(thread);
         		free(my_data);
         		return my_data->status;
         	}else if(!(((fileInfoPayload *)((my_data)->return_data))->flags & FILE_NAME_AVAILABLE)) {
@@ -87,7 +90,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
                 if (((fileInfoPayload *)((my_data)->return_data))->flags & FILE_ALREADY_PRESENT) {
                 	printf("Operation failed. File name already exists");
                 }
-                free(thread);
+                //free(thread);
                 free(my_data);
                 return RC_FAILURE;
         	}else {
@@ -95,10 +98,10 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         		create_file_splits(((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
         		fileInfo = (fileInfoPayload *)my_data->return_data;
         		*file_thread = calloc(1, sizeof(dfs_thread_info *) * fileInfo->noOfSplits);
-        		*threads = calloc(1, sizeof(pthread_t *) * fileInfo->noOfSplits);
+        		threads = calloc(1, sizeof(pthread_t ) * fileInfo->noOfSplits);
         		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
         			file_thread[i] = calloc(1, sizeof(dfs_thread_info));
-        			threads[i] = calloc(1, sizeof(pthread_t));
+        			//threads[i] = calloc(1, sizeof(pthread_t));
                     sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
         			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
         			memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);
@@ -119,7 +122,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
     				printf("Failed to Transfer splits to destination");
     				for (i = 0; i <  fileInfo->noOfSplits; i++) {
     					free(file_thread[i]);
-    					free(threads[i]);
+    					//free(threads[i]);
     				}
     				free(my_data);
     				free(file_thread);
@@ -159,7 +162,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
     }
 	for (i = 0; i <  fileInfo->noOfSplits; i++) {
 		free(file_thread[i]);
-		free(threads[i]);
+		//free(threads[i]);
 	}
 	free(my_data);
 	free(file_thread);
@@ -174,17 +177,25 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 	FILE *inputFile = NULL;
 	thread_data *my_data;
 	pthread_t thread;
+	fileOperationRequestPayload *payloadBuf;
+	fileInfoPayload *fileInfo;
+	pthread_t *threads;
+	dfs_thread_info **file_thread;
+	int i;
 
     if (server_topology && server_topology->node ) {
-	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
-        (*my_data).payload = calloc(1, sizeof(fileInfoPayload));
+	my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
+        (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
 
         memcpy((*my_data).ip, server_topology->node->IP, 16);
 
         (*my_data).payload_size = sizeof(fileInfo);
-        (*my_data).msg_type = MSG_FILE_INFO;
+        (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
         (*my_data).flags = WAIT_FOR_RESPONSE;
-        memcpy((*my_data).payload, payloadBuf, sizeof(fileInfoPayload));
+        payloadBuf = my_data->payload;
+        //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
+        strcpy(payloadBuf->fileName, remoteFileName);
+        payloadBuf->flags |= GET_FILE_REQUEST;
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
         pthread_join(thread, NULL);
     }
@@ -194,10 +205,49 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 		if (my_data->return_data != NULL) {
         //Loop through all splits, creating an entry for each
 			//receiveFileWrapper();
+    	    //Transfer all parts to destinations
+    		//create_file_splits(((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
+    		fileInfo = (fileInfoPayload *)my_data->return_data;
+    		*file_thread = calloc(1, sizeof(dfs_thread_info *) * fileInfo->noOfSplits);
+    		threads = calloc(1, sizeof(pthread_t *) * fileInfo->noOfSplits);
+    		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
+    			file_thread[i] = calloc(1, sizeof(dfs_thread_info));
+    			//threads[i] = calloc(1, sizeof(pthread_t));
+                sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
+    			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
+    			memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);
+    			pthread_create(&threads[i], NULL, receiveFileWrapper, file_thread[i]);
 
+    		}
+    		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
+    			pthread_join(threads[i], NULL);
+    		}
+    		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
+    			if (file_thread[i]->rc != RC_SUCCESS) {
+    				LOG(DEBUG,"Could not receive file split %d from any of the replicas", i+1);
+
+    				break;
+    			}
+    		}
+			if (i != fileInfo->noOfSplits) {
+				printf("Failed to receive splits from nodes");
+				for (i = 0; i <  fileInfo->noOfSplits; i++) {
+					free(file_thread[i]);
+					//free(threads[i]);
+				}
+				free(my_data);
+				free(file_thread);
+				free(threads);
+				free(fileInfo);
+
+                return RC_FAILURE;
+
+			}
 
 
 			//Merge the files
+			merge_file_splits(remoteFileName , localFileName, fileInfo->noOfSplits);
+
 		}
 	}
     return my_data->status;
@@ -242,16 +292,14 @@ RC_t receiveFileWrapper(void *tdata) {
 
 
 RC_t sendFileWrapper(void *tdata ) {
-	FILE *fp;
+    FILE *fp;
     dfs_thread_info *dfs_data = (dfs_thread_info *)(tdata);
     struct sockaddr_in nodeAddress;
     char (*IP)[16] = dfs_data->ip;
     int sock;
     int rc = RC_FAILURE;
-    struct sockaddr_in nodeAddress;
-    int sock;
     int i = 0;
-    fp = open(dfs_data->fileName, "r");
+    fp = fopen(dfs_data->fileName, "r");
 	if (fp == NULL) {
 	    return RC_FILE_NOT_FOUND;
 	}
@@ -272,12 +320,13 @@ RC_t sendFileWrapper(void *tdata ) {
     return rc;
 }
 
-RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock) {
+RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock)
+{
 
-	memset(nodeAddress, 0, sizeof(nodeAddress));
-    nodeAddress.sin_family        = AF_INET;
-    nodeAddress.sin_addr.s_addr   = inet_addr(IP);
-    nodeAddress.sin_port          = htons(TCP_LISTEN_PORT);
+    memset(nodeAddress, 0, sizeof(struct sockaddr_in));
+    nodeAddress->sin_family         = AF_INET;
+    nodeAddress->sin_addr.s_addr   = inet_addr(IP);
+    nodeAddress->sin_port          = htons(TCP_LISTEN_PORT);
     if((*sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
         LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
         printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
@@ -342,6 +391,39 @@ RC_t create_file_splits(char *fileName , int numOfSplits)
 
 }
 
+RC_t merge_file_splits(char *fileName ,char *localFileName, int numOfSplits)
+{
+     RC_t rc;
+     FILE *fp = fopen(localFileName, "w");
+     FILE *fp1;
+     char chunkName[500];
+     char ch ;
+     int i =0;
+     long numOfBytes = 0;
+     if (fp == NULL) {
+    	 printf("\nFailed to create file for writing");
+    	 return RC_FAILURE;
+     }
+     while(i < numOfSplits) {
+         sprintf(chunkName, "%s.%d", fileName, i+1);
+    	 fp1 = fopen(chunkName, "r");
+    	 if (fp1 == NULL) {
+    		 return RC_FAILURE;
+    	 }
+    	 while(!FEOF(fp1)) {
+    		 ch = fgetc(fp1);
+    		 fputc(ch, fp);
+
+
+    	 }
+    	 fclose(fp1);
+     }
+     fclose(fp);
+     return RC_SUCCESS;
+
+
+}
+
 RC_t make_master(char *prevMasterIP)
 {
     RC_t rc;
@@ -376,7 +458,7 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     RC_t rc;
     int found = 0;
     int i = 0;
-    extern FileMetadata *tmp = gFileMetaData;
+    FileMetadata *tmp = gFileMetaData;
 
 
     while (tmp != NULL) {
@@ -404,4 +486,5 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     return rc;
 
 }
+
 

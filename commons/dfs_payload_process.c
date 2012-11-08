@@ -4,7 +4,7 @@
 
 extern struct Head_Node *server_topology;
 extern struct Node *myself;
-
+extern char myIP[16];
 RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data) {
     RC_t rc;
     int size;
