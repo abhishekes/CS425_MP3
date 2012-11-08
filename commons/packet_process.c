@@ -120,7 +120,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 		     close(socket);	
  		     break;
 		case MSG_FILE_REQUEST: //This is to tell Master that a client wants a file
-			processFileRequest();
+			//processFileRequest();
 			break;
 		case MSG_FILE_OPERATION_REQUEST: //to tell the Master that a client has a file to put
             processFileOperationRequest(socket, packet->payload);

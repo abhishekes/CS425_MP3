@@ -369,7 +369,7 @@ RC_t create_file_splits(char *fileName , int numOfSplits)
      char ch ;
      int i =0;
      long numOfBytes = 0;
-     while(!FEOF(fp)) {
+     while(!feof(fp)) {
          if (numOfBytes == CHUNK_SIZE_IN_MB * 1024 * 1024) {
              if (fp1 != NULL) {
                  fclose(fp1);
@@ -410,7 +410,7 @@ RC_t merge_file_splits(char *fileName ,char *localFileName, int numOfSplits)
     	 if (fp1 == NULL) {
     		 return RC_FAILURE;
     	 }
-    	 while(!FEOF(fp1)) {
+    	 while(!feof(fp1)) {
     		 ch = fgetc(fp1);
     		 fputc(ch, fp);
 

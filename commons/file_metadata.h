@@ -42,4 +42,6 @@ struct IPtoFileInfoStruct{
 };
 
 typedef struct IPtoFileInfoStruct IPtoFileInfo;
+
+RC_t updateIPtoFileInfo(char IP[16], FileMetadata* fileMetaPtr);
 #endif //__FILE_METADATA__

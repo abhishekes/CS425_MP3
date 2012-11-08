@@ -82,7 +82,7 @@ FileMetadata *getFileMetadataPtr(char fileName[NAMEMAX]) {
 }
 
 IPtoFileInfo *getIPtoFileInfo(char IP[16]) {
-	IPtoFileInfo ptr = NULL;
+	IPtoFileInfo *ptr = NULL;
 
 	ptr = gIPToFileInfo;
 
@@ -126,7 +126,7 @@ RC_t deleteAllChunkInfo(ChunkInfo *chunkPtr, FileMetadata *fileMetaPtr) {
 	if( chunkPtr == NULL) {
 		return RC_SUCCESS;
 	} else {
-		deleteAllChunkInfo(chunkPtr->next);
+		deleteAllChunkInfo(chunkPtr->next, fileMetaPtr);
 
 		removeFileMetaEntry(chunkPtr->IP[0], fileMetaPtr);
 		removeFileMetaEntry(chunkPtr->IP[1], fileMetaPtr);
