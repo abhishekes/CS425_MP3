@@ -297,13 +297,14 @@ RC_t create_metadata_from_file() {
     return RC_SUCCESS;
 }
 
-RC_t populateFileInfoPayload(fileInfoPayload *infoPayload, char *fileName) {
+//This is to send reply to the client with the list of IPs where it can put the file into
+RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName) {
     //Check if a file with this name already exists
     //fileInfoPayload->flags |= FILE_ALREADY_PRESENT; Error Case
 
-	infoPayload->flags |= FILE_NAME_AVAILABLE;
+	(*infoPayload)->flags |= FILE_NAME_AVAILABLE;
 	//Also send details of the nodes on which the replicas have to be placed
-	strcpy(infoPayload->fileName, fileName);
+	strcpy((*infoPayload)->fileName, fileName);
 
 	return RC_SUCCESS;
 }
