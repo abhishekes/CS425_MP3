@@ -27,12 +27,13 @@ void* init_list_node(int type) {
 		return temp3;
 	}else if (type == ChunkInfoType){
 		temp4 = (struct ChunkInfo*) calloc (1, sizeof(ChunkInfo));
+		return temp4;
 	}
 
 	return NULL;
 }
 
-int addChunkInfo(unsigned chunkNumber, char IP1[16], char IP2[16], char IP3[16], FileMetadata *ptr) {
+RC_t addChunkInfo(unsigned chunkNumber, char IP1[16], char IP2[16], char IP3[16], FileMetadata *ptr) {
 	ChunkInfo *temp = (ChunkInfo *)init_list_node(ChunkInfoType);
 
 	if( temp == NULL) return RC_FAILURE;
@@ -51,7 +52,7 @@ int addChunkInfo(unsigned chunkNumber, char IP1[16], char IP2[16], char IP3[16],
 	return RC_SUCCESS;
 }
 
-RC_t addFileMetaInfo(char fileName[NAMEMAX], uint64_t size, uint64_t flags, uint64_t numberOfChunks) {
+RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks) {
 	int i;
 	FileMetadata *temp = (FileMetadata*) init_list_node(FileMetaType);
 
@@ -69,6 +70,101 @@ RC_t addFileMetaInfo(char fileName[NAMEMAX], uint64_t size, uint64_t flags, uint
 	}
 
 	return RC_SUCCESS;
+}
+
+FileMetadata *getFileMetadataPtr(char fileName[NAMEMAX]) {
+	FileMetadata *ptr = gFileMetaData;
+
+	while(ptr != NULL && strcmp(ptr->fileName, fileName))
+		ptr = ptr->next;
+
+	return ptr;
+}
+
+IPtoFileInfo *getIPtoFileInfo(char IP[16]) {
+	IPtoFileInfo ptr = NULL;
+
+	ptr = gIPToFileInfo;
+
+	while(ptr != NULL && strcmp(ptr->IP, IP))
+		ptr = ptr->next;
+
+	return ptr;
+}
+
+
+RC_t removeFileMetaEntry(char IP[16], FileMetadata *filePtr) {
+	IPtoFileInfo *ipToFileInfoPtr = NULL;
+	FileList *temp, *prev;
+
+	ipToFileInfoPtr = getIPtoFileInfo(IP);
+
+	if(ipToFileInfoPtr == NULL)
+		return RC_FAILURE;
+
+	temp = ipToFileInfoPtr->metadataPtr;
+	if(ipToFileInfoPtr->metadataPtr->fileMetaPtr == filePtr) {
+		ipToFileInfoPtr->metadataPtr = ipToFileInfoPtr->metadataPtr->next;
+	} else {
+		while(temp != NULL && temp->fileMetaPtr != filePtr) {
+			prev = temp;
+			temp = temp->next;
+		}
+		if(temp != NULL) {
+			ipToFileInfoPtr->numberOfFiles--;
+			prev->next = temp->next;
+			temp->fileMetaPtr = NULL;
+			free(temp);
+		}
+	}
+
+	return RC_SUCCESS;
+}
+
+RC_t deleteAllChunkInfo(ChunkInfo *chunkPtr, FileMetadata *fileMetaPtr) {
+
+	if( chunkPtr == NULL) {
+		return RC_SUCCESS;
+	} else {
+		deleteAllChunkInfo(chunkPtr->next);
+
+		removeFileMetaEntry(chunkPtr->IP[0], fileMetaPtr);
+		removeFileMetaEntry(chunkPtr->IP[1], fileMetaPtr);
+		removeFileMetaEntry(chunkPtr->IP[2], fileMetaPtr);
+		free(chunkPtr);
+
+		return RC_SUCCESS;
+	}
+}
+
+RC_t deleteFileMetaInfo(FileMetadata *fileMetaPtr) {
+
+	(void)deleteAllChunkInfo(fileMetaPtr->chunkInfo, fileMetaPtr);
+	free(fileMetaPtr);
+
+	return RC_SUCCESS;
+}
+
+//This is the function called to delete a file
+RC_t removeFileMetaInfo(char fileName[NAMEMAX]) {
+	FileMetadata *ptr = gFileMetaData;
+	FileMetadata *prev = NULL;
+
+	ptr = getFileMetadataPtr(fileName);
+
+	if(ptr == NULL) return RC_FAILURE;
+
+	if(ptr == gFileMetaData) {
+		gFileMetaData = gFileMetaData->next;
+	}else{
+		prev = gFileMetaData;
+		while( prev != NULL && prev->next!=ptr )
+			prev = prev->next;
+
+		prev->next = ptr->next;
+	}
+
+	return (deleteFileMetaInfo(ptr));
 }
 
 //This initializes and empty IPtoFileInfo structure, i.e. its FileList info is NULL
@@ -90,16 +186,6 @@ int addIPtoFileInfo(char IP[16]) {
 	return RC_SUCCESS;
 }
 
-IPtoFileInfo *getIPtoFileInfo(char IP[16]) {
-	IPtoFileInfo ptr = NULL;
-
-	ptr = gIPToFileInfo;
-
-	while(ptr != NULL && strcmp(ptr->IP, IP))
-		ptr = ptr->next;
-
-	return ptr;
-}
 
 RC_t updateFileList(IPtoFileInfo *ptr,FileMetadata *fileMetaPtr) {
 	FileList *tempFileList = NULL;
@@ -125,7 +211,7 @@ RC_t updateFileList(IPtoFileInfo *ptr,FileMetadata *fileMetaPtr) {
 
 
 RC_t updateIPtoFileInfo(char IP[16], FileMetadata* fileMetaPtr) {
-	IPtoFileInfo ptr = NULL;
+	IPtoFileInfo *ptr = NULL;
 
 	ptr = getIPtoFileInfo(IP);
 
