@@ -33,7 +33,7 @@ void* init_list_node(int type) {
 	return NULL;
 }
 
-RC_t addChunkInfo(unsigned chunkNumber, char IP1[16], char IP2[16], char IP3[16], FileMetadata *ptr) {
+RC_t addChunkInfo(unsigned chunkNumber, char IP1[16], char IP2[16], FileMetadata *ptr) {
 	ChunkInfo *temp = (ChunkInfo *)init_list_node(ChunkInfoType);
 
 	if( temp == NULL) return RC_FAILURE;
@@ -41,13 +41,11 @@ RC_t addChunkInfo(unsigned chunkNumber, char IP1[16], char IP2[16], char IP3[16]
 	temp->chunkNumber = chunkNumber;
 	strcpy(temp->IP[0], IP1);
 	strcpy(temp->IP[1], IP2);
-	strcpy(temp->IP[2], IP3);
 	temp->next = ptr->chunkInfo;
 	ptr->chunkInfo = temp;
 
 	updateIPtoFileInfo(IP1, ptr);
 	updateIPtoFileInfo(IP2, ptr);
-	updateIPtoFileInfo(IP3, ptr);
 
 	return RC_SUCCESS;
 }
@@ -130,7 +128,6 @@ RC_t deleteAllChunkInfo(ChunkInfo *chunkPtr, FileMetadata *fileMetaPtr) {
 
 		removeFileMetaEntry(chunkPtr->IP[0], fileMetaPtr);
 		removeFileMetaEntry(chunkPtr->IP[1], fileMetaPtr);
-		removeFileMetaEntry(chunkPtr->IP[2], fileMetaPtr);
 		free(chunkPtr);
 
 		return RC_SUCCESS;
