@@ -158,7 +158,7 @@ void parse_command(char *command)
 
      }
      if (!valid || i < 2) {
-    	 printf("\nInvalid Input. Command Format : <get/put> <local-file-name> <destination-file-name>\n");
+    	 printf("\nInvalid Input. Command Format : <get/put/del> <local-file-name> <destination-file-name>\n");
 
     	 return;
 
@@ -166,17 +166,26 @@ void parse_command(char *command)
      args[i][length] = 0;
      printf("Local File Name : %s Destination File Name: %s. Length = %d", args[1], args[2], length );
      inputFile = fopen(args[1], "r");
-     if (!inputFile) {
-    	 printf("\nCould not find source file");
-    	 valid = 0;
+     if (!strcmp(args[0], "put")) {
+         if (!inputFile) {
+        	 printf("\nCould not find source file");
+        	 valid = 0;
+         }
+         else {
+        	 fclose(inputFile);
+         }
+         if (!valid) {
+             return;
+         }
+         dfs_file_transfer(FILE_PUT, args[0], args[1]);
+     }else if (!strcmp(args[0], "get")) {
+    	 dfs_file_receive(args[1], args[2]);
+     }else if (!strcmp(args[0], "del")) {//Delete operation
+
+     }else {
+    	 printf("\nInvalid Input. Command Format : <get/put/del> <local-file-name> <destination-file-name>\n");
      }
-     else {
-    	 fclose(inputFile);
-     }
-     if (!valid) {
-         return;
-     }
-     dfs_file_transfer(FILE_PUT, args[0], args[1]);
+
 
 }
 

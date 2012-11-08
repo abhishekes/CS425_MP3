@@ -66,6 +66,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
         payloadBuf = (fileOperationRequestPayload *)((*my_data).payload);
         payloadBuf->fileSize = size;
+        memcpy(payloadBuf->requesterIP, myself->IP, 16);
         strcpy(payloadBuf->fileName, destinationFileName);
         memcpy((*my_data).ip, server_topology->node->IP, 16);
 
@@ -195,6 +196,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
         payloadBuf = my_data->payload;
         //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
         strcpy(payloadBuf->fileName, remoteFileName);
+        memcpy(payloadBuf->requesterIP, myself->IP, 16);
         payloadBuf->flags |= GET_FILE_REQUEST;
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
         pthread_join(thread, NULL);
@@ -308,8 +310,10 @@ RC_t sendFileWrapper(void *tdata ) {
 	}
     for ( i = 0; i < dfs_data->numOfAddresses ; i++, IP++) {
         if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
-            if (sendFile(sock, dfs_data->fileName, dfs_data->destFileName) == RC_SUCCESS) {
-        	    break;
+            printf("\nTrying to send file %s to %s\n", dfs_data->fileName, IP);
+        	if (sendFile(sock, dfs_data->fileName, dfs_data->destFileName) == RC_SUCCESS) {
+        		printf("\nSent file %s to %s successfully\n", dfs_data->fileName, IP);
+        		break;
             }
 
         }
@@ -445,7 +449,7 @@ RC_t create_metadata_from_file() {
 }
 
 //This is to send reply to the client with the list of IPs where it can put the file into
-RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName) {
+RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName, char *IP) {
     //Check if a file with this name already exists
     //fileInfoPayload->flags |= FILE_ALREADY_PRESENT; Error Case
 

@@ -128,7 +128,8 @@ typedef struct
 	#define GET_FILE_REQUEST  0x02
 	#define DEL_FILE_REQUEST  0x04
     uint32_t fileSize;
-	char fileName[256];
+	char requesterIP[16];
+    char fileName[256];
 
 }fileOperationRequestPayload;
 

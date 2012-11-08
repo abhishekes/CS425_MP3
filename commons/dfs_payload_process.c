@@ -67,7 +67,7 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     if (payload->flags & GET_FILE_REQUEST) {
     	//Look for file entry and return corresponding entry
     }else if (payload->flags & PUT_FILE_REQUEST ) {
-    	populateFileInfoPayload(&infoPayload, payload->fileName);
+    	populateFileInfoPayload(&infoPayload, payload->fileName, payload->requesterIP);
     	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(infoPayload));
     	if (rc != RC_SUCCESS) {
     		printf("\n Failed to send file information to requesting node");
