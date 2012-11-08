@@ -119,3 +119,10 @@ RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload* payload)
      return rc;
 }
 
+RC_t dfs_delete_file(char *fileName) {
+
+	RC_t rc = RC_FAILURE;
+
+	return rc;
+
+}

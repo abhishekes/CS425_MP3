@@ -3,7 +3,7 @@
 
 fileInfoPayload fileInfo ;
 extern FileMetadata *gFileMetaData;
-extern IPtoFileInfo *gIPToFileInfo;
+
 
 extern char myIP[16];
 extern struct Head_Node *server_topology;
