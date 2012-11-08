@@ -14,7 +14,7 @@ struct IPtoFileInfoStruct;
 struct FileListStruct;
 struct ChunkInfoStruct{
 	unsigned chunkNumber;
-	char IP[3][16];
+	char IP[2][16];
 	struct ChunkInfoStruct *next;
 };
 typedef struct ChunkInfoStruct ChunkInfo;
