@@ -3,9 +3,9 @@ $(CC) = gcc
 
 
 all : ui
-all : CC += -g 
+all : CC += -g -D_FILE_OFFSET_BITS=64 
 
-debug : CC += -DDEBUG_ENABLE -g
+debug : CC += -DDEBUG_ENABLE -g -D_FILE_OFFSET_BITS=64
 debug : ui
 
 ui : file_map.o fdetect_payload_process.o message_decode.o message_encode.o packet_process.o failure_detector.o list.o log.o node_send_info.o heartbeat_send.o heartbeat_receive.o get_topology.o send_file.o topology_update.o dfs_payload_process.o dfs_operation.o file_metadata.o

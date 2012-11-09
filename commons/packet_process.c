@@ -1,6 +1,6 @@
 #include "packet_process.h"
 
-extern char* myIP;
+extern char myIP[16];
 //Refer message_type.h for structure of the payload
 
 /*********************************************************

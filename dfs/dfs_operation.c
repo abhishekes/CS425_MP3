@@ -57,6 +57,9 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	pthread_t       *threads;
 	int size = 0;
 	int i = 0;
+	char suffix[] = "0000";
+	char suffix_buf[5];
+
 	if (inputFile == NULL) {
 		     printf("\nCould not find source file");
 	    	 return RC_INPUT_FILE_NOT_FOUND;
@@ -68,41 +71,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 		    fclose(inputFile);
 	}
     if (server_topology && server_topology->node ) {
-/*	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
-        (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
-        payloadBuf = (fileOperationRequestPayload *)((*my_data).payload);
-        payloadBuf->fileSize = size;
-        memcpy(payloadBuf->requesterIP, myself->IP, 16);
-        strcpy(payloadBuf->fileName, destinationFileName);
-        payloadBuf->flags |=  PUT_FILE_REQUEST;
 
-        memcpy((*my_data).ip, server_topology->node->IP, 16);
-
-        (*my_data).payload_size = sizeof(fileOperationRequestPayload);
-        (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
-        (*my_data).flags = WAIT_FOR_RESPONSE;
-
-        //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));*/
-
-
-    	/*my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
-        (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
-
-        memcpy((*my_data).ip, server_topology->node->IP, 16);
-
-        (*my_data).payload_size = sizeof(fileOperationRequestPayload);
-        (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
-        (*my_data).flags = WAIT_FOR_RESPONSE;
-        payloadBuf = my_data->payload;
-        //memcpy((*my_data).p-ayload, payloadBuf, sizeof(fileOperationRequestPayload));
-        strcpy(payloadBuf->fileName, destinationFileName);
-        memcpy(payloadBuf->requesterIP, myself->IP, 16);
-        payloadBuf->flags |= PUT_FILE_REQUEST;
-        payloadBuf->fileSize = size;
-
-        LOG(DEBUG,"Sending File Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
-        pthread_create(&thread, NULL, send_node_update_payload, (my_data));
-        pthread_join(thread, NULL);*/
 
     	my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
         (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
@@ -150,7 +119,9 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
         			file_thread[i] = (dfs_thread_info *)calloc(1, sizeof(dfs_thread_info));
         			//threads[i] = calloc(1, sizeof(pthread_t));
-                    sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
+                    sprintf(suffix_buf, "%d", i);
+                    strcpy(suffix + 4 - strlen(suffix_buf), strlen(suffix_buf));
+        			sprintf(file_thread[i]->destFileName, "%s%s", fileInfo->fileName, suffix);
         			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
         			printf("\n ******* IP::::: %s ********* \n", fileInfo->ipAddr[0][0] );
         			file_thread[i]->ip = malloc(fileInfo->noOfReplicas * 16);
@@ -187,23 +158,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
     			free(my_data);
     			//Send finalize entry to master
         	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
-      /*          (*my_data).payload = calloc(1, sizeof(fileInfoPayload));
-                payloadBuf = my_data->payload;
-                payloadBuf->fileSize = sizeof(fileInfoPayload);
-                payloadBuf->flags |= (FILE_CHUNKS_PLACED_SUCCESSFULLY | FILE_INFO_UPDATE);
-                strcpy(payloadBuf->fileName, destinationFileName);
-                memcpy((*my_data).ip, server_topology->node->IP, 16);
-                LOG(DEBUG,"Sending file info update payload for %s ", payloadBuf->fileName);
-                LOG(DEBUG,"Sending file info update payload for %s ", *((fileInfoPayload *)(my_data->payload))->fileName);
-                (*my_data).payload_size = sizeof(fileInfoPayload);
-                (*my_data).msg_type = MSG_FILE_INFO;
 
-                my_data->flags |= RETURN_VALUE_REQUIRED;
-
-                //memcpy((*my_data).payload, payloadBuf, sizeof(fileInfoPayload));
-                LOG(DEBUG, "Pointers : %0x %0x", payloadBuf->fileName, *((fileInfoPayload *)(my_data->payload))->fileName);
-                LOG(DEBUG,"Sending file info update payload for %s ", *((fileInfoPayload *)(my_data->payload))->fileName);
-*/
             	my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
                 (*my_data).payload = calloc(1, sizeof(fileInfoPayload));
 
@@ -264,6 +219,8 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 	fileInfoPayload *fileInfo;
 	pthread_t *threads;
 	dfs_thread_info **file_thread;
+	char suffix[] = "0000";
+	char suffix_buf[5];
 	int i;
 
     if (server_topology && server_topology->node ) {
@@ -306,8 +263,11 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     				for (i = 0; i < fileInfo->noOfSplits; i++ ) {
     					file_thread[i] = calloc(1, sizeof(dfs_thread_info));
     					//threads[i] = cadlloc(1, sizeof(pthread_t));
-    					sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
+    					//sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
+    		            sprintf(suffix_buf, "%d", i);
+    		            strcpy(suffix + 4 - strlen(suffix_buf), strlen(suffix_buf));
     					file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
+    					sprintf(file_thread[i]->destFileName, "%s%s", remoteFileName, suffix);
     					memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);
     					pthread_create(&threads[i], NULL, receiveFileWrapper, file_thread[i]);
 
@@ -477,40 +437,18 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock)
 RC_t create_file_splits(char *localFileName, char *fileName , int numOfSplits)
 {
      RC_t rc;
-     FILE *fp = fopen(localFileName, "r");
-     FILE *fp1 = NULL;
+     int fp = open(localFileName, O_RDONLY /*| O_LARGE_FILE*/);
+     int fp1;
+     char command[1000];
      printf("\n&&&&&&&&& %s &&&&&&\n", fileName);
+
      if (fp == NULL) {
     	 return RC_FILE_NOT_FOUND;
+     }else {
+    	 close(fp);
      }
-     char chunkName[500];
-     char ch ;
-     int i =0;
-     long numOfBytes = 0;
-     ch = fgetc(fp);
-     //printf("\n&&&&&&&&& %0x %0x &&&&&&\n", ch, EOF);
-     while(ch != EOF) {
-         //printf("^^INSIDE %c \n", ch );
-    	 if (i == 0 || (numOfBytes == CHUNK_SIZE_IN_MB * 1024 * 1024)) {
-             if (fp1 != NULL) {
-                 fclose(fp1);
-                 fp1 = NULL;
-             }
-             sprintf(chunkName, "%s.%d", fileName, i + 1 );
-             fp1 = fopen(chunkName, "w");
-             i++;
-             numOfBytes = 0;
-         }
-
-
-    	 numOfBytes++;
-    	 fputc(ch, fp1);
-    	 ch = fgetc(fp);
-     }
-     if (fp1 != NULL) {
-    	 fclose(fp1);
-     }
-     fclose(fp);
+     sprintf(command, "split -d -b 67108664 -a 4 %s %s",localFileName, fileName);
+     system(command);
      return RC_SUCCESS;
 
 
@@ -518,32 +456,10 @@ RC_t create_file_splits(char *localFileName, char *fileName , int numOfSplits)
 
 RC_t merge_file_splits(char *fileName ,char *localFileName, int numOfSplits)
 {
-     RC_t rc;
-     FILE *fp = fopen(localFileName, "w");
-     FILE *fp1;
-     char chunkName[500];
-     char ch ;
-     int i =0;
-     long numOfBytes = 0;
-     if (fp == NULL) {
-    	 printf("\nFailed to create file for writing");
-    	 return RC_FAILURE;
-     }
-     while(i < numOfSplits) {
-         sprintf(chunkName, "%s.%d", fileName, i+1);
-    	 fp1 = fopen(chunkName, "r");
-    	 if (fp1 == NULL) {
-    		 return RC_FAILURE;
-    	 }
-    	 while(!feof(fp1)) {
-    		 ch = fgetc(fp1);
-    		 fputc(ch, fp);
+     char command[1000];
+     sprintf(command, "cat %s???? > %s", fileName, localFileName );
+     system(command);
 
-
-    	 }
-    	 fclose(fp1);
-     }
-     fclose(fp);
      return RC_SUCCESS;
 
 
