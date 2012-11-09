@@ -180,7 +180,7 @@ void parse_command(char *command)
          if (!valid) {
              return;
          }
-         dfs_file_transfer(FILE_PUT, args[0], args[1]);
+         dfs_file_transfer(FILE_PUT, args[1], args[2]);
      }else if (!strcmp(args[0], "get")) {
     	 dfs_file_receive(args[1], args[2]);
      }else if (!strcmp(args[0], "del")) {//Delete operation

@@ -1,5 +1,5 @@
 #include "send_file.h"
-
+extern char *myIP;
 /*********************************************************
 ** This function is used to send file 
 ** 
@@ -19,7 +19,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
     int seqNo = 0;
     if (fp == NULL) {
 	
-    	DEBUG(("\nSendFile:File %s Not found\n", fileName));
+    	LOG(DEBUG, "SendFile:File %s Not found\n", fileName);
         return RC_FILE_NOT_FOUND;
     }
     DEBUG(("\nSendFile:\n"));
@@ -32,7 +32,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
     do {
     	 memset(ftpBuf->filePayload,0,790);
          rc = fread(fileBuf,sizeof(char), 790, fp);
-	 DEBUG(("\nSendfile: RC = %d\n", rc));
+	 //LOG("\nSendfile: RC = %d\n", rc);
          if (rc < 0) {
              return RC_FILE_NOT_FOUND;
          }
@@ -56,7 +56,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
       }while(!feof(fp));
      free(ftpBuf);
      fclose(fp);
-     DEBUG(("\nSendFile:Just before returning\n"));
+     //LOG(DEBUG, "SendFile:Just before returning %s\n", destFileName);
      return RC_SUCCESS;
 
 }

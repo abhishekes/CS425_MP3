@@ -34,7 +34,7 @@ void* heartbeat_send(void* t) {
 		pthread_mutex_unlock(&node_list_mutex);		
 		
 		
-		LOG(INFO, "Sending heartbeat to Node IP = %s\n", sendToIP);
+		//LOG(INFO, "Sending heartbeat to Node IP = %s\n", sendToIP);
 		//send the heartbeat from here every 400 msec
 		//TODO add a function to actually send the heartbeat here
 		strcpy(hbPayload->ip_addr, myself->IP);

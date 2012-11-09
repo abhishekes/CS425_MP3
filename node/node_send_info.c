@@ -55,16 +55,25 @@ void send_node_update_payload(void *tdata)
         //getchar();
 
  
-        sendPayload(sock, msg_type, payload, size);
+        rc = sendPayload(sock, msg_type, payload, size);
         free(my_data->payload);
-        free(my_data);
+
         if (my_data->flags & WAIT_FOR_RESPONSE) {
-        rc = message_decode(sock, &packet);
-            if (rc == RC_SUCCESS) {
-                processPacket(socket, packet, &data);
-            }
+        	printf("\nWaiting for response \n");
+        	rc = message_decode(sock, &packet);
+        	printf("\nrc= %d\n", rc);
+        	if (rc == RC_SUCCESS) {
+        		printf("Received %0x ", packet->type);
+        		processPacket(socket, packet, &data);
+        	}
+        }
+        printf("Closing socket"); //TODO REMOVE
+        if (!(my_data->flags & WAIT_FOR_RESPONSE) && !(my_data->flags & RETURN_VALUE_REQUIRED )) {
+            free(my_data);
+        }else {
+            my_data->return_data = data;
+            my_data->status = rc;
         }
         close(sock);
-        my_data->return_data = data;
-        my_data->status = rc;
+
 }

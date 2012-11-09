@@ -12,6 +12,7 @@ typedef struct {
     char *payload;
     uint16_t flags;
     #define WAIT_FOR_RESPONSE 0x01
+    #define RETURN_VALUE_REQUIRED 0x02
     RC_t status;
     void *return_data;
 

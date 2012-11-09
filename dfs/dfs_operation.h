@@ -37,7 +37,7 @@ typedef struct {
 
 RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName);
 RC_t dfs_replicate_chunk(char *fileName, char *ip);
-RC_t create_file_splits(char *fileName , int numOfSplits);
+RC_t create_file_splits(char *, char *fileName , int numOfSplits);
 RC_t make_master(char *prevMasterIP);
 RC_t populateFileInfoPayload(fileInfoPayload **payload, fileOperationRequestPayload *request);
 RC_t merge_file_splits(char *fileName , char *localFileName, int numOfSplits);

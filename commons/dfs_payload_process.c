@@ -9,7 +9,9 @@ RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data) {
     RC_t rc;
     int size;
 	LOG(DEBUG, "Received file info payload for %s", infoPayload->fileName);
-    if (infoPayload->flags & FILE_INFO_UPDATE) {
+	printf("Received file info payload for %s, flags = %0x ", infoPayload->fileName, infoPayload->flags);
+
+	if (infoPayload->flags & FILE_INFO_UPDATE) {
     	 if (server_topology && server_topology->node) {
     		 if (myself) {
     			 if (server_topology->node != myself) {
@@ -24,9 +26,11 @@ RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data) {
      }else if (infoPayload->flags & FILE_INFO_RESPONSE) {
      //Allocate memory and return the response
     	 LOG(DEBUG, "Received file information from master for file %s", infoPayload->fileName);
-         size = sizeof(fileInfoPayload) + infoPayload->noOfSplits * 3 * 16;
+    	 LOG(DEBUG, " File Info for %s. Number of splits : %d, Number of replicas : %d", infoPayload->fileName,  infoPayload->noOfSplits, infoPayload->noOfReplicas);
+    	 size = (sizeof(fileInfoPayload) + infoPayload->noOfSplits * infoPayload->noOfReplicas * 16);
          *return_data = (fileInfoPayload*)calloc(1, size); //Allocate memory for all the entries
-         addFileMetaInfo(infoPayload->fileName, 0, infoPayload->flags, infoPayload->noOfSplits, "0.0.0.0");
+         //addFileMetaInfo(infoPayload->fileName, 0, infoPayload->flags, infoPayload->noOfSplits, "0.0.0.0");
+
          memcpy(*return_data, infoPayload, size);
          rc = RC_SUCCESS;
      }
@@ -66,18 +70,21 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     RC_t rc = RC_FAILURE;
     fileInfoPayload *infoPayload /*= (infoPayload *)calloc(1, sizeof(fileInfoPayload))*/;
     LOG(DEBUG,"Received File Operation Request from %s for %s", payload->requesterIP, payload->fileName);
-    //printf("Received file operation request from %s for %s, flags : %0x", payload->requesterIP, payload->fileName, payload->flags);
-    if (payload->flags & GET_FILE_REQUEST) {
+    printf("Received file operation request from %s for %s, flags : %0x", payload->requesterIP, payload->fileName, payload->flags);
+    //if (payload->flags & GET_FILE_REQUEST) {
     	//Look for file entry and return corresponding entry
-    }else if (payload->flags & PUT_FILE_REQUEST ) {
+
+
+    //}else if (payload->flags & PUT_FILE_REQUEST ) {
     	populateFileInfoPayload(&infoPayload, payload);
-    	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(infoPayload));
+    	printf("Sending %s\n. Length = %d", infoPayload->fileName, sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
+    	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
     	if (rc != RC_SUCCESS) {
     		printf("\n Failed to send file information to requesting node");
     		LOG(DEBUG, "Problem sending information about file %s to requesting node ", payload->fileName);
     	    rc = RC_FILE_INFO_SEND_FAILURE;
     	}
-    }
+    //}
     if (infoPayload) {
     	free(infoPayload);
     }

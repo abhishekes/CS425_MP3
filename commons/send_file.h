@@ -10,4 +10,5 @@
 #include <stdlib.h>
 #include "message_type.h"
 #include "debug.h"
+#include "../logging/log.h"
 #endif // __SEND_FILE__
