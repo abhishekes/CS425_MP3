@@ -8,6 +8,10 @@
 FileMetadata *gFileMetaData = NULL; //This is the global File Metadata Pointer
 IPtoFileInfo *gIPToFileInfo = NULL; //This is the global IP to File info Pointer
 
+extern char clientIP[16];
+extern struct Head_Node *server_topology;
+
+
 void* init_list_node(int type) {
 	FileMetadata *temp1 = NULL;
 	IPtoFileInfo *temp2 = NULL;
@@ -15,56 +19,84 @@ void* init_list_node(int type) {
 	ChunkInfo	 *temp4 = NULL;
 
 	if(type == FileMetaType) {
-		temp1 = (struct FileMetadata*) calloc (1, sizeof(FileMetadata));
+		temp1 = (FileMetadata*) calloc (1, sizeof(FileMetadata));
 		return temp1;
 	}
 	else if (type == IPtoFileType) {
-		temp2 = (struct IPtoFileInfo*) calloc (1, sizeof(IPtoFileInfo));
+		temp2 = (IPtoFileInfo*) calloc (1, sizeof(IPtoFileInfo));
 		return temp2;
 	}
 	else if (type == FileListType) {
-		temp3 = (struct FileList*) calloc (1, sizeof(FileList));
+		temp3 = (FileList*) calloc (1, sizeof(FileList));
 		return temp3;
 	}else if (type == ChunkInfoType){
-		temp4 = (struct ChunkInfo*) calloc (1, sizeof(ChunkInfo));
+		temp4 = (ChunkInfo*) calloc (1, sizeof(ChunkInfo));
 		return temp4;
 	}
 
 	return NULL;
 }
 
-RC_t addChunkInfo(unsigned chunkNumber, char IP1[16], char IP2[16], FileMetadata *ptr) {
+RC_t addChunkInfo(unsigned chunkNumber, char replicaIPs[MAXREPLICAS][16], FileMetadata *ptr) {
 	ChunkInfo *temp = (ChunkInfo *)init_list_node(ChunkInfoType);
-
+	int i = 0;
 	if( temp == NULL) return RC_FAILURE;
 
-	temp->chunkNumber = chunkNumber;
-	strcpy(temp->IP[0], IP1);
-	strcpy(temp->IP[1], IP2);
 	temp->next = ptr->chunkInfo;
 	ptr->chunkInfo = temp;
 
-	updateIPtoFileInfo(IP1, ptr);
-	updateIPtoFileInfo(IP2, ptr);
+	temp->chunkNumber = chunkNumber;
+	for(i = 0; i < ptr->numReplicas; i++) {
+		strcpy(temp->IP[i], replicaIPs[i]);
+		updateIPtoFileInfo(temp->IP[i], ptr);
+	}
 
 	return RC_SUCCESS;
 }
 
+
+
 RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks) {
 	int i;
-	FileMetadata *temp = (FileMetadata*) init_list_node(FileMetaType);
+	FileMetadata *temp = NULL;
+	char anotherIP[16];
+	char replicaIPs[MAXREPLICAS][16];
+
+	if(getFileMetadataPtr(fileName) != NULL) {
+		printf("addFileMetaInfo : File already present, cannot add again");
+		return RC_FAILURE;
+	}
+
+	temp = (FileMetadata*) init_list_node(FileMetaType);
+
 
 	if(temp == NULL) return RC_FAILURE;
 
+	strcpy(temp->fileName, fileName);
 	temp->next = gFileMetaData;
 	gFileMetaData = temp;
 	temp->flags = flags;
 	temp->numberOfChunks = numberOfChunks;
 	temp->size = size;
 
+	temp->numReplicas = (server_topology->num_of_nodes < MAXREPLICAS ? server_topology->num_of_nodes: MAXREPLICAS);
+
+
 	for(i=0; i<numberOfChunks; i++) {
-		//TODO : Need to get the IP Address from server topology
-		//addChunkInfo(i+1, NULL, NULL, NULL, temp);
+		for(i=0; i < temp->numReplicas; i++) {
+			if(i==0) {
+				strcpy(replicaIPs[0], clientIP);
+			} else {
+				getNextIP_RR(anotherIP);
+				if(!strcmp(anotherIP, clientIP)) {
+					getNextIP_RR(anotherIP);
+				}
+
+				strcpy(replicaIPs[i], anotherIP);
+			}
+		}
+
+		addChunkInfo(i+1, replicaIPs, temp);
 	}
 
 	return RC_SUCCESS;
@@ -120,14 +152,17 @@ RC_t removeFileMetaEntry(char IP[16], FileMetadata *filePtr) {
 }
 
 RC_t deleteAllChunkInfo(ChunkInfo *chunkPtr, FileMetadata *fileMetaPtr) {
+	int i=0;
 
 	if( chunkPtr == NULL) {
 		return RC_SUCCESS;
 	} else {
 		deleteAllChunkInfo(chunkPtr->next, fileMetaPtr);
 
-		removeFileMetaEntry(chunkPtr->IP[0], fileMetaPtr);
-		removeFileMetaEntry(chunkPtr->IP[1], fileMetaPtr);
+		for(i=0; i<fileMetaPtr->numReplicas; i++) {
+			removeFileMetaEntry(chunkPtr->IP[i], fileMetaPtr);
+		}
+
 		free(chunkPtr);
 
 		return RC_SUCCESS;
@@ -218,4 +253,23 @@ RC_t updateIPtoFileInfo(char IP[16], FileMetadata* fileMetaPtr) {
 	}
 
 	return (updateFileList(ptr, fileMetaPtr));
+}
+
+
+void getNextIP_RR(char IP[16]) {
+	static int i = 0;
+	int j;
+	struct Node *myNodePtr;
+
+	myNodePtr = server_topology->node;
+
+	j = i;
+	while(j--)
+		myNodePtr = myNodePtr->next;
+
+	strcpy(IP, myNodePtr->IP);
+
+	i++;
+
+	return;
 }

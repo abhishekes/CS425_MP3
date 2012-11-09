@@ -10,17 +10,17 @@
 #define NUM_HEARTBEAT_NEIGHBOURS 2
 
 struct Node {
-
 	char IP[16];
 	uint32_t timestamp;
-        struct Node *next;
+    struct Node *next;
 	struct Node *prev;
+
 };
 
 struct Head_Node {
 	struct Node* node;
-        unsigned long num_of_nodes;
- 
+    unsigned long num_of_nodes;
+
 };
 
 struct Head_Node * init_head(struct Node*);
