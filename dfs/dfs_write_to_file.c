@@ -38,7 +38,7 @@ RC_t dfs_write_to_file() {
 		fileMetaPtr = fileMetaPtr->next;
 	}
 
-	ipToFilePtr = *gIPToFileInfo;
+	ipToFilePtr = gIPToFileInfo;
 	fprintf(fPtr, "SKIP : NEXT\n");
 
 	while(ipToFilePtr != NULL) {
