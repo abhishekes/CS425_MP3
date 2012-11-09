@@ -7,8 +7,8 @@ all :  admission_contact
 debug : CC += -DDEBUG_ENABLE -ggdb
 debug : admission_contact
 
-admission_contact : file_map.o message_decode.o message_encode.o packet_process.o send_file.o fdetect_payload_process.o list.o log.o node_send_info.o list.o node_send_info.o
-	$(CC) ../commons/file_map.o ../commons/message_decode.o ../commons/message_encode.o ../commons/send_file.o ../commons/packet_process.o ../commons/fdetect_payload_process.o ../commons/list.o -o admission_contact ../logging/log.o ../node/node_send_info.o admission_contact.c -pthread 
+admission_contact : file_map.o message_decode.o message_encode.o packet_process.o send_file.o fdetect_payload_process.o list.o log.o node_send_info.o list.o node_send_info.o dfs_payload_process.o dfs_operation.o file_metadata.o
+	$(CC) ../commons/file_map.o ../commons/message_decode.o ../commons/message_encode.o ../commons/send_file.o ../commons/packet_process.o ../commons/fdetect_payload_process.o ../commons/list.o -o admission_contact ../logging/log.o ../node/node_send_info.o admission_contact.c ../commons/dfs_payload_process.c ../dfs/dfs_operation.c ../commons/file_metadata.c -pthread 
 
 file_map.o : ../commons/file_map.c
 	$(CC) -c ../commons/file_map.c -o ../commons/file_map.o
@@ -37,6 +37,13 @@ log.o : ../logging/log.c
 node_send_info.o : ../node/node_send_info.c
 	$(CC) -c ../node/node_send_info.c -o ../node/node_send_info.o
 
+dfs_payload_process.o : ../commons/dfs_payload_process.c
+	$(CC) -c ../commons/dfs_payload_process.c -o ../commons/dfs_payload_process.o
 
+dfs_operation.o : ../dfs/dfs_operation.c
+	$(CC) -c ../dfs/dfs_operation.c -o ../dfs/dfs_operation.o
+
+file_metadata.o : ../commons/file_metadata.c
+	$(CC) -c ../commons/file_metadata.c -o ../commons/file_metadata.o
 clean: 
 	rm -rf core ../commons/*.o admission_contact 
