@@ -69,7 +69,7 @@ RC_t updateFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, u
 }
 
 RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks, char *clientIP) {
-	int i;
+	int i, j;
 	FileMetadata *temp = NULL;
 	char anotherIP[16];
 	char replicaIPs[MAXREPLICAS][16];
@@ -80,7 +80,7 @@ RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint
 	}
 
 	temp = (FileMetadata*) init_list_node(FileMetaType);
-
+	printf("\nAllocated temp\n");
 
 	if(temp == NULL) return RC_FAILURE;
 
@@ -91,12 +91,14 @@ RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint
 	temp->numberOfChunks = numberOfChunks;
 	temp->size = size;
 
+	printf("\nFname = %s, size = %u, flags = %u, nChunks = %u, clientIP = %u\n", fileName, size, flags, numberOfChunks, clientIP);
+
 	temp->numReplicas = (server_topology->num_of_nodes < MAXREPLICAS ? server_topology->num_of_nodes: MAXREPLICAS);
 
 
 	for(i=0; i<numberOfChunks; i++) {
-		for(i=0; i < temp->numReplicas; i++) {
-			if(i==0) {
+		for(j=0; j < temp->numReplicas; j++) {
+			if(j==0) {
 				strcpy(replicaIPs[0], clientIP);
 			} else {
 				getNextIP_RR(anotherIP);
@@ -104,11 +106,12 @@ RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint
 					getNextIP_RR(anotherIP);
 				}
 
-				strcpy(replicaIPs[i], anotherIP);
+				strcpy(replicaIPs[j], anotherIP);
 			}
 		}
 
-		addChunkInfo(i+1, replicaIPs, temp);
+		 if(addChunkInfo(i+1, replicaIPs, temp) != RC_SUCCESS) 
+			return RC_FAILURE;
 	}
 
 	return RC_SUCCESS;
@@ -247,6 +250,8 @@ RC_t updateFileList(IPtoFileInfo *ptr,FileMetadata *fileMetaPtr) {
 	if(tempFileList == NULL) { //Need to add a new fileList
 		tempFileList = init_list_node(FileListType);
 		tempFileList->fileMetaPtr = fileMetaPtr;
+		tempFileList->next = ptr->metadataPtr;
+		ptr->metadataPtr = tempFileList;
 		ptr->numberOfFiles++;
 	}
 

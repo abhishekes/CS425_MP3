@@ -1,5 +1,5 @@
 #include "dfs_operation.h"
-
+#include "dfs_write_to_file.h"
 
 fileInfoPayload fileInfo ;
 extern FileMetadata *gFileMetaData;
@@ -519,6 +519,8 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 			}
 
 			addFileMetaInfo(request->fileName, request->fileSize, request->flags, numChunks, request->requesterIP);
+			dfs_write_to_file();
+
 
 			ptr = getFileMetadataPtr(request->fileName);
 
