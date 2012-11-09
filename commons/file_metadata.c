@@ -52,7 +52,21 @@ RC_t addChunkInfo(unsigned chunkNumber, char replicaIPs[MAXREPLICAS][16], FileMe
 	return RC_SUCCESS;
 }
 
+RC_t updateFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks, char* clientIP) {
+	FileMetadata *temp = NULL;
 
+	temp = getFileMetadataPtr(fileName);
+
+	if(temp != NULL) {
+		temp->size = size;
+		temp->flags = flags;
+		temp->numberOfChunks = numberOfChunks;
+	} else {
+		return (addFileMetaInfo(fileName, size, flags, numberOfChunks, clientIP));
+	}
+
+	return RC_SUCCESS;
+}
 
 RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks, char *clientIP) {
 	int i;
