@@ -46,4 +46,5 @@ RC_t receiveFileWrapper(void *tdata);
 RC_t sendFileWrapper(void *tdata);
 RC_t create_metadata_from_file(void);
 RC_t dfs_delete_file(char *fileName);
+RC_t dfs_replicate_files_of_crashed_node(char *ip);
 #endif

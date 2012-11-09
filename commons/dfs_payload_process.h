@@ -12,6 +12,9 @@ RC_t processNodeFileInfoRequest(int socket, requestNodeFileInfo *payload);
 RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload *payload);
 RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data);
 RC_t processFileInfoUpdatePayload(fileInfoPayload *);
+RC_t sendFileInfoRequest(int socket, char *fileName);
+RC_t sendFileRequest(int socket, char *fileName);
+RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payload);
 
 #endif
 
