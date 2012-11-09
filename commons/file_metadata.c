@@ -198,7 +198,7 @@ RC_t removeFileMetaInfo(char fileName[NAMEMAX]) {
 }
 
 //This initializes and empty IPtoFileInfo structure, i.e. its FileList info is NULL
-int addIPtoFileInfo(char IP[16]) {
+RC_t addIPtoFileInfo(char IP[16]) {
 	IPtoFileInfo *ptr = NULL;
 
 	ptr = getIPtoFileInfo(IP);
