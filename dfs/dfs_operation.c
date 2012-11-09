@@ -197,7 +197,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         }
 
     }
-	for (i = 0; i <  fileInfo->noOfSplits; i++) {
+	for (i = 0; fileInfo && (i <  fileInfo->noOfSplits); i++) {
 		free(file_thread[i]);
 		//free(threads[i]);
 	}
