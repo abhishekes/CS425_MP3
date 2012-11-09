@@ -8,9 +8,7 @@
 FileMetadata *gFileMetaData = NULL; //This is the global File Metadata Pointer
 IPtoFileInfo *gIPToFileInfo = NULL; //This is the global IP to File info Pointer
 
-extern char clientIP[16];
 extern struct Head_Node *server_topology;
-
 
 void* init_list_node(int type) {
 	FileMetadata *temp1 = NULL;
@@ -56,7 +54,7 @@ RC_t addChunkInfo(unsigned chunkNumber, char replicaIPs[MAXREPLICAS][16], FileMe
 
 
 
-RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks) {
+RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks, char *clientIP) {
 	int i;
 	FileMetadata *temp = NULL;
 	char anotherIP[16];

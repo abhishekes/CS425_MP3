@@ -51,7 +51,7 @@ typedef struct IPtoFileInfoStruct IPtoFileInfo;
 RC_t updateIPtoFileInfo(char IP[16], FileMetadata* fileMetaPtr);
 void* init_list_node(int type);
 RC_t addChunkInfo(unsigned chunkNumber, char IPs[MAXREPLICAS][16], FileMetadata *ptr);
-RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks);
+RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint32_t numberOfChunks, char* IP);
 FileMetadata *getFileMetadataPtr(char fileName[NAMEMAX]);
 IPtoFileInfo *getIPtoFileInfo(char IP[16]);
 RC_t removeFileMetaEntry(char IP[16], FileMetadata *filePtr);
