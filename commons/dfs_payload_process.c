@@ -97,7 +97,8 @@ RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload* payload)
      RC_t rc;
      dfs_thread_info *thread_data;
      pthread_t thread;
-     char *IP;
+     char (*IP)[16];
+     IP = payload->ip;
      if ( payload->flags & REPLICATE_RESPONSE) {
          if (server_topology && server_topology->node && server_topology->node != myself) {
              LOG(ERROR, "Received Replicate %s even though I am not the leader. Dropping the message", "Response");
@@ -112,17 +113,10 @@ RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload* payload)
          pthread_create(&thread, NULL, receiveFileWrapper, (thread_data));
          pthread_join(thread, NULL);
          if (thread_data->rc != RC_SUCCESS) {
-        	 LOG(ERROR, "Could not send replicate Chunk Payload to %s ", thread_data->ip);
+        	 LOG(ERROR, "Could not replicate Chunk Payload %s", thread_data->ip);
          }
 
      }
      return rc;
 }
 
-RC_t dfs_delete_file(char *fileName) {
-
-	RC_t rc = RC_FAILURE;
-
-	return rc;
-
-}

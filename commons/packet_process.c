@@ -1,5 +1,6 @@
 #include "packet_process.h"
 
+extern char* myIP;
 //Refer message_type.h for structure of the payload
 
 /*********************************************************
@@ -82,7 +83,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                          return_data = (RC_t *)malloc(sizeof(RC_t));
                          LOG(DEBUG, "Received file %s", ftpBuf->fileName);
                          *((RC_t *)return_data) = RC_SUCCESS;
-                    	 fclose(socket); //Close connectio since last chunk is received
+                    	 close(socket); //Close connection since last chunk is received
                      }
 			
 		break;

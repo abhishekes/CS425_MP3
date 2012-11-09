@@ -181,7 +181,7 @@ void parse_command(char *command)
      }else if (!strcmp(args[0], "get")) {
     	 dfs_file_receive(args[1], args[2]);
      }else if (!strcmp(args[0], "del")) {//Delete operation
-
+         dfs_delete_file(args[1]);
      }else {
     	 printf("\nInvalid Input. Command Format : <get/put/del> <local-file-name> <destination-file-name>\n");
      }

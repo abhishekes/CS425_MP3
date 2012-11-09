@@ -7,6 +7,7 @@ extern FileMetadata *gFileMetaData;
 
 extern char myIP[16];
 extern struct Head_Node *server_topology;
+extern struct Node* myself;
 //ip is the IP address of the node that has crashed.
 //This function is called by the leader
 
@@ -504,6 +505,15 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     	LOG(DEBUG,"Received file info update payload for %s which was not found", infoPayload->fileName);
     }
     return rc;
+
+}
+
+
+RC_t dfs_delete_file(char *fileName) {
+
+	RC_t rc = RC_FAILURE;
+
+	return rc;
 
 }
 

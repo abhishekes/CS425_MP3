@@ -45,4 +45,5 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock);
 RC_t receiveFileWrapper(void *tdata);
 RC_t sendFileWrapper(void *tdata);
 RC_t create_metadata_from_file(void);
+RC_t dfs_delete_file(char *fileName);
 #endif
