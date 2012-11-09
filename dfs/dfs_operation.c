@@ -265,7 +265,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     					//threads[i] = cadlloc(1, sizeof(pthread_t));
     					//sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
     		            sprintf(suffix_buf, "%d", i);
-    		            strcpy(suffix + 4 - strlen(suffix_buf), strlen(suffix_buf));
+    		            strcpy(suffix + 4 - strlen(suffix_buf), suffix_buf);
     					file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
     					sprintf(file_thread[i]->destFileName, "%s%s", remoteFileName, suffix);
     					memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);
