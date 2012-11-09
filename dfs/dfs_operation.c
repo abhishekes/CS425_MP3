@@ -25,7 +25,7 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkReplicatePayload));
 		(*my_data).payload = calloc(1, sizeof(chunkReplicatePayload));
 		payloadBuf = (nodeFileInfo *)((*my_data).payload);
-		memcpy( payloadBuf->ip, ip, 16);//TODO
+		memcpy( payloadBuf->ip, ip, 16);
 		payloadBuf->flags |= REPLICATE_INSTRUCTION;
 		my_data->payload_size = sizeof(chunkReplicatePayload);
 
@@ -469,15 +469,15 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 	FileMetadata *ptr = NULL;
 	int i, j, numChunks;
 
-	ptr = getFileMetadataPtr(fileName);
+	ptr = getFileMetadataPtr(request->fileName);
 
-	//TODO : Change needed.
-	if(( flags & FILE_GET )) {
+
+	if(( request->flags & FILE_GET )) {
 		if( ptr == NULL ) {
 			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
 			(*infoPayload)->flags |= FILE_NOT_FOUND;
 		} else {
-			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload + 16 * ptr->numReplicas * ptr->numberOfChunks));
+			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload) + 16 * ptr->numReplicas * ptr->numberOfChunks);
 			(*infoPayload)->flags |= ptr->flags;
 			(*infoPayload)->noOfReplicas = ptr->numReplicas;
 			(*infoPayload)->noOfSplits = ptr->numberOfChunks;
@@ -489,14 +489,20 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 				}
 			}
 		}
-	} else if ( flags & FILE_PUT ) { //TODO : Change needed.
+	} else if ( request->flags & FILE_PUT ) {
 		if( ptr == NULL) {
 
-//			numChunks = ceil((double)size / CHUNK_SIZE_IN_MB);
+			numChunks = ceil((double)request->fileSize / CHUNK_SIZE_IN_MB);
 
-			//addFileMetaInfo(fileName, size, flags,numberOfChunks,IP);
-			ptr = getFileMetadataPtr(fileName);
-			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload + 16 * ptr->numReplicas * ptr->numberOfChunks));
+			addFileMetaInfo(request->fileName, request->fileSize, request->flags, numChunks, request->requesterIP);
+
+			ptr = getFileMetadataPtr(request->fileName);
+
+			if(ptr == NULL) {
+				printf("ERROR : Could not find fileMetadata ptr even after inserting");
+			}
+
+			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload) + 16 * ptr->numReplicas * ptr->numberOfChunks);
 			(*infoPayload)->flags |= ptr->flags;
 			(*infoPayload)->noOfReplicas = ptr->numReplicas;
 			(*infoPayload)->noOfSplits = ptr->numberOfChunks;
@@ -513,17 +519,7 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 		}
 	}
 
-	(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
-
-	if(ptr != NULL) { //The file is already present
-	} else {
-
-	}
-	(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
-
-	(*infoPayload)->flags |= FILE_NAME_AVAILABLE;
-	//Also send details of the nodes on which the replicas have to be placed
-	strcpy((*infoPayload)->fileName, fileName);
+	strcpy((*infoPayload)->fileName, request->fileName);
 
 	return RC_SUCCESS;
 }
