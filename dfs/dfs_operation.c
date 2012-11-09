@@ -69,6 +69,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         payloadBuf->fileSize = size;
         memcpy(payloadBuf->requesterIP, myself->IP, 16);
         strcpy(payloadBuf->fileName, destinationFileName);
+
         memcpy((*my_data).ip, server_topology->node->IP, 16);
 
         (*my_data).payload_size = sizeof(fileOperationRequestPayload);
@@ -76,6 +77,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         (*my_data).flags = WAIT_FOR_RESPONSE;
 
         //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
+        LOG(DEBUG,"Sending File Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
         pthread_join(thread, NULL);
 
@@ -186,7 +188,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 	int i;
 
     if (server_topology && server_topology->node ) {
-	my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
+	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
         (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
 
         memcpy((*my_data).ip, server_topology->node->IP, 16);
@@ -199,6 +201,8 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
         strcpy(payloadBuf->fileName, remoteFileName);
         memcpy(payloadBuf->requesterIP, myself->IP, 16);
         payloadBuf->flags |= GET_FILE_REQUEST;
+
+        LOG(DEBUG,"Sending File Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
         pthread_create(&thread, NULL, send_node_update_payload, (my_data));
         pthread_join(thread, NULL);
     }

@@ -64,6 +64,8 @@ RC_t sendFileRequest(int socket, char *fileName) {
 RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payload) {
     RC_t rc = RC_FAILURE;
     fileInfoPayload *infoPayload /*= (infoPayload *)calloc(1, sizeof(fileInfoPayload))*/;
+    LOG(DEBUG,"Received File Operation Request from %s for %s", payload->requesterIP, payload->fileName);
+    printf("Received file operation request from %s for %s, flags : %0x", payload->requesterIP, payload->fileName, payload->flags);
     if (payload->flags & GET_FILE_REQUEST) {
     	//Look for file entry and return corresponding entry
     }else if (payload->flags & PUT_FILE_REQUEST ) {
