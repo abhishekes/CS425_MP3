@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include "../logging/log.h"
 #include "../commons/file_metadata.h"
-
+#include <math.h>
 
 #define IP_ADDR_LENGTH    16
 #define NUM_OF_SPLITS      4

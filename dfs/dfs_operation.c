@@ -466,6 +466,60 @@ RC_t create_metadata_from_file() {
 RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName, char *IP) {
     //Check if a file with this name already exists
     //fileInfoPayload->flags |= FILE_ALREADY_PRESENT; Error Case
+	FileMetadata *ptr = NULL;
+	int i, j, numChunks;
+
+	ptr = getFileMetadataPtr(fileName);
+
+	//TODO : Change needed.
+	if(( flags & FILE_GET )) {
+		if( ptr == NULL ) {
+			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
+			(*infoPayload)->flags |= FILE_NOT_FOUND;
+		} else {
+			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload + 16 * ptr->numReplicas * ptr->numberOfChunks));
+			(*infoPayload)->flags |= ptr->flags;
+			(*infoPayload)->noOfReplicas = ptr->numReplicas;
+			(*infoPayload)->noOfSplits = ptr->numberOfChunks;
+
+			ChunkInfo *chunkPtr = ptr->chunkInfo;
+			for(i = 0; i < ptr->numberOfChunks; i++, chunkPtr = chunkPtr->next) {
+				for(j = 0; j < ptr->numReplicas; j++ ) {
+					strcpy((*infoPayload)->ipAddr[i][j], chunkPtr->IP[j]);
+				}
+			}
+		}
+	} else if ( flags & FILE_PUT ) { //TODO : Change needed.
+		if( ptr == NULL) {
+
+//			numChunks = ceil((double)size / CHUNK_SIZE_IN_MB);
+
+			//addFileMetaInfo(fileName, size, flags,numberOfChunks,IP);
+			ptr = getFileMetadataPtr(fileName);
+			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload + 16 * ptr->numReplicas * ptr->numberOfChunks));
+			(*infoPayload)->flags |= ptr->flags;
+			(*infoPayload)->noOfReplicas = ptr->numReplicas;
+			(*infoPayload)->noOfSplits = ptr->numberOfChunks;
+
+			ChunkInfo *chunkPtr = ptr->chunkInfo;
+			for(i = 0; i < ptr->numberOfChunks; i++, chunkPtr = chunkPtr->next) {
+				for(j = 0; j < ptr->numReplicas; j++ ) {
+					strcpy((*infoPayload)->ipAddr[i][j], chunkPtr->IP[j]);
+				}
+			}
+		} else {
+			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
+			(*infoPayload)->flags |= FILE_ALREADY_PRESENT;
+		}
+	}
+
+	(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
+
+	if(ptr != NULL) { //The file is already present
+	} else {
+
+	}
+	(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
 
 	(*infoPayload)->flags |= FILE_NAME_AVAILABLE;
 	//Also send details of the nodes on which the replicas have to be placed
