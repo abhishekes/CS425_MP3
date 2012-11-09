@@ -25,5 +25,6 @@ In the folder ui, type: ./ui to run the node part of the code.
 //TODO : 
 1) When IP address goes down, get the filenames, other IP where chunk is present and new IP where to replicate
 2) Mutexs to be added
+3) Get, put, delete with priority
 3) Writing of metadata to the file
 4) Pushing metadata to neighbor
