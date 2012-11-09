@@ -41,7 +41,7 @@ void send_node_update_payload(void *tdata)
         if((connect(sock, (struct sockaddr *) &nodeAddress,   sizeof(nodeAddress))) < 0) { 
                 //LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
                 free(my_data->payload);
-                free(my_data);
+
                 my_data->status = RC_SOCKET_CONNECT_FAILED;
                 pthread_exit(NULL);
         }

@@ -20,7 +20,7 @@
 #include "../logging/log.h"
 #include "../ui/ui.h"
 
-#define ADMISSION_CONTACT_IP "192.168.2.12"	//This is not decided yet
+#define ADMISSION_CONTACT_IP "192.168.2.7"	//This is not decided yet
 #define ADMISSION_CONTACT_PORT 2000		//This is not decided yet
 #define TCP_LISTEN_PORT 18000
 
