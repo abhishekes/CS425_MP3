@@ -4,7 +4,7 @@ extern pthread_mutex_t node_list_mutex;
 //extern pthread_mutex_t timestamp_mutex;
 state_machine current_state = INIT;   
 pthread_mutex_t state_machine_mutex = PTHREAD_MUTEX_INITIALIZER;
-
+extern struct Node *myself;
 void main()/*interact_with_user()*/
 {
     char choice = 0;
@@ -41,6 +41,9 @@ void main()/*interact_with_user()*/
            */
            case TOPOLOGY_FORMED:
                strcpy(buf, "Membership Active");
+               if (server_topology && server_topology->node == myself) {
+            	   strcat(buf, "  **** Leader **** ");
+               }
                strcpy(display_buf,"\n1. Send Membership Quit notification\n");   
                case1function = node_exit;
                break;
@@ -102,7 +105,7 @@ void main()/*interact_with_user()*/
        }while(valid == 0);
        //getchar();
        system("clear"); 
-    }while((choice-'0') != 3);
+    }while((choice-'0') != 4);
     //}while(0); 
     //while(1);
 }

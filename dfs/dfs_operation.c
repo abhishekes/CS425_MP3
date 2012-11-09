@@ -463,7 +463,7 @@ RC_t create_metadata_from_file() {
 }
 
 //This is to send reply to the client with the list of IPs where it can put the file into
-RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, char *fileName, char *IP) {
+RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequestPayload *request) {
     //Check if a file with this name already exists
     //fileInfoPayload->flags |= FILE_ALREADY_PRESENT; Error Case
 

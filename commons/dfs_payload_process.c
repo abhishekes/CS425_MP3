@@ -25,7 +25,7 @@ RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data) {
     	 LOG(DEBUG, "Received file information from master for file %s", infoPayload->fileName);
          size = sizeof(fileInfoPayload) + infoPayload->noOfSplits * 3 * 16;
          *return_data = (fileInfoPayload*)calloc(1, size); //Allocate memory for all the entries
-         addFileMetaInfo(infoPayload->fileName, 0, infoPayload->flags, infoPayload->noOfSplits);
+         addFileMetaInfo(infoPayload->fileName, 0, infoPayload->flags, infoPayload->noOfSplits, "0.0.0.0");
          memcpy(*return_data, infoPayload, size);
          rc = RC_SUCCESS;
      }
@@ -67,7 +67,7 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     if (payload->flags & GET_FILE_REQUEST) {
     	//Look for file entry and return corresponding entry
     }else if (payload->flags & PUT_FILE_REQUEST ) {
-    	populateFileInfoPayload(&infoPayload, payload->fileName, payload->requesterIP);
+    	populateFileInfoPayload(&infoPayload, payload);
     	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(infoPayload));
     	if (rc != RC_SUCCESS) {
     		printf("\n Failed to send file information to requesting node");
