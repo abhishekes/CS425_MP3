@@ -193,7 +193,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 
         memcpy((*my_data).ip, server_topology->node->IP, 16);
 
-        (*my_data).payload_size = sizeof(fileInfo);
+        (*my_data).payload_size = sizeof(fileOperationRequestPayload);
         (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
         (*my_data).flags = WAIT_FOR_RESPONSE;
         payloadBuf = my_data->payload;

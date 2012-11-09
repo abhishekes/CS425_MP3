@@ -8,7 +8,8 @@ extern char myIP[16];
 RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data) {
     RC_t rc;
     int size;
-	if (infoPayload->flags & FILE_INFO_UPDATE) {
+	LOG(DEBUG, "Received file info payload for %s", infoPayload->fileName);
+    if (infoPayload->flags & FILE_INFO_UPDATE) {
     	 if (server_topology && server_topology->node) {
     		 if (myself) {
     			 if (server_topology->node != myself) {
@@ -65,7 +66,7 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     RC_t rc = RC_FAILURE;
     fileInfoPayload *infoPayload /*= (infoPayload *)calloc(1, sizeof(fileInfoPayload))*/;
     LOG(DEBUG,"Received File Operation Request from %s for %s", payload->requesterIP, payload->fileName);
-    printf("Received file operation request from %s for %s, flags : %0x", payload->requesterIP, payload->fileName, payload->flags);
+    //printf("Received file operation request from %s for %s, flags : %0x", payload->requesterIP, payload->fileName, payload->flags);
     if (payload->flags & GET_FILE_REQUEST) {
     	//Look for file entry and return corresponding entry
     }else if (payload->flags & PUT_FILE_REQUEST ) {
