@@ -58,7 +58,7 @@ RC_t removeFileMetaEntry(char IP[16], FileMetadata *filePtr);
 RC_t deleteAllChunkInfo(ChunkInfo *chunkPtr, FileMetadata *fileMetaPtr);
 RC_t deleteFileMetaInfo(FileMetadata *fileMetaPtr);
 RC_t removeFileMetaInfo(char fileName[NAMEMAX]);
-int addIPtoFileInfo(char IP[16]);
+RC_t addIPtoFileInfo(char IP[16]);
 RC_t updateFileList(IPtoFileInfo *ptr,FileMetadata *fileMetaPtr);
 RC_t updateIPtoFileInfo(char IP[16], FileMetadata* fileMetaPtr);
 void getNextIP_RR(char IP[16]);
