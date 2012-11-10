@@ -249,7 +249,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     				printf("\n File could not be found on the distributed file system");
 
     			} else {
-    				*file_thread = calloc(1, sizeof(dfs_thread_info *) * fileInfo->noOfSplits);
+    				file_thread = calloc(1, sizeof(dfs_thread_info *) * fileInfo->noOfSplits);
     				threads = calloc(1, sizeof(pthread_t) * fileInfo->noOfSplits);
     				for (i = 0; i < fileInfo->noOfSplits; i++ ) {
     					file_thread[i] = calloc(1, sizeof(dfs_thread_info));
