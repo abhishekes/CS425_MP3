@@ -71,7 +71,7 @@ void* topology_update(void* t) {
 		//}	
 		
 		processPacket(connectSocket,packet, NULL);
-		close(connectSocket);	
+		//close(connectSocket);
 	}
 
 	pthread_exit(NULL);

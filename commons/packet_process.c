@@ -41,9 +41,11 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 		        printf("\n************processPacket***************\n");
                      processNodeAddDeletePayload(packet->payload, packet->length);
                      topology_version++;
+                     close(socket);
                      break;
 		case MSG_TOPOLOGY_REQUEST:
                      processTopologyRequest(socket, packet->payload);
+                     close(socket);
                      break;
 		case MSG_FILE_TRANSFER :
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
