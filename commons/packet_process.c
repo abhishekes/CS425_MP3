@@ -29,7 +29,9 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
   	
 	packetLength = packet->length;
 	packetType = packet->type;
-    DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));
+    if (packetType != 0) {
+    	DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));
+    }
 	perform_marshalling(packetType, packet->payload);
         switch(packetType) {
 		case MSG_HEARTBEAT :
