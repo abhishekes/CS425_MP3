@@ -295,13 +295,16 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     				}
 
     				DEBUG(("********************TRYING TO MERGE******************************"));
+    				getchar();
     				//Merge the files
     				merge_file_splits(remoteFileName , localFileName, fileInfo->noOfSplits);
+    				getchar();
     				DEBUG(("********************DONE MERGING******************************"));
     			}
 		}
 	}
-        DEBUG(("********************Returning Success******************************"));
+    DEBUG(("********************Returning Success******************************"));
+    getchar();
     return RC_SUCCESS;
     }
     return RC_FAILURE;
