@@ -52,7 +52,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
                      DEBUG(("Status flag before = %0x\n", ftpBuf->statusFlag));
                      statusFlag = ntohs(ftpBuf->statusFlag);
-                     wfp = open(ftpBuf->fileName, O_WRONLY|O_APPEND);
+                     wfp = open(ftpBuf->fileName, O_WRONLY|O_APPEND| O_CREAT);
                      if((statusFlag & FTP_START)) {
                     	 DEBUG(("\nFilename : %s\n", ftpBuf->fileName));
                     	 sprintf(command, "rm -rf %s", ftpBuf->fileName);                      //Delete old entries
