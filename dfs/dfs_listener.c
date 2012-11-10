@@ -1,6 +1,6 @@
 #include "dfs_listener.h"
 
-#define NUM_WORKER_THREADS 30
+#define NUM_WORKER_THREADS 15
 
 void* handle_request(void* t);
 
