@@ -13,7 +13,7 @@ pthread_mutex_t file_map_lock = PTHREAD_MUTEX_INITIALIZER;
 
 struct FileNameMap* add_entry(char fileName[FILE_PATH_LENGTH]) {
 	struct FileNameMap* newEntry;
-
+	LOG(DEBUG, "Adding entry for %s, %0x", newEntry->fileName, newEntry);
 	newEntry = (struct FileNameMap*)malloc(sizeof(struct FileNameMap));
 		
 	strcpy(newEntry->fileName, fileName);	
@@ -25,7 +25,7 @@ struct FileNameMap* add_entry(char fileName[FILE_PATH_LENGTH]) {
 	newEntry->state = OPEN;
 					
 	newEntry->next = NULL;
-	LOG(DEBUG, "Adding entry for %s, %0x", newEntry->fileName, newEntry);
+
 	pthread_mutex_lock(&file_map_lock);
 	if (map == NULL)
 		map = newEntry;

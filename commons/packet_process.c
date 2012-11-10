@@ -18,6 +18,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 	payloadBuf *packet_ptr = packet;
 	uint16_t statusFlag;
 	struct FileNameMap *ptr;
+	int wfp = 0;
 	char fileName[FILE_PATH_LENGTH + 1];
 	char outputFileName[FILE_PATH_LENGTH];
         fileTransferPayload *ftpBuf;
@@ -51,21 +52,24 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
                      DEBUG(("Status flag before = %0x\n", ftpBuf->statusFlag));
                      statusFlag = ntohs(ftpBuf->statusFlag);
-	   
+                     wfp = open(ftpBuf->fileName, O_WRONLY|O_APPEND);
                      if((statusFlag & FTP_START)) {
                     	 DEBUG(("\nFilename : %s\n", ftpBuf->fileName));
                     	 sprintf(command, "rm -rf %s", ftpBuf->fileName);                      //Delete old entries
                     	 system(command);
-                    	 ptr = add_entry(ftpBuf->fileName);
-                    	 if (ptr == NULL) {
+                    	 /*ptr = add_entry(ftpBuf->fileName);*/
+
+                    	 if (wfp == 0) {
                     		 DEBUG(("\nprocessPacket : Add Entry failed\n"));
+                    		 getchar();
+                    		 break;
                     	 } else {
                     		 DEBUG(("\nprocessPacket : Added entry successfully for %s : %0x\n", ftpBuf->fileName, ftpBuf->fileName));
                     	 }
                      }
                      else { //This has to be done for both continue and FTP_STOP
-                    	 ptr = get_entry(ftpBuf->fileName);
-                    	 if(ptr == NULL) {
+                    	 /*ptr = get_entry(ftpBuf->fileName);*/
+                    	 if(wfp == NULL) {
                     		 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
                     		 break;
                     	 }else {
@@ -82,10 +86,10 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      }
 		
                      if (statusFlag & FTP_STOP) {
-                    	 close(ptr->fd);
+                    	 /*close(ptr->fd);*/
                     	 sprintf(command, "chmod 777 %s", ftpBuf->fileName);
                     	 result = system(command);
-                    	 result = delete_entry(ptr->fd);
+                    	 /*result = delete_entry(ptr->fd);*/
                     	 if (result == -1) {
                     		 DEBUG(("\nprocessPacket : Delete entry failed\n"));
                     	 }
@@ -98,7 +102,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 
                          close(socket); //Close connection since last chunk is received
                      }
-			
+			         close(wfp);
 		break;
 			
 		case MSG_EXECUTE_SCRIPT :
