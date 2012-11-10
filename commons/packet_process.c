@@ -80,7 +80,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      buf = (char*)(ftpBuf->filePayload);
                      bytesToWrite =  packetLength - sizeof(packetLength) - sizeof(packetType) - sizeof(fileTransferPayload);
                      while(bytesToWrite != 0) {
-                    	 bytesWritten = write(ptr->fd, buf, bytesToWrite);
+                    	 bytesWritten = write(wfp, buf, bytesToWrite);
                     	 bytesToWrite -= bytesWritten;
                     	 buf += bytesWritten;
                      }
