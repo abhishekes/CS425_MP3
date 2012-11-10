@@ -332,7 +332,7 @@ RC_t receiveFileWrapper(void *tdata) {
     	LOG(DEBUG, "Trying to fetch file  %s from %s", dfs_data->destFileName, IP);
     	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
 
-        	if (sendFileInfoRequest(sock, dfs_data->destFileName) == RC_SUCCESS) {
+        	if (sendFileRequest(sock, dfs_data->destFileName) == RC_SUCCESS) {
                 while ((rc = message_decode(sock, &packet)) == RC_SUCCESS) {
                         processPacket(socket, packet, &data);
 
