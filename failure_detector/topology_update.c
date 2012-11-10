@@ -63,14 +63,20 @@ void* topology_update(void* t) {
 
 		//A client has connected. 
 		//It will send me updates regarding the topology - either someone has joined or someone has left	
-		rc = message_decode(connectSocket, &packet);
+		do {
+			rc = message_decode(connectSocket, &packet);
+			if (rc != RC_SUCCESS) {
+				break;
+			}
+			processPacket(connectSocket, packet, NULL);
+		}while(1);
+
 		//printf("\n\nDid I succeed?  rc = %d\n\n", rc);
 
 		//for(i = 0; i < packet->length; i++) {
 		//	printf("   ****  %d, ", *(packet + i));
 		//}	
 		
-		processPacket(connectSocket,packet, NULL);
 		//close(connectSocket);
 	}
 
