@@ -57,32 +57,17 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                     	 DEBUG(("\nFilename : %s\n", ftpBuf->fileName));
                     	 sprintf(command, "rm -rf %s", ftpBuf->fileName);                      //Delete old entries
                     	 system(command);
-                    	 /*ptr = add_entry(ftpBuf->fileName);*/
 
-                    	 /*if (wfp == 0) {
-                    		 DEBUG(("\nprocessPacket : Add Entry failed\n"));
-                    		 getchar();
-                    		 break;
-                    	 } else {
-                    		 DEBUG(("\nprocessPacket : Added entry successfully for %s : %0x\n", ftpBuf->fileName, ftpBuf->fileName));
-                    	 }*/
                      }
-                     else { //This has to be done for both continue and FTP_STOP
-                    	 /*ptr = get_entry(ftpBuf->fileName);*/
-                    	 /*if(wfp == 0) {
-                    		 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
-                    		 break;
-                    	 }else {
-                    		 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, ftpBuf->fileName));
-                    	 }*/
-                     }
-                     wfp = open(ftpBuf->fileName, O_WRONLY | O_APPEND | O_CREAT);
+
+                     wfp = open(ftpBuf->fileName, O_RDWR | O_APPEND | O_CREAT);
                      if(wfp == 0) {
-                    	 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
+                    	 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", wfp));
                     	 break;
                      }else {
-                    	 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, ftpBuf->fileName));
+                    	 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, wfp));
                      }
+
                      buf = (char*)(ftpBuf->filePayload);
                      bytesToWrite =  packetLength - sizeof(packetLength) - sizeof(packetType) - sizeof(fileTransferPayload);
                      while(bytesToWrite != 0) {
@@ -90,12 +75,12 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                     	 bytesToWrite -= bytesWritten;
                     	 buf += bytesWritten;
                      }
-		
+                     close(wfp);
                      if (statusFlag & FTP_STOP) {
-                    	 /*close(ptr->fd);*/
+
                     	 sprintf(command, "chmod 777 %s", ftpBuf->fileName);
                     	 result = system(command);
-                    	 /*result = delete_entry(ptr->fd);*/
+
                     	 if (result == -1) {
                     		 DEBUG(("\nprocessPacket : Delete entry failed\n"));
                     	 }
@@ -108,7 +93,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 
                          close(socket); //Close connection since last chunk is received
                      }
-			         close(wfp);
+
 		break;
 			
 		case MSG_EXECUTE_SCRIPT :
