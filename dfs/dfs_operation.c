@@ -328,8 +328,15 @@ RC_t receiveFileWrapper(void *tdata) {
     	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
 
         	if (sendFileRequest(sock, dfs_data->destFileName) == RC_SUCCESS) {
-                while (data == NULL && (rc = message_decode(sock, &packet)) == RC_SUCCESS) {
-                        processPacket(socket, packet, &data);
+                while (data == NULL) {
+                	if((rc = message_decode(sock, &packet)) == RC_SUCCESS) {
+
+
+                	    processPacket(socket, packet, &data);
+                	} else {
+                		DEBUG(("Breaking out because of messagwe decode"));
+                		break;
+                	}
 
                 }
                 if (data) {
