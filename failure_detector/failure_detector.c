@@ -9,7 +9,7 @@ extern char myIP[16];
 extern pthread_mutex_t state_machine_mutex;
 extern state_machine current_state;
 
-pthread_t send_thread, receive_thread, listen_thread;
+pthread_t send_thread, receive_thread, listen_thread, dfs_listener_thread;
 int node_init() {
 	server_topology = NULL;
 	myself = NULL;
@@ -36,7 +36,8 @@ int node_init() {
 			pthread_create(&send_thread, NULL, heartbeat_send, (void*)0);
 			pthread_create(&receive_thread, NULL, heartbeat_receive, (void*)0);
 			pthread_create(&listen_thread, NULL, topology_update, (void*)0);
-		        	
+			pthread_create(&dfs_listener_thread, NULL, dfs_listener, (void*)0);
+
 			//printf("Threads created\n");	
 			//I still need to tell others, if there are any, that I've joined. I've told to prev and next in the join_topology()
 			node = myself->next->next;

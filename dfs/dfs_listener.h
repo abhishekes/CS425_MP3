@@ -1,5 +1,5 @@
-#ifndef __FAILURE_DETECTOR__
-#define __FAILURE_DETECTOR__
+#ifndef __DFS_LISTENER__
+#define __DFS_LISTENER__
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -13,19 +13,13 @@
 #include "../commons/debug.h"
 #include "../logging/log.h"
 #include "../commons/list.h"
-#include "join_topology.h"
-#include "heartbeat_send.h"
-#include "heartbeat_receive.h"
-#include "topology_update.h"
 #include "../logging/log.h"
 #include "../ui/ui.h"
-#include "../dfs/dfs_listener.h"
 
 #define ADMISSION_CONTACT_IP "192.168.2.7"	//This is not decided yet
 #define ADMISSION_CONTACT_PORT 2000		//This is not decided yet
-#define TCP_LISTEN_PORT 18000
+#define DFS_LISTEN_PORT 28000
 
-int node_init();
-RC_t node_exit(); 
+void* dfs_listener(void*);
 
 #endif
