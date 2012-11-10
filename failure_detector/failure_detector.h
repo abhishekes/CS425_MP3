@@ -21,7 +21,7 @@
 #include "../ui/ui.h"
 #include "../dfs/dfs_listener.h"
 
-#define ADMISSION_CONTACT_IP "192.168.2.8"	//This is not decided yet
+#define ADMISSION_CONTACT_IP "192.168.2.11"	//This is not decided yet
 #define ADMISSION_CONTACT_PORT 2000		//This is not decided yet
 #define TCP_LISTEN_PORT 18000
 
