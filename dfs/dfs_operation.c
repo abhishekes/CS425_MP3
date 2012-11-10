@@ -126,7 +126,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
         			printf("\n ******* IP::::: %s ********* \n", fileInfo->ipAddr[0][0] );
         			file_thread[i]->ip = malloc(fileInfo->noOfReplicas * 16);
-        			memcpy(file_thread[i]->ip, fileInfo->ipAddr, fileInfo->noOfReplicas * 16);
+        			memcpy(file_thread[i]->ip, fileInfo->ipAddr[i], fileInfo->noOfReplicas * 16);
         			pthread_create(&threads[i], NULL, sendFileWrapper, file_thread[i]);
 
         		}
@@ -263,7 +263,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     		            sprintf(suffix_buf, "%d", i);
     		            strcpy(suffix + 4 - strlen(suffix_buf), suffix_buf);
     		            sprintf(file_thread[i]->destFileName, "%s%s", remoteFileName, suffix_buf);
-    					DEBUG(("\nSending %s\n",suffix));
+    					//DEBUG(("\nSending %s\n",suffix));
     		            file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
     					sprintf(file_thread[i]->destFileName, "%s%s", remoteFileName, suffix);
     					memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);

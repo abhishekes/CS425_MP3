@@ -86,7 +86,7 @@ int sendPayload(int socket, messageType msgType, char* payload, uint16_t length)
     int type = msgType;
     DEBUG(("\nSending packet. Type = %d\n", msgType));
     if (length > MAX_BUFFER_SIZE) {
-        DEBUG(("\nWarning :: Payload lentgth > 1024 bytes. Truncating to 1000 bytes\n")); //Anything above 1000 bytes will be truncated.
+        DEBUG(("\nWarning :: Payload lentgth > Max bytes. Truncating to %d bytes\n", MAX_BUFFER_SIZE)); //Anything above 1000 bytes will be truncated.
         length = MAX_BUFFER_SIZE;
     } 
     buf = malloc(sizeof(payloadBuf) + length);

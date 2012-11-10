@@ -1,7 +1,8 @@
 #include "send_file.h"
 extern char *myIP;
 
-#define MAX_FILE_CHUNK_SIZE 29700
+#define MAX_FILE_CHUNK_PAYLOAD_SIZE 29900
+#define MAX_FILE_CHUNK_SIZE 29600
 /*********************************************************
 ** This function is used to send file 
 ** 
@@ -17,7 +18,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
     DEBUG(("\nSendFile:Opened file %s\n", fileName));
     //char fileBuf[1000]={0};                                //File buffer
     int bytesSent = 0;
-    fileTransferPayload *ftpBuf = (fileTransferPayload *) malloc(MAX_FILE_CHUNK_SIZE);
+    fileTransferPayload *ftpBuf = (fileTransferPayload *) malloc(MAX_FILE_CHUNK_PAYLOAD_SIZE);
     int seqNo = 0;
     if (fp == 0) {
 	
