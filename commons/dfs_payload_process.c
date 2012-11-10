@@ -91,13 +91,18 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     return rc;
 }
 
-RC_t processNodeFileInfoRequest(int socket, requestNodeFileInfo *payload)
+RC_t processFileRequest(int socket, fileRequestPayload *payload)
 {
      RC_t rc;
      //Look for the entry corresponding to the IP address.
      //Send the response
+     FILE *fp = fopen(payload->fileName, 'r');
+     if (fp == NULL) {// Close connection. File not found
+         close(socket);
 
-
+     }else {
+    	 sendFile(socket, payload->fileName, payload->fileName);
+     }
      return rc;
 
 }

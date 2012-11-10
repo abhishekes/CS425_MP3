@@ -132,7 +132,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 		     close(socket);	
  		     break;
 		case MSG_FILE_REQUEST: //This is to tell Master that a client wants a file
-			//processFileRequest();
+			processFileRequest(socket, packet->payload);
 			break;
 		case MSG_FILE_OPERATION_REQUEST: //to tell the Master that a client has a file to put
             processFileOperationRequest(socket, packet->payload);
@@ -141,7 +141,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 			processFileInfoPayload(packet->payload, return_data);
 			break;
 		case MSG_NODE_FILE_INFO_REQEST: //Does nothing for now.
-			processNodeFileInfoRequest(socket, packet->payload);
+			//processNodeFileInfoRequest(socket, packet->payload);
 			break;
 		case MSG_CHUNK_REPLICATION: //This is to tell failed node's neighbor to replicate content
 			processChunkReplicationPayload(socket, packet->payload);
