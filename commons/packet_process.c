@@ -68,7 +68,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                     	 wfp = open(ftpBuf->fileName, O_WRONLY | O_APPEND);
                     	 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
                     	 getchar();
-                    	 break;
+
                      }/*else */{
                     	 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, wfp));
                      }
