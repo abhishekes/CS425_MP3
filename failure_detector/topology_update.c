@@ -71,7 +71,7 @@ void* topology_update(void* t) {
 				i = (i + 1) % NUM_WORKERS;
 			}
 
-			pthread_create(&workers[i], handle_topo_request, NULL, &connectSocket);
+			pthread_create(workers[i], NULL, handle_topo_request, &connectSocket);
 			i = (i + 1) % NUM_WORKERS;
 
 	/*	do {
@@ -95,7 +95,7 @@ void* topology_update(void* t) {
 }
 
 void *handle_topo_request(void* t) {
-	int connectSocket = *(int*)t;
+	int connectSocket = *((int*)t);
 	payloadBuf *packet;
 	RC_t rc;
 
