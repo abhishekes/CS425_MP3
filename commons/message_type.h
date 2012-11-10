@@ -9,7 +9,7 @@
 #define MAX_ELEMENTS_PER_PAYLOAD             8
 #define ID_SIZE                             20
 
-#define NUM_OF_REPLICAS                      3
+#define NUM_OF_REPLICAS                      2
 
 #define my_malloc(bytes) \
 do \
