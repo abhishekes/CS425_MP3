@@ -50,7 +50,7 @@ int message_decode(int socket, payloadBuf **packet) {
     for (i=0; i<length; i++ ) {
     //DEBUG(("%d,",(*((char*)(*packet) +i))));
 
-    DEBUG(("%0x,",*(packet + i)));
+    //DEBUG(("%0x,",*(packet + i)));
     }
     return RC_SUCCESS;
 }
