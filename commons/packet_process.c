@@ -59,14 +59,17 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                     	 ptr = add_entry(ftpBuf->fileName);
                     	 if (ptr == NULL) {
                     		 DEBUG(("\nprocessPacket : Add Entry failed\n"));
+                    	 } else {
+                    		 DEBUG(("\nprocessPacket : Added entry successfully for %s : %0x\n", ftpBuf->fileName, ftpBuf->fileName));
                     	 }
                      }
                      else { //This has to be done for both continue and FTP_STOP
                     	 ptr = get_entry(ftpBuf->fileName);
                     	 if(ptr == NULL) {
-                    		 DEBUG(("\nprocessPacket : Get Entry Failed\n"));
+                    		 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
+                    		 break;
                     	 }else {
-                    		 DEBUG(("\nprocessPacket : Got Entry \n"));
+                    		 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, ftpBuf->fileName));
                     	 }
                      }
 		
