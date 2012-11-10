@@ -119,8 +119,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
         			file_thread[i] = (dfs_thread_info *)calloc(1, sizeof(dfs_thread_info));
         			//threads[i] = calloc(1, sizeof(pthread_t));
-                    sprintf(suffix_buf, "%d", i);
-                    strcpy(suffix + 4 - strlen(suffix_buf), strlen(suffix_buf));
+        			strcpy(suffix + 4 - strlen(suffix_buf), suffix_buf);
         			sprintf(file_thread[i]->destFileName, "%s%s", fileInfo->fileName, suffix);
         			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
         			printf("\n ******* IP::::: %s ********* \n", fileInfo->ipAddr[0][0] );
