@@ -344,7 +344,7 @@ RC_t receiveFileWrapper(void *tdata) {
                 		LOG(DEBUG, "Fetched file  %s from %s successfully", dfs_data->destFileName, IP);
                 		dfs_data->rc = RC_SUCCESS;
                 		free(data);
-                		DEBUG(("Exiting the thread. I better exit"));
+                		LOG(DEBUG, "Exiting the thread. I better exit", "");
                 		pthread_exit(NULL);
                 	}
                 }
