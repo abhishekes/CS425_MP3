@@ -86,10 +86,14 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                     	 if (result == -1)
                     		 DEBUG(("\nprocessPacket : Delete entry failed\n"));
 
-                         return_data = (RC_t *)malloc(sizeof(RC_t));
+                    	 if (return_data) {
+                    		 *return_data = (RC_t *)malloc(sizeof(RC_t));
+                    	 	 memcpy((RC_t *)(*return_data), RC_SUCCESS, sizeof(RC_t));
+                    	 }
                          LOG(DEBUG, "Received file %s", ftpBuf->fileName);
-                         *((RC_t *)return_data) = RC_SUCCESS;
-                    	 close(socket); //Close connection since last chunk is received
+
+
+                         close(socket); //Close connection since last chunk is received
                      }
 			
 		break;

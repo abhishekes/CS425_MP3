@@ -276,7 +276,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     				}
     				for (i = 0; i < fileInfo->noOfSplits; i++ ) {
     					if (file_thread[i]->rc != RC_SUCCESS) {
-    						LOG(DEBUG,"Could not receive file split %d from any of the replicas", i+1);
+    						LOG(DEBUG,"Could not receive file split %d from any of the replicas", i);
 
     						break;
     					}
@@ -287,9 +287,9 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     						free(file_thread[i]);
     						//free(threads[i]);
     					}
-    					if (file_thread[i]->ip) {
-    						free(file_thread[i]->ip);
-    					}
+    					//if (file_thread[i]->ip) {
+    						//free(file_thread[i]->ip);
+    					//}
     					free(my_data);
     					free(file_thread);
     					free(threads);
