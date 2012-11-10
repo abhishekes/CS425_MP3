@@ -71,7 +71,7 @@ void* topology_update(void* t) {
 				i = (i + 1) % NUM_WORKERS;
 			}
 
-			pthread_create(workers[i], NULL, handle_topo_request, &connectSocket);
+			pthread_create(&workers[i], NULL, handle_topo_request, &connectSocket);
 			i = (i + 1) % NUM_WORKERS;
 
 	/*	do {
