@@ -13,6 +13,7 @@ void* topology_update(void* t) {
 	struct sockaddr_in myAddress, clientAddress;
 	int i,j, bytes, numBytes, pid;
 	pthread_t workers[NUM_WORKERS];
+	int connectedSocket[NUM_WORKERS];
 	payloadBuf *packet;
 	int rc;
 	clientSize = sizeof(clientAddress);
@@ -69,10 +70,11 @@ void* topology_update(void* t) {
 		i = 0;
 		while( i >= NUM_WORKERS && !pthread_cancel(workers[i])) {
 				i = (i + 1) % NUM_WORKERS;
-			}
+		}
 
-			pthread_create(&workers[i], NULL, handle_topo_request, &connectSocket);
-			i = (i + 1) % NUM_WORKERS;
+		connectedSocket[i]	= connectSocket;
+		pthread_create(&workers[i], NULL, handle_topo_request, &connectedSocket[i]);
+		i = (i + 1) % NUM_WORKERS;
 
 	/*	do {
 			rc = message_decode(connectSocket, &packet);
