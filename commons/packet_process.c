@@ -18,7 +18,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 	payloadBuf *packet_ptr = packet;
 	uint16_t statusFlag;
 	struct FileNameMap *ptr;
-	int wfp = 0;
+	int wfp = -1;
 	char fileName[FILE_PATH_LENGTH + 1];
 	char outputFileName[FILE_PATH_LENGTH];
         fileTransferPayload *ftpBuf;
@@ -64,11 +64,12 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      }
 
 
-                     if(wfp < 0) {
+                     while(wfp < 0) {
+                    	 wfp = open(ftpBuf->fileName, O_WRONLY | O_APPEND);
                     	 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
                     	 getchar();
                     	 break;
-                     }else {
+                     }/*else */{
                     	 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, wfp));
                      }
 
