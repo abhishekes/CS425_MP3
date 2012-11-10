@@ -535,7 +535,7 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 			ChunkInfo *chunkPtr = ptr->chunkInfo;
 			for(i = 0; i < ptr->numberOfChunks; i++, chunkPtr = chunkPtr->next) {
 				for(j = 0; j < ptr->numReplicas; j++ ) {
-					strcpy((*infoPayload)->ipAddr[i][j], chunkPtr->IP[j]);
+					memcpy((*infoPayload)->ipAddr[i][j], chunkPtr->IP[j], 16);
 				}
 			}
 		} else {
