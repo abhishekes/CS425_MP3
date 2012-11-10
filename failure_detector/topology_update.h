@@ -13,4 +13,11 @@
 
 void* topology_update(void*);
 
+
+typedef struct {
+    int socket;
+    uint8_t state;
+
+
+}listener_thread_data;
 #endif

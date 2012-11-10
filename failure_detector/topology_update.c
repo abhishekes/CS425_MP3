@@ -11,11 +11,12 @@ void* topology_update(void* t) {
 	int connectSocket, socketFlags, ret;
 	socklen_t clientSize;
 	struct sockaddr_in myAddress, clientAddress;
-	int i,j, bytes, numBytes, pid;
+	int i ,j, bytes, numBytes, pid;
 	pthread_t workers[NUM_WORKERS];
-	int connectedSocket[NUM_WORKERS];
+	listener_thread_data connectedSocket[NUM_WORKERS];
 	payloadBuf *packet;
 	int rc;
+	i = 0;
 	clientSize = sizeof(clientAddress);
         if(listenSocket) {
             close(listenSocket);
@@ -67,12 +68,13 @@ void* topology_update(void* t) {
 
 		//A client has connected. 
 		//It will send me updates regarding the topology - either someone has joined or someone has left
-		i = 0;
-		while( i >= NUM_WORKERS && !pthread_cancel(workers[i])) {
+
+		while( connectedSocket[i].state) {
 				i = (i + 1) % NUM_WORKERS;
 		}
 
-		connectedSocket[i]	= connectSocket;
+		connectedSocket[i].socket	= connectSocket;
+		connectedSocket[i].state = 1;
 		pthread_create(&workers[i], NULL, handle_topo_request, &connectedSocket[i]);
 		i = (i + 1) % NUM_WORKERS;
 
@@ -97,17 +99,19 @@ void* topology_update(void* t) {
 }
 
 void *handle_topo_request(void* t) {
-	int connectSocket = *((int*)t);
+	//int connectSocket = *((int*)t);
 	payloadBuf *packet;
+	listener_thread_data *thread_info = (listener_thread_data *)(t);
 	RC_t rc;
 
 	do {
-		rc = message_decode(connectSocket, &packet);
+		rc = message_decode(thread_info->socket, &packet);
 		if (rc != RC_SUCCESS) {
 			break;
 		}
-		processPacket(connectSocket, packet, NULL);
+		processPacket(thread_info->socket, packet, NULL);
 	}while(1);
-	pthread_testcancel();
+
+	thread_info->state = 0;
 	pthread_exit(NULL);
 }
