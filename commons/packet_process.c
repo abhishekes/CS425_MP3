@@ -52,7 +52,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
                      DEBUG(("Status flag before = %0x\n", ftpBuf->statusFlag));
                      statusFlag = ntohs(ftpBuf->statusFlag);
-                     wfp = open(ftpBuf->fileName, O_WRONLY|O_APPEND| O_CREAT);
+
                      if((statusFlag & FTP_START)) {
                     	 DEBUG(("\nFilename : %s\n", ftpBuf->fileName));
                     	 sprintf(command, "rm -rf %s", ftpBuf->fileName);                      //Delete old entries
@@ -69,14 +69,14 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      }
                      else { //This has to be done for both continue and FTP_STOP
                     	 /*ptr = get_entry(ftpBuf->fileName);*/
-                    	 if(wfp == NULL) {
+                    	 if(wfp == 0) {
                     		 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
                     		 break;
                     	 }else {
                     		 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, ftpBuf->fileName));
                     	 }
                      }
-		
+                     wfp = open(ftpBuf->fileName, O_WRONLY | O_APPEND | O_CREAT);
                      buf = (char*)(ftpBuf->filePayload);
                      bytesToWrite =  packetLength - sizeof(packetLength) - sizeof(packetType) - sizeof(fileTransferPayload);
                      while(bytesToWrite != 0) {
