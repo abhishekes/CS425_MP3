@@ -332,7 +332,7 @@ RC_t receiveFileWrapper(void *tdata) {
                 	if((rc = message_decode(sock, &packet)) == RC_SUCCESS) {
 
 
-                	    processPacket(socket, packet, &data);
+                	    processPacket(sock, packet, &data);
                 	} else {
                 		DEBUG(("Breaking out because of message decode"));
                 		break;
@@ -426,8 +426,8 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock)
             return RC_SOCKET_CONNECT_FAILED;
 
     }
-    LOG(DEBUG, "IP : %s Connected for FTP operation ...\n", IP);
-    DEBUG(("IP : %s Connected for FTP operation ...\n", IP));
+    LOG(DEBUG, "IP : %s Connected for FTP operation ...Address %0x\n", IP, nodeAddress);
+    DEBUG(("IP : %s Connected for FTP operation ..Address %0x \n", IP, nodeAddress));
 
     return RC_SUCCESS;
 }
