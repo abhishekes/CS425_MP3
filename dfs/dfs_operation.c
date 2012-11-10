@@ -342,7 +342,10 @@ RC_t receiveFileWrapper(void *tdata) {
                 if (data) {
                 	if (*((RC_t *)data) == RC_SUCCESS ) {
                 		LOG(DEBUG, "Fetched file  %s from %s successfully", dfs_data->destFileName, IP);
-                		break;
+                		dfs_data->rc = RC_SUCCESS;
+                		free(data);
+                		DEBUG(("Exiting the thread. I better exit"));
+                		pthread_exit(NULL);
                 	}
                 }
             }
