@@ -55,14 +55,18 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 
                      if((statusFlag & FTP_START)) {
                     	 DEBUG(("\nFilename : %s\n", ftpBuf->fileName));
+
                     	 sprintf(command, "rm -rf %s", ftpBuf->fileName);                      //Delete old entries
                     	 system(command);
-
+                    	 wfp = open(ftpBuf->fileName, O_WRONLY | O_CREAT);
+                     } else {
+                    	 wfp = open(ftpBuf->fileName, O_WRONLY | O_APPEND);
                      }
 
-                     wfp = open(ftpBuf->fileName, O_WRONLY| O_APPEND | O_CREAT);
+
                      if(wfp < 0) {
                     	 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
+                    	 getchar();
                     	 break;
                      }else {
                     	 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, wfp));
