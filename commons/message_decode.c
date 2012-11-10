@@ -26,7 +26,7 @@ int message_decode(int socket, payloadBuf **packet) {
     	rv = poll(fds, 1, 1000);
     	if(rv == -1) {
     		//poll error
-    	}else if(rv == 1){
+    	}else if((rv == 1) && (fds[0].revents & POLLIN)){
     		rc = read(fds[0].fd, ptr, size);
     	} else {
         //if (rc <= 0) {
