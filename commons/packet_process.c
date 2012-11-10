@@ -29,7 +29,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
   	
 	packetLength = packet->length;
 	packetType = packet->type;
-        //DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));			
+    DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));
 	perform_marshalling(packetType, packet->payload);
         switch(packetType) {
 		case MSG_HEARTBEAT :
@@ -61,6 +61,8 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                     	 ptr = get_entry(ftpBuf->fileName);
                     	 if(ptr == NULL) {
                     		 DEBUG(("\nprocessPacket : Get Entry Failed\n"));
+                    	 }else {
+                    		 DEBUG(("\nprocessPacket : Got Entry \n"));
                     	 }
                      }
 		
