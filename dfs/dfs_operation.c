@@ -300,7 +300,7 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     			}
 		}
 	}
-	return my_data->status;
+	return RC_SUCCESS;
     }
     return RC_FAILURE;
 }
