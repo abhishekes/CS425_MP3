@@ -66,7 +66,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	}else {
 	        fseek(inputFile, 0L, SEEK_END);
 	        size = ftell(inputFile);
-	        size = ceil(size / (1024 * 1024));
+	        size = ceil((float)size / (1024 * 1024));
 	        printf("\n****** File Length : %d********* \n" , size);
 		    fclose(inputFile);
 	}

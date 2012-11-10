@@ -88,7 +88,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 
                     	 if (return_data) {
                     		 *return_data = (RC_t *)malloc(sizeof(RC_t));
-                    	 	 memcpy((RC_t *)(*return_data), RC_SUCCESS, sizeof(RC_t));
+                    	 	 *((RC_t *)(*return_data)) = RC_SUCCESS;
                     	 }
                          LOG(DEBUG, "Received file %s", ftpBuf->fileName);
 
