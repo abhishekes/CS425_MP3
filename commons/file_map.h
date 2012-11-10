@@ -9,6 +9,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<pthread.h>
+#include "../logging/log.h"
 
 struct FileNameMap{
 	char fileName[FILE_PATH_LENGTH];

@@ -1,5 +1,5 @@
 #include "file_map.h"
-
+extern char myIP[16];
 /*********************************************************************
 ** Helper function for File Transfer.
 ** Thus file maintains a structure of pointers to all the files
@@ -25,6 +25,7 @@ struct FileNameMap* add_entry(char fileName[FILE_PATH_LENGTH]) {
 	newEntry->state = OPEN;
 					
 	newEntry->next = NULL;
+	LOG(DEBUG, "Adding entry for %s, %0x", newEntry->fileName, newEntry);
 	pthread_mutex_lock(&file_map_lock);
 	if (map == NULL)
 		map = newEntry;
@@ -73,6 +74,7 @@ int delete_entry(int fd) {
 	}
 	else {
 		DEBUG(("\nEntry found!!\n"));
+		LOG(DEBUG, "Deleting entry for %s %0x", ptr->fileName, ptr);
 		if(ptr == map) {
 			map = map->next;
 			free(ptr);
