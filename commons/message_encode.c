@@ -5,8 +5,8 @@
 #include<string.h>
 #include<arpa/inet.h>
 
-#define MAX_BUFFER_SIZE 1000                       //Maximum application payload we support as of now is 1000 bytes. 
-#define MAX_PAYLOAD_SIZE 1024
+#define MAX_BUFFER_SIZE 30000                       //Maximum application payload we support as of now is 1000 bytes.
+#define MAX_PAYLOAD_SIZE 29700
 
 /*Data structure used for marshalling */
 int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] = 
