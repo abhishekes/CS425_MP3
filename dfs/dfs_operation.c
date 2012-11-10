@@ -349,9 +349,10 @@ RC_t receiveFileWrapper(void *tdata) {
 
         }
     }
+    DEBUG(("Came out"));
     if ( i < dfs_data->numOfAddresses) {
 	    dfs_data->rc = RC_SUCCESS;
-         }else {
+    }else {
         dfs_data->rc = rc;
     }
     if (data) {
