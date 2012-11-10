@@ -12,7 +12,7 @@
 
 #define IP_ADDR_LENGTH    16
 #define NUM_OF_SPLITS      4
-#define CHUNK_SIZE_IN_MB  64
+#define CHUNK_SIZE_IN_MB  10
 
 typedef struct {
 	char fileName[255];
