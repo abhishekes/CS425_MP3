@@ -10,14 +10,14 @@ extern char *myIP;
 
 int sendFile(int socket, char *fileName, char *destFileName )
 {
-    FILE *fp = fopen(fileName, "r");
+    int fp = open(fileName, O_RDONLY);
     int rc;
     DEBUG(("\nSendFile:Opened file %s\n", fileName));
     char fileBuf[1000]={0};                                //File buffer
     
     fileTransferPayload *ftpBuf = (fileTransferPayload *) malloc(1000);
     int seqNo = 0;
-    if (fp == NULL) {
+    if (fp == 0) {
 	
     	LOG(DEBUG, "SendFile:File %s Not found\n", fileName);
         return RC_FILE_NOT_FOUND;
@@ -31,19 +31,19 @@ int sendFile(int socket, char *fileName, char *destFileName )
     ftpBuf->statusFlag |= FTP_REQUEST;
     do {
     	 memset(ftpBuf->filePayload,0,790);
-         rc = fread(fileBuf,sizeof(char), 790, fp);
+         rc = read(fp, fileBuf,sizeof(char) * 790);
 	 //LOG("\nSendfile: RC = %d\n", rc);
-         if (rc < 0) {
+         if (rc <= 0) {
              return RC_FILE_NOT_FOUND;
          }
          if (!seqNo) {
              ftpBuf->statusFlag |= FTP_START;
          }
-         if (feof(fp)) {
+         if (rc < sizeof(char) * 790) {
              ftpBuf->statusFlag |= FTP_STOP;
          }
 	 ftpBuf->statusFlag = htons(ftpBuf->statusFlag);
-         memcpy(ftpBuf->filePayload, fileBuf, rc);
+	 memcpy(ftpBuf->filePayload, fileBuf, rc);
 	 rc = sendPayload(socket, MSG_FILE_TRANSFER, ftpBuf, sizeof(fileTransferPayload) + rc);
          if (rc != RC_SUCCESS) {
              DEBUG(("\nCould not send script file\n"));
@@ -53,9 +53,9 @@ int sendFile(int socket, char *fileName, char *destFileName )
 
          ftpBuf->statusFlag = 0;
          seqNo++;
-      }while(!feof(fp));
+      }while(rc == 790);
      free(ftpBuf);
-     fclose(fp);
+     close(fp);
      //LOG(DEBUG, "SendFile:Just before returning %s\n", destFileName);
      return RC_SUCCESS;
 

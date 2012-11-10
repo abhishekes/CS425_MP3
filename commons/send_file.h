@@ -11,4 +11,5 @@
 #include "message_type.h"
 #include "debug.h"
 #include "../logging/log.h"
+#include <fcntl.h>
 #endif // __SEND_FILE__

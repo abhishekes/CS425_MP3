@@ -380,9 +380,11 @@ RC_t sendFileWrapper(void *tdata ) {
         }
     	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
             printf("\nTrying to send file %s to %s\n", dfs_data->fileName, IP);
-        	if (sendFile(sock, dfs_data->destFileName, dfs_data->destFileName) == RC_SUCCESS) {
+        	if ((rc=sendFile(sock, dfs_data->destFileName, dfs_data->destFileName)) == RC_SUCCESS) {
         		printf("\nSent file %s to %s successfully\n", dfs_data->fileName, IP);
         		//break;
+            }else {
+            	printf("\nFailed to send file %s to %s. Error = %d", dfs_data->fileName, IP, rc );
             }
 
         } else {
