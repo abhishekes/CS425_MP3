@@ -334,7 +334,7 @@ RC_t receiveFileWrapper(void *tdata) {
 
                 	    processPacket(socket, packet, &data);
                 	} else {
-                		DEBUG(("Breaking out because of messagwe decode"));
+                		DEBUG(("Breaking out because of message decode"));
                 		break;
                 	}
 
@@ -358,6 +358,7 @@ RC_t receiveFileWrapper(void *tdata) {
         free(data);
         data = NULL;
     }
+    DEBUG(("Returning from this function"));
     return rc;
 }
 

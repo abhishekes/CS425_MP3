@@ -83,9 +83,9 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                     	 sprintf(command, "chmod 777 %s", ftpBuf->fileName);
                     	 result = system(command);
                     	 result = delete_entry(ptr->fd);
-                    	 if (result == -1)
+                    	 if (result == -1) {
                     		 DEBUG(("\nprocessPacket : Delete entry failed\n"));
-
+                    	 }
                     	 if (return_data) {
                     		 *return_data = (RC_t *)malloc(sizeof(RC_t));
                     	 	 *((RC_t *)(*return_data)) = RC_SUCCESS;
