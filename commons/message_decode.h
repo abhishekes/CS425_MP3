@@ -6,6 +6,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<arpa/inet.h>
+#include<poll.h>
 #include "message_type.h"
 #include "debug.h"
 

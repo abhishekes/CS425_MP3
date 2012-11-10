@@ -15,12 +15,23 @@ int message_decode(int socket, payloadBuf **packet) {
     int size = sizeof(length);
     int bytesRead = 0;
     int rc;
+    struct pollfd fds[1];
+    int rv;
+
+    fds[0].fd = socket;
+    fds[0].events = POLLIN | POLLPRI;
+
     //printf("Before while loop\n");
     while (size > 0) {
-        rc = read(socket, ptr, size);
-        if (rc <= 0) {
-        DEBUG(("Read failed in message decode. Socket may have been closed."));
-        return rc;
+    	rv = poll(fds, 1, 1000);
+    	if(rv == -1) {
+    		//poll error
+    	}else if(rv == 1){
+    		rc = read(fds[0].fd, ptr, size);
+    	} else {
+        //if (rc <= 0) {
+    		DEBUG(("Read failed in message decode. Socket may have been closed."));
+    		return RC_FAILURE;
         }
         bytesRead = rc;
         size -= bytesRead;
