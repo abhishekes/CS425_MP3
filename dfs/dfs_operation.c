@@ -529,14 +529,16 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 				printf("ERROR : Could not find fileMetadata ptr even after inserting");
 			}
 
-			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload) + 16 * ptr->numReplicas * ptr->numberOfChunks);
+			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload) + (16 * ptr->numReplicas * ptr->numberOfChunks));
 			(*infoPayload)->flags |= FILE_INFO_RESPONSE | FILE_NAME_AVAILABLE;
 			(*infoPayload)->noOfReplicas = ptr->numReplicas;
 			(*infoPayload)->noOfSplits = ptr->numberOfChunks;
 
 			ChunkInfo *chunkPtr = ptr->chunkInfo;
+			printf("^^^^^^ Limits : %0x\n ", *infoPayload + sizeof(fileInfoPayload) + (16 * ptr->numReplicas * ptr->numberOfChunks) );
 			for(i = 0; i < ptr->numberOfChunks; i++, chunkPtr = chunkPtr->next) {
 				for(j = 0; j < ptr->numReplicas; j++ ) {
+					printf("\n*** Copying to location %0x from %0x", (*infoPayload)->ipAddr[i][j], chunkPtr->IP[j]);
 					memcpy((*infoPayload)->ipAddr[i][j], chunkPtr->IP[j], 16);
 				}
 			}
