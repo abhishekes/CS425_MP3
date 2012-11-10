@@ -83,7 +83,7 @@ void* heartbeat_receive(void* t) {
 			}
 			
 			            pthread_mutex_lock(&timestamp_mutex);
-                        DEBUG(("Time Difference : %lu\n", (time(NULL) - savedHeartbeat[0].latestTimeStamp)));
+                        //DEBUG(("Time Difference : %lu\n", (time(NULL) - savedHeartbeat[0].latestTimeStamp)));
                         if(savedHeartbeat[0].latestTimeStamp !=0 
                            && (time(NULL) - savedHeartbeat[0].latestTimeStamp) > 2) {
 				        heartbeatNotReceived = 1;

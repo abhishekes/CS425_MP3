@@ -57,9 +57,9 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     pthread_mutex_lock(&node_list_mutex);   
     DEBUG(("\n********--------------------In AddDeletePayload-----------------------------************\n"));
 
-    for(i=0;i<sizeof(*payload);i++) {	
+    /*for(i=0;i<sizeof(*payload);i++) {
     	DEBUG(("%0x,", *(payload + i)));
-    }
+    }*/
     
     //getchar();
 
@@ -155,7 +155,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     LOG(INFO, "Received topology request from  %s ", payload->ipAddr);
 
     for (index = 0; server_topology && index < server_topology->num_of_nodes; index++) {
-        DEBUG(("\n\nLooping through : %s , searching for :%s", tmp->IP, payload->ipAddr));
+        //DEBUG(("\n\nLooping through : %s , searching for :%s", tmp->IP, payload->ipAddr));
         if (!memcmp(payload->ipAddr, tmp->IP, 15)) {
             found = tmp;
             //printf("\n3: Found ***********, IP : %s",payload->ipAddr);

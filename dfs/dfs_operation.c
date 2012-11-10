@@ -119,8 +119,10 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
         		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
         			file_thread[i] = (dfs_thread_info *)calloc(1, sizeof(dfs_thread_info));
         			//threads[i] = calloc(1, sizeof(pthread_t));
+        			sprintf(suffix_buf, "%d", i);
         			strcpy(suffix + 4 - strlen(suffix_buf), suffix_buf);
         			sprintf(file_thread[i]->destFileName, "%s%s", fileInfo->fileName, suffix);
+        			DEBUG(("\nSending %s\n",suffix));
         			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
         			printf("\n ******* IP::::: %s ********* \n", fileInfo->ipAddr[0][0] );
         			file_thread[i]->ip = malloc(fileInfo->noOfReplicas * 16);
@@ -176,12 +178,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
                 LOG(DEBUG,"Sending File Info Update to %s for %s", my_data->ip, payloadBuf1->fileName);
                 LOG(DEBUG,"Sending file info update payload for %s ", ((fileInfoPayload *)(my_data->payload))->fileName);
 
-                printf("\n\nPrinting Here &&&&&&&&&&&&&&&&&&&&&");
-                p = (char *)my_data->payload;
-                for(z = 0; z < (*my_data).payload_size; z++) {
-                    printf("**z:%d %c\n",z , p[z]);
-                }
-                getchar();
+
                 pthread_create(&thread, NULL, send_node_update_payload, (my_data));
                 pthread_join(thread, NULL);
                 if (my_data->status != RC_SUCCESS) {
@@ -265,7 +262,9 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     					//sprintf(file_thread[i]->destFileName, "%s.%d", fileInfo->fileName, i+1);
     		            sprintf(suffix_buf, "%d", i);
     		            strcpy(suffix + 4 - strlen(suffix_buf), suffix_buf);
-    					file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
+    		            sprintf(file_thread[i]->destFileName, "%s%s", remoteFileName, suffix_buf);
+    					DEBUG(("\nSending %s\n",suffix));
+    		            file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
     					sprintf(file_thread[i]->destFileName, "%s%s", remoteFileName, suffix);
     					memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);
     					pthread_create(&threads[i], NULL, receiveFileWrapper, file_thread[i]);

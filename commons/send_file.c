@@ -14,7 +14,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
     int rc;
     DEBUG(("\nSendFile:Opened file %s\n", fileName));
     char fileBuf[1000]={0};                                //File buffer
-    
+    int bytesSent = 0;
     fileTransferPayload *ftpBuf = (fileTransferPayload *) malloc(1000);
     int seqNo = 0;
     if (fp == 0) {
@@ -31,20 +31,21 @@ int sendFile(int socket, char *fileName, char *destFileName )
     ftpBuf->statusFlag |= FTP_REQUEST;
     do {
     	 memset(ftpBuf->filePayload,0,790);
-         rc = read(fp, fileBuf,sizeof(char) * 790);
-	 //LOG("\nSendfile: RC = %d\n", rc);
-         if (rc <= 0) {
+         bytesSent = read(fp, fileBuf,sizeof(char) * 790);
+         DEBUG(("\nSendfile: %s, RC = %d\n", ftpBuf->fileName , bytesSent));
+         if (bytesSent <= 0) {
              return RC_FILE_NOT_FOUND;
          }
          if (!seqNo) {
              ftpBuf->statusFlag |= FTP_START;
          }
-         if (rc < sizeof(char) * 790) {
-             ftpBuf->statusFlag |= FTP_STOP;
+         if (bytesSent < (sizeof(char) * 790)) {
+        	 DEBUG(("\nSending LAST CHUNK ***************************\n"));
+        	 ftpBuf->statusFlag |= FTP_STOP;
          }
-	 ftpBuf->statusFlag = htons(ftpBuf->statusFlag);
-	 memcpy(ftpBuf->filePayload, fileBuf, rc);
-	 rc = sendPayload(socket, MSG_FILE_TRANSFER, ftpBuf, sizeof(fileTransferPayload) + rc);
+         ftpBuf->statusFlag = htons(ftpBuf->statusFlag);
+         memcpy(ftpBuf->filePayload, fileBuf, bytesSent);
+         rc = sendPayload(socket, MSG_FILE_TRANSFER, ftpBuf, sizeof(fileTransferPayload) + rc);
          if (rc != RC_SUCCESS) {
              DEBUG(("\nCould not send script file\n"));
              free(ftpBuf);
@@ -53,7 +54,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
 
          ftpBuf->statusFlag = 0;
          seqNo++;
-      }while(rc == 790);
+      }while(bytesSent == 790);
      free(ftpBuf);
      close(fp);
      //LOG(DEBUG, "SendFile:Just before returning %s\n", destFileName);
