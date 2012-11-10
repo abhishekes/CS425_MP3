@@ -451,7 +451,7 @@ RC_t create_file_splits(char *localFileName, char *fileName , int numOfSplits)
      }else {
     	 close(fp);
      }
-     sprintf(command, "split -d -b 67108664 -a 4 %s %s",localFileName, fileName);
+     sprintf(command, "split -d -b %lu -a 4 %s %s",CHUNK_SIZE_IN_MB * 1024 * 1024, localFileName, fileName);
      system(command);
      return RC_SUCCESS;
 
