@@ -197,8 +197,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 		free(file_thread[i]);
 		//free(threads[i]);
 	}
-	//free(my_data->payload);
-	//free(my_data);
+
 	free(file_thread);
 	free(threads);
 	free(fileInfo);
@@ -242,10 +241,6 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 
 		//Check if you got the reply
         	if (my_data->return_data != NULL) {
-			//Loop through all splits, creating an entry for each
-			//receiveFileWrapper();
-    	    //Transfer all parts to destinations
-    		//create_file_splits(((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
 
 
 
@@ -333,7 +328,7 @@ RC_t receiveFileWrapper(void *tdata) {
     	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
 
         	if (sendFileRequest(sock, dfs_data->destFileName) == RC_SUCCESS) {
-                while ((rc = message_decode(sock, &packet)) == RC_SUCCESS) {
+                while (data == NULL && (rc = message_decode(sock, &packet)) == RC_SUCCESS) {
                         processPacket(socket, packet, &data);
 
                 }
@@ -354,6 +349,7 @@ RC_t receiveFileWrapper(void *tdata) {
     }
     if (data) {
         free(data);
+        data = NULL;
     }
     return rc;
 }

@@ -103,6 +103,7 @@ RC_t processFileRequest(int socket, fileRequestPayload *payload)
      }else {
     	 sendFile(socket, payload->fileName, payload->fileName);
      }
+     //close(socket);
      return rc;
 
 }
