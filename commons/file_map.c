@@ -9,6 +9,7 @@
 *********************************************************************/
 
 struct FileNameMap *map = NULL;
+pthread_mutex_t file_map_lock = PTHREAD_MUTEX_INITIALIZER;
 
 struct FileNameMap* add_entry(char fileName[FILE_PATH_LENGTH]) {
 	struct FileNameMap* newEntry;
@@ -24,6 +25,7 @@ struct FileNameMap* add_entry(char fileName[FILE_PATH_LENGTH]) {
 	newEntry->state = OPEN;
 					
 	newEntry->next = NULL;
+	pthread_mutex_lock(&file_map_lock);
 	if (map == NULL)
 		map = newEntry;
 	else {
@@ -31,12 +33,14 @@ struct FileNameMap* add_entry(char fileName[FILE_PATH_LENGTH]) {
 		map = newEntry;
 	
 	}
+	pthread_mutex_unlock(&file_map_lock);
 	return newEntry;
 }
 
 struct FileNameMap* get_entry(char fileName[FILE_PATH_LENGTH]) {
 	struct FileNameMap * ptr;
 	
+	pthread_mutex_lock(&file_map_lock);
 	ptr = map;
 	
 	while(ptr != NULL) {
@@ -45,22 +49,28 @@ struct FileNameMap* get_entry(char fileName[FILE_PATH_LENGTH]) {
 		else
 			break;
 	}
+	pthread_mutex_unlock(&file_map_lock);
+
 	return ptr;
 
 }
 
 int delete_entry(int fd) {
 	struct FileNameMap *ptr, *prev;
-	ptr = map;
+
 	prev = NULL;
-	
+
+	pthread_mutex_lock(&file_map_lock);
+	ptr = map;
 	while((ptr!= NULL ) && (ptr->fd != fd)) {
 		prev = ptr;
 		ptr = ptr->next;
 	}
 	
-	if(ptr == NULL)
+	if(ptr == NULL) {
+		pthread_mutex_unlock(&file_map_lock);
 		return -1;
+	}
 	else {
 		DEBUG(("\nEntry found!!\n"));
 		if(ptr == map) {
@@ -70,7 +80,7 @@ int delete_entry(int fd) {
 			prev->next = ptr->next;
 			free(ptr);
 		}
-		
+		pthread_mutex_unlock(&file_map_lock);
 		return 0;
 	}
 }
