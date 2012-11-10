@@ -422,10 +422,13 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock)
     }
 
     if((connect(*sock, (struct sockaddr *) nodeAddress,   sizeof(*nodeAddress))) < 0) {
-            /*LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);*/
+            LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
             return RC_SOCKET_CONNECT_FAILED;
 
     }
+    LOG(DEBUG, "IP : %s Connected for FTP operation ...\n", IP);
+    DEBUG(("IP : %s Connected for FTP operation ...\n", IP));
+
     return RC_SUCCESS;
 }
 
