@@ -118,7 +118,7 @@ typedef struct
 	char    fileName[256];
 	uint8_t noOfSplits;
 	uint8_t noOfReplicas;
-	char    ipAddr[0][3][16];
+	char    ipAddr[0][NUM_OF_REPLICAS][16];
 }fileInfoPayload;
 
 typedef struct
