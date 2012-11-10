@@ -60,9 +60,9 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 
                      }
 
-                     wfp = open(ftpBuf->fileName, O_RDWR | O_APPEND | O_CREAT);
-                     if(wfp == 0) {
-                    	 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", wfp));
+                     wfp = open(ftpBuf->fileName, O_WRONLY| O_APPEND | O_CREAT);
+                     if(wfp < 0) {
+                    	 DEBUG(("\nprocessPacket : Get Entry Failed for %s \n", ftpBuf->fileName));
                     	 break;
                      }else {
                     	 DEBUG(("\nprocessPacket : Got Entry for %s : %x\n", ftpBuf->fileName, wfp));
