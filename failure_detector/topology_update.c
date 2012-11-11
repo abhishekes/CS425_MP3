@@ -69,7 +69,7 @@ void* topology_update(void* t) {
 		//A client has connected. 
 		//It will send me updates regarding the topology - either someone has joined or someone has left
 
-		while( connectedSocket[i].state) {
+/*		while( connectedSocket[i].state) {
 				i = (i + 1) % NUM_WORKERS;
 		}
 
@@ -77,15 +77,15 @@ void* topology_update(void* t) {
 		connectedSocket[i].state = 1;
 		pthread_create(&workers[i], NULL, handle_topo_request, &connectedSocket[i]);
 		i = (i + 1) % NUM_WORKERS;
-
-	/*	do {
+*/
+		do {
 			rc = message_decode(connectSocket, &packet);
 			if (rc != RC_SUCCESS) {
 				break;
 			}
 			processPacket(connectSocket, packet, NULL);
 		}while(1);
-*/
+
 		//printf("\n\nDid I succeed?  rc = %d\n\n", rc);
 
 		//for(i = 0; i < packet->length; i++) {
