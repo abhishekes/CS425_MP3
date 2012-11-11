@@ -10,6 +10,7 @@ extern pthread_mutex_t state_machine_mutex;
 extern pthread_mutex_t time_stamp_mutex;
 int recvFromSocket = 0;
 
+extern myIP[16];
 void* heartbeat_receive(void* t) {
 
 	//I need to have access to the topology
