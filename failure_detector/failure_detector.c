@@ -84,10 +84,10 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 	sendDeleteNodePayload(ADMISSION_CONTACT_IP, 1, nodeID, 0, reason);
 
 	numNodesToSend = server_topology->num_of_nodes - 2;
-	if ( numNodesToSend < ttl) 
+	/*if ( numNodesToSend < ttl)
 		ttl = numNodesToSend - 1;
 	else 
-		numNodesToSend = numNodesToSend / ttl;
+		numNodesToSend = numNodesToSend / ttl;*/
 
 	if (numNodesToSend >= 1) {
 		IPList = (char*)malloc(numNodesToSend * 16);
@@ -103,7 +103,7 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 		for(i=0;i<numNodesToSend;i++) {
 			strcpy(ptr, nodePtr->IP);
 			ptr += 16;
-			for(j = 0; j < (ttl+1); j++) nodePtr = nodePtr->prev;
+			/*for(j = 0; j < (ttl+1); j++)*/ nodePtr = nodePtr->prev;
 		}
 		pthread_mutex_unlock(&node_list_mutex);
 		sendDeleteNodePayload(IPList,numNodesToSend, nodeID, ttl, reason);
