@@ -39,7 +39,7 @@ RC_t dfs_read_from_file() {
 			chunkInfo = (ChunkInfo*)calloc(1, sizeof(ChunkInfo));
 			chunkInfo->next = fileMetaPtr->chunkInfo;
 			fileMetaPtr->chunkInfo = chunkInfo;
-			sscanf(line, "CHUNKNUM : %u", chunkInfo->chunkNumber);
+			sscanf(line, "CHUNKNUM : %u", &chunkInfo->chunkNumber);
 		}else if((strstr(line, "IP") != NULL) && (strstr(line, "IP :") == NULL)) {
 			sscanf(line, "IP %u : %s", &i, chunkInfo->IP[i]);
 		}else if(strstr(line, "SKIP : NEXT") != NULL) {
