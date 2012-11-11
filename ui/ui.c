@@ -19,7 +19,7 @@ void main()/*interact_with_user()*/
     char command[500];
 
     pthread_attr_init(&attr);
-    pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+    pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
  
     log_init();
     //pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;

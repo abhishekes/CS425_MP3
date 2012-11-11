@@ -8,6 +8,7 @@ extern FileMetadata *gFileMetaData;
 extern char myIP[16];
 extern struct Head_Node *server_topology;
 extern struct Node* myself;
+extern pthread_attr_t attr;
 
 #define MAX_DFS_THREADS 10
 //ip is the IP address of the node that has crashed.
@@ -34,7 +35,7 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 		(*my_data).msg_type = MSG_CHUNK_OPERATION;
 
 
-		pthread_create(&thread, NULL, send_node_update_payload, (my_data));
+		pthread_create(&thread, &attr, send_node_update_payload, (my_data));
 		pthread_join(thread, NULL);
 
 		if (my_data->status != RC_SUCCESS) {
@@ -135,7 +136,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 						file_thread[j].numOfAddresses = fileInfo->noOfReplicas;
 						printf("\n ******* IP::::: %s ********* \n", fileInfo->ipAddr[0][0] );
 						memcpy(file_thread[j].ip, fileInfo->ipAddr[j][0], fileInfo->noOfReplicas * 16);
-						pthread_create(&threads[j], NULL, sendFileWrapper, &file_thread[j]);
+						pthread_create(&threads[j], &attr, sendFileWrapper, &file_thread[j]);
 
 					}
 					for (k = 0; k < j; k++ ) {
