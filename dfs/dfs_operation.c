@@ -295,10 +295,10 @@ RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
     				}
 
     				DEBUG(("********************TRYING TO MERGE******************************"));
-    				getchar();
+    				//getchar();
     				//Merge the files
     				merge_file_splits(remoteFileName , localFileName, fileInfo->noOfSplits);
-    				getchar();
+    				//getchar();
     				DEBUG(("********************DONE MERGING******************************"));
     			}
 		}
@@ -480,11 +480,12 @@ RC_t merge_file_splits(char *fileName ,char *localFileName, int numOfSplits)
      char command[1000];
      sprintf(command, "cat %s???? > %s", fileName, localFileName );
      system(command);
-     DEBUG(("********************DONE MERGING******************************"));
+     //DEBUG(("********************DONE MERGING******************************"));
      return RC_SUCCESS;
 
 
 }
+
 
 RC_t make_master(char *prevMasterIP)
 {
