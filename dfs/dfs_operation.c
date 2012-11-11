@@ -672,7 +672,7 @@ RC_t dfs_delete_file(char *fileName) {
 
         }
     }
-
+    removeFileMetaInfo(fileName);
     return rc;
 }
 
