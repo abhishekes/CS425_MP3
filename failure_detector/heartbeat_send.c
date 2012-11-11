@@ -15,7 +15,8 @@ void* heartbeat_send(void* t) {
 	char sendToIP[16] = {0};
 	struct sockaddr_in sendToAddr;
 	heartbeatPayload *hbPayload = (heartbeatPayload*)malloc(sizeof(heartbeatPayload));
-  	sendToSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);		
+  	sendToSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  	static int throttle = 0;
 
 	while(1) {
 		//if topology has changed, it might be that I need to now send to some other node.
@@ -32,9 +33,11 @@ void* heartbeat_send(void* t) {
 			sendToAddr.sin_addr.s_addr	= inet_addr(sendToIP);
 		}
 		pthread_mutex_unlock(&node_list_mutex);		
+		throttle++;
+		if (!(throttle%30)) {
+			LOG(DEBUG, "Sending heartbeat to Node IP = %s\n", sendToIP);
+		}
 		
-		
-		//LOG(INFO, "Sending heartbeat to Node IP = %s\n", sendToIP);
 		//send the heartbeat from here every 400 msec
 		//TODO add a function to actually send the heartbeat here
 		strcpy(hbPayload->ip_addr, myself->IP);

@@ -25,9 +25,14 @@ void processHeartbeatPayload(heartbeatPayload *payload)
 {
     int i; 
     pthread_mutex_lock(&timestamp_mutex);
+    static int throttle = 0;
+    throttle++;
     for (i = 0; i < NUM_HEARTBEAT_NEIGHBOURS; i++) {
               //printf("Heartbeat Received Outside\n");
-              //LOG(INFO,"Received heartbeat from %s", payload->ip_addr);
+
+    	      if (!(throttle%30)) {
+            	  LOG(INFO,"Received heartbeat from %s", payload->ip_addr);
+              }
               if (!(strcmp(savedHeartbeat[i].ipAddr, payload->ip_addr))) {
                   time(&savedHeartbeat[i].latestTimeStamp);
 		 // printf("Heartbeat Received from %s\n", payload->ip_addr);
