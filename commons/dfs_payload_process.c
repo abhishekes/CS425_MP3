@@ -75,19 +75,19 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     	//Delete the entries
     	LOG(DEBUG, "Got delete file request for %s", payload->fileName);
     	//get all the entries for deleting the file
-    	sendFileDelete(char *IP)
+    	sendFileDelete(payload->fileName);
 
 
     }else  {
     	populateFileInfoPayload(&infoPayload, payload);
-    	printf("Sending %s\n. Length = %d", infoPayload->fileName,Look for file entry and return corresponding entrychar  sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
+    	printf("Sending %s\n. Length = %d", infoPayload->fileName,sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
     	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
     	if (rc != RC_SUCCESS) {
     		printf("\n Failed to send file information to requesting node");
     		LOG(DEBUG, "Problem sending information about file %s to requesting node ", payload->fileName);
     	    rc = RC_FILE_INFO_SEND_FAILURE;
     	}
-    //}
+    }
     if (infoPayload) {
     	free(infoPayload);
     }
@@ -114,34 +114,33 @@ RC_t processFileRequest(int socket, fileRequestPayload *payload)
 
 RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 {
-     RC_t rc;
-     dfs_thread_info *thread_data;
-     pthread_t thread;
-     char (*IP)[16];
-     char chunkName[500];
-     IP = payload->ip;
-     if ( payload->flags & REPLICATE_RESPONSE) {
-         if (server_topology && server_topology->node && server_topology->node != myself) {
-             LOG(ERROR, "Received Replicate %s even though I am not the leader. Dropping the message", "Response");
-         }
-         else {
-        	 //Update the fields.
-         }
-     }else if (payload->flags & REPLICATE_INSTRUCTION) {
-         strcpy(thread_data->destFileName, payload->chunkName);
-         thread_data->ip = IP; //TODO
-         thread_data->numOfAddresses = payload->numOfReplicas;
-         pthread_create(&thread, NULL, receiveFileWrapper, (thread_data));
-         pthread_join(thread, NULL);
-         if (thread_data->rc != RC_SUCCESS) {
-        	 LOG(ERROR, "Could not replicate Chunk Payload %s", thread_data->ip);
-         }
+	RC_t rc;
+	dfs_thread_info *thread_data;
+	pthread_t thread;
+	char (*IP)[16];
+	char command[500];
+	IP = payload->ip;
+	if ( payload->flags & REPLICATE_RESPONSE) {
+		if (server_topology && server_topology->node && server_topology->node != myself) {
+			LOG(ERROR, "Received Replicate %s even though I am not the leader. Dropping the message", "Response");
+		}
+		else {
+			//Update the fields.
+		}
+	}else if (payload->flags & REPLICATE_INSTRUCTION) {
+		strcpy(thread_data->destFileName, payload->chunkName);
+		thread_data->ip = IP; //TODO
+		thread_data->numOfAddresses = payload->numOfReplicas;
+		pthread_create(&thread, NULL, receiveFileWrapper, (thread_data));
+		pthread_join(thread, NULL);
+		if (thread_data->rc != RC_SUCCESS) {
+			LOG(ERROR, "Could not replicate Chunk Payload %s", thread_data->ip);
+		}
 
-     }else if (payload->flags & DELETE_REPLICA) {
-    	 sprintf(chunkName, "rm %s????", payload->chunkName);
-    	 command(chunkName);
+	}else if (payload->flags & DELETE_REPLICA) {
+		sprintf(command, "rm %s????", payload->chunkName);
+		system(command);
 
-     }
-     return rc;
+	}
+return rc;
 }
-

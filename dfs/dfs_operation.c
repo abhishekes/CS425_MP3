@@ -598,7 +598,7 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
 RC_t sendFileDelete(char *fileName) {
 
 	    char (*IP)[16];
-	    IP = ipAddrList;//Get from Sachin
+
 	    int numOfNodesToSend = 0 ; //Calculate
 	    int index = 0;
 	    int i;
@@ -608,9 +608,9 @@ RC_t sendFileDelete(char *fileName) {
 	    chunkOperationPayload *payloadBuf = calloc(1,sizeof(chunkOperationPayload));
 
 	    strcpy(payloadBuf->chunkName, fileName);
-	    payloadBuf->flags |= DELETE_REPLICA;
+ 	    payloadBuf->flags |= DELETE_REPLICA;
 
-
+ 	   getIPsForFile(fileName, &IP , &numOfNodesToSend) ;
 
 	    while(index < numOfNodesToSend ) {
 	        threads_created = 0;

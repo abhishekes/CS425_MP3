@@ -9,7 +9,7 @@
 
 
 RC_t processNodeFileInfoRequest(int socket, requestNodeFileInfo *payload);
-RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload *payload);
+RC_t processChunkReplicationPayload(int socket, chunkOperationPayload *payload);
 RC_t processFileInfoPayload(fileInfoPayload *infoPayload, void ** return_data);
 RC_t processFileInfoUpdatePayload(fileInfoPayload *);
 RC_t sendFileInfoRequest(int socket, char *fileName);
