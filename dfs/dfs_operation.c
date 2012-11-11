@@ -487,6 +487,7 @@ RC_t make_master(char *prevMasterIP)
     }
 
     dfs_write_to_file();
+    sendMetadataToNeighbour();
     rc = dfs_replicate_files_of_crashed_node(prevMasterIP);
 
     return rc;
