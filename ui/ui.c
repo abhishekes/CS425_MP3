@@ -5,6 +5,7 @@ extern pthread_mutex_t node_list_mutex;
 state_machine current_state = INIT;   
 pthread_mutex_t state_machine_mutex = PTHREAD_MUTEX_INITIALIZER;
 extern struct Node *myself;
+extern pthread_attr_t attr;
 void main()/*interact_with_user()*/
 {
     char choice = 0;
@@ -16,6 +17,9 @@ void main()/*interact_with_user()*/
     int (*case1function)(void);    
     int test = 0;
     char command[500];
+
+    pthread_attr_init(&attr);
+    pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
  
     log_init();
     //pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;

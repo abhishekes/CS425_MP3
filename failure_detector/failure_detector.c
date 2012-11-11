@@ -8,7 +8,7 @@ extern char myIP[16];
 
 extern pthread_mutex_t state_machine_mutex;
 extern state_machine current_state;
-
+extern pthread_attr_t attr;
 pthread_t send_thread, receive_thread, listen_thread, dfs_listener_thread;
 int node_init() {
 	server_topology = NULL;
@@ -33,9 +33,9 @@ int node_init() {
 			//At this point, I've joined the topology
 			//Create sending and receiving threads and TCP listening thread
 
-			pthread_create(&send_thread, NULL, heartbeat_send, (void*)0);
-			pthread_create(&receive_thread, NULL, heartbeat_receive, (void*)0);
-			pthread_create(&listen_thread, NULL, topology_update, (void*)0);
+			pthread_create(&send_thread, &attr, heartbeat_send, (void*)0);
+			pthread_create(&receive_thread, &attr, heartbeat_receive, (void*)0);
+			pthread_create(&listen_thread, &attr, topology_update, (void*)0);
 			pthread_create(&dfs_listener_thread, NULL, dfs_listener, (void*)0);
 
 			//printf("Threads created\n");	

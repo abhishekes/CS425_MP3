@@ -5,6 +5,9 @@ extern struct Node* myself;
 int listenSocket = 0;
 #define NUM_WORKERS 15
 
+pthread_attr_t attr;
+
+
 void* handle_topo_request(void* t);
 void* topology_update(void* t) {
 

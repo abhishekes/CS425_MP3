@@ -91,7 +91,7 @@ void* heartbeat_receive(void* t) {
                         pthread_mutex_unlock(&timestamp_mutex);	
 		}
 		
-		/*if(heartbeatNotReceived ) {
+		if(heartbeatNotReceived ) {
                          
                         pthread_mutex_lock(&node_list_mutex); 
 
@@ -115,6 +115,6 @@ void* heartbeat_receive(void* t) {
                         pthread_mutex_unlock(&timestamp_mutex);
 
 
-		}*/
+		}
 	}
 }
