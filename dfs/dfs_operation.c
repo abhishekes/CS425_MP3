@@ -148,6 +148,7 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 							break;
 						}
 					}
+					LOG(DEBUG, "One batch of transfers completed For file %s", fileInfo->fileName);
 					if (k != j) {
 						printf("Failed to Transfer splits to destination");
 						skip = 1;
@@ -406,6 +407,7 @@ RC_t sendFileWrapper(void *tdata ) {
     	if ( createConnection(&nodeAddress, IP, &sock, DFS_LISTEN_PORT) == RC_SUCCESS) {
             printf("\nTrying to send file %s to %s\n", dfs_data->fileName, IP);
         	if ((rc=sendFile(sock, dfs_data->destFileName, dfs_data->destFileName)) == RC_SUCCESS) {
+        		LOG(DEBUG, "One thread sending of chunk completed, for File %s", dfs_data->destFileName);
         		printf("\nSent file %s to %s successfully\n", dfs_data->fileName, IP);
         		//break;
             }else {
