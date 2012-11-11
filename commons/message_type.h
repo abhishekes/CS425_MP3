@@ -34,7 +34,7 @@ typedef enum {
    MSG_FILE_INFO,
    MSG_FILE_REQUEST,
    MSG_NODE_FILE_INFO_REQEST,
-   MSG_CHUNK_REPLICATION,
+   MSG_CHUNK_OPERATION,
    MSG_FILE_TRANSFER,
    MSG_EXECUTE_SCRIPT,
    NUM_OF_PAYLOADS
@@ -159,10 +159,11 @@ typedef struct
     #define REPLICATE_RESPONSE        0x02
     #define REPLICATE_SUCCESSFUL      0x04
     #define	REPLICATE_FAILURE         0x08
+    #define DELETE_REPLICA            0x10
 	char ip[16];
 	uint8_t numOfReplicas;
 
-}chunkReplicatePayload;
+}chunkOperationPayload;
 
 typedef enum {
     RC_FAILURE = 0,

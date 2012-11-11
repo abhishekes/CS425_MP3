@@ -19,19 +19,19 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 	pthread_t thread;
 	RC_t rc;
     int i = 0;
-    chunkReplicatePayload *payloadBuf = NULL;
+    chunkOperationPayload *payloadBuf = NULL;
 
 	for (i = 0 ; i < 1; i++/*Other conditions->To be updated */) {
 
 
-		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkReplicatePayload));
-		(*my_data).payload = calloc(1, sizeof(chunkReplicatePayload));
-		payloadBuf = (nodeFileInfo *)((*my_data).payload);
+		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
+		(*my_data).payload = calloc(1, sizeof(chunkOperationPayload));
+		payloadBuf = (chunkOperationPayload *)((*my_data).payload);
 		memcpy( payloadBuf->ip, ip, 16);
 		payloadBuf->flags |= REPLICATE_INSTRUCTION;
-		my_data->payload_size = sizeof(chunkReplicatePayload);
+		my_data->payload_size = sizeof(chunkOperationPayload);
 
-		(*my_data).msg_type = MSG_CHUNK_REPLICATION;
+		(*my_data).msg_type = MSG_CHUNK_OPERATION;
 
 
 		pthread_create(&thread, NULL, send_node_update_payload, (my_data));
@@ -210,62 +210,6 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	}
 	return RC_FAILURE;
 }
-
-	/*file_thread = (dfs_thread_info **)calloc(1, (sizeof(dfs_thread_info *) * fileInfo->noOfSplits));
-
-
-        		threads = calloc(1, sizeof(pthread_t ) * threadCount);
-
-
-
-
-        				file_thread[j] = (dfs_thread_info *)calloc(1, sizeof(dfs_thread_info));
-
-
-        				DEBUG(("\nSending %s\n",suffix));
-
-
-
-
-
-
-        			}
-
-
-
-
-        				for (k = 0; k < j; k++) {
-        					free(file_thread[k]);
-                            skip = 1;
-                            break;
-        				}
-
-        				free(my_data);
-        				free(file_thread);
-        				free(threads);
-
-
-
-
-        			}
-        		}
-
-
-
-        	}
-
-
-
-    }
-	for (i = 0; fileInfo && (i <  fileInfo->noOfSplits); i++) {
-		free(file_thread[i]);
-
-	}*/
-
-	//free(file_thread);
-	//free(threads);
-	//free(fileInfo);
-
 
 
 
@@ -501,23 +445,6 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock)
     return RC_SUCCESS;
 }
 
-/*RC_t dfs_replicate_chunk(void *thread_data) {
-
-	RC_t rc;
-	dfs_thread_info *info = (dfs_thread_info *)(thread_data);
-    char *IP = info->ip;
-    void *data = NULL;
-    payloadBuf *packet;
-    struct sockaddr_in nodeAddress;
-    int sock;
-
-    if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
-
-    }
-    return rc;
-
-
-}*/
 
 RC_t create_file_splits(char *localFileName, char *fileName , int numOfSplits)
 {
@@ -673,12 +600,84 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
 }
 
 
-RC_t dfs_delete_file(char *fileName) {
+RC_t sendFileDelete(char *fileName) {
 
-	RC_t rc = RC_FAILURE;
+	    char (*IP)[16];
+	    IP = ipAddrList;//Get from Sachin
+	    int numOfNodesToSend = 0 ; //Calculate
+	    int index = 0;
+	    int i;
+	    thread_data *my_data[5];
+	    pthread_t   thread[5];
+	    int threads_created = 0;
+	    chunkOperationPayload *payloadBuf = calloc(1,sizeof(chunkOperationPayload));
 
-	return rc;
+	    strcpy(payloadBuf->chunkName, fileName);
+	    payloadBuf->flags |= DELETE_REPLICA;
+
+
+
+	    while(index < numOfNodesToSend ) {
+	        threads_created = 0;
+	        for (i=0; i<5 && index < numOfNodesToSend; i++, index ++, threads_created++) {
+
+	 	    //printf("Num nodes to send = %d", numOfNodesToSend);
+	            //my_data[i].ip[15] = 0;
+	            my_data[i] = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
+	            (*my_data[i]).payload = calloc(1, sizeof(chunkOperationPayload));
+	            memcpy((*my_data[i]).ip, IP, 16);
+	            IP++;
+	            (*my_data[i]).payload_size = sizeof(chunkOperationPayload);
+	            (*my_data[i]).msg_type = MSG_CHUNK_OPERATION;
+	            memcpy((*my_data[i]).payload, payloadBuf, sizeof(chunkOperationPayload));
+	            pthread_create(&thread[i], NULL, send_node_update_payload, (my_data[i]));
+	        }
+	        for (i=0 ; i < threads_created; i++) {
+	            pthread_join(thread[i],NULL);
+	        }
+	    }
+	    free(payloadBuf);
+
+	return RC_SUCCESS;
 
 }
 
+RC_t dfs_delete_file(char *fileName) {
+
+	thread_data *my_data;
+	pthread_t thread;
+	fileOperationRequestPayload *payloadBuf;
+	fileInfoPayload *fileInfo;
+    RC_t rc;
+
+
+	int i;
+
+    if (server_topology && server_topology->node ) {
+    	my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
+        (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
+
+        memcpy((*my_data).ip, server_topology->node->IP, 16);
+
+        (*my_data).payload_size = sizeof(fileOperationRequestPayload);
+        (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
+        payloadBuf = my_data->payload;
+        //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
+        strcpy(payloadBuf->fileName, fileName);
+        memcpy(payloadBuf->requesterIP, myself->IP, 16);
+        payloadBuf->flags |= DEL_FILE_REQUEST;
+
+        LOG(DEBUG,"Sending File Delete Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
+        pthread_create(&thread, NULL, send_node_update_payload, (my_data));
+        pthread_join(thread, NULL);
+
+        if (my_data->status == RC_SUCCESS) {
+        	LOG(DEBUG,"Sent File Delete Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
+            rc = RC_SUCCESS;
+
+        }
+    }
+
+    return rc;
+}
 

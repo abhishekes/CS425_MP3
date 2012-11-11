@@ -22,7 +22,7 @@ void main()/*interact_with_user()*/
     //timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
     do {
        system("clear");
-       printf("\n***************************\nGroups-RUs Inc\nNode Membership Interface\n***************************\n\n");
+       printf("\n***************************\nOne-Data-To-Rule-Them-All Inc\nSDFS Interface\n***************************\n\n");
        buf[0] = 0;
        display_buf[0] = 0;
        //printf("Current Membership Status : ");
@@ -121,7 +121,7 @@ void display_membership_list()
      for (tmp = server_topology->node; i < server_topology->num_of_nodes ; i++, tmp=tmp->next) {
          printf("%s\t %lu", tmp->IP, tmp->timestamp);
          if (tmp == server_topology->node) {
-        	printf("%s", "Leader ");
+        	printf("%s", "\t(Leader) ");
 
          }
          printf("\n");
@@ -188,7 +188,7 @@ void parse_command(char *command)
          }
          dfs_file_transfer(FILE_PUT, args[1], args[2]);
      }else if (!strcmp(args[0], "get")) {
-    	 dfs_file_receive(args[1], args[2]);
+    	 dfs_file_receive(args[2], args[1]);
      }else if (!strcmp(args[0], "del")) {//Delete operation
          dfs_delete_file(args[1]);
      }else {

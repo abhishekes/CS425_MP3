@@ -71,13 +71,16 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     fileInfoPayload *infoPayload /*= (infoPayload *)calloc(1, sizeof(fileInfoPayload))*/;
     LOG(DEBUG,"Received File Operation Request from %s for %s", payload->requesterIP, payload->fileName);
     printf("Received file operation request from %s for %s, flags : %0x", payload->requesterIP, payload->fileName, payload->flags);
-    //if (payload->flags & GET_FILE_REQUEST) {
-    	//Look for file entry and return corresponding entry
+    if (payload->flags & DEL_FILE_REQUEST) {
+    	//Delete the entries
+    	LOG(DEBUG, "Got delete file request for %s", payload->fileName);
+    	//get all the entries for deleting the file
+    	sendFileDelete(char *IP)
 
 
-    //}else if (payload->flags & PUT_FILE_REQUEST ) {
+    }else  {
     	populateFileInfoPayload(&infoPayload, payload);
-    	printf("Sending %s\n. Length = %d", infoPayload->fileName, sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
+    	printf("Sending %s\n. Length = %d", infoPayload->fileName,Look for file entry and return corresponding entrychar  sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
     	rc = sendPayload(socket, MSG_FILE_INFO, infoPayload, sizeof(fileInfoPayload) + (infoPayload->noOfReplicas * infoPayload->noOfSplits * 16 ));
     	if (rc != RC_SUCCESS) {
     		printf("\n Failed to send file information to requesting node");
@@ -90,6 +93,7 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     }
     return rc;
 }
+
 
 RC_t processFileRequest(int socket, fileRequestPayload *payload)
 {
@@ -108,12 +112,13 @@ RC_t processFileRequest(int socket, fileRequestPayload *payload)
 
 }
 
-RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload* payload)
+RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 {
      RC_t rc;
      dfs_thread_info *thread_data;
      pthread_t thread;
      char (*IP)[16];
+     char chunkName[500];
      IP = payload->ip;
      if ( payload->flags & REPLICATE_RESPONSE) {
          if (server_topology && server_topology->node && server_topology->node != myself) {
@@ -131,6 +136,10 @@ RC_t processChunkReplicationPayload(int socket, chunkReplicatePayload* payload)
          if (thread_data->rc != RC_SUCCESS) {
         	 LOG(ERROR, "Could not replicate Chunk Payload %s", thread_data->ip);
          }
+
+     }else if (payload->flags & DELETE_REPLICA) {
+    	 sprintf(chunkName, "rm %s????", payload->chunkName);
+    	 command(chunkName);
 
      }
      return rc;

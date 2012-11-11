@@ -18,7 +18,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
     DEBUG(("\nSendFile:Opened file %s\n", fileName));
     //char fileBuf[1000]={0};                                //File buffer
     int bytesSent = 0;
-    fileTransferPayload *ftpBuf = (fileTransferPayload *) malloc(MAX_FILE_CHUNK_PAYLOAD_SIZE);
+    fileTransferPayload *ftpBuf = calloc(1, MAX_FILE_CHUNK_PAYLOAD_SIZE);
     int seqNo = 0;
     if (fp == 0) {
 	
@@ -50,7 +50,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
          ftpBuf->statusFlag = htons(ftpBuf->statusFlag);
          memcpy(ftpBuf->filePayload, ftpBuf->filePayload, bytesSent);
          rc = sendPayload(socket, MSG_FILE_TRANSFER, ftpBuf, sizeof(fileTransferPayload) + bytesSent);
-         LOG(DEBUG, "Filename : %s, seq : %d", ftpBuf->fileName, seqNo);
+         //LOG(DEBUG, "Filename : %s, seq : %d", ftpBuf->fileName, seqNo);
          //LOG(DEBUG, "Sending %s. Sequence : %d Flags : %0x", ftpBuf->fileName,seqNo, ftpBuf->statusFlag);
          if (rc != RC_SUCCESS) {
              DEBUG(("\nCould not send script file\n"));

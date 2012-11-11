@@ -151,8 +151,8 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
 		case MSG_NODE_FILE_INFO_REQEST: //Does nothing for now.
 			//processNodeFileInfoRequest(socket, packet->payload);
 			break;
-		case MSG_CHUNK_REPLICATION: //This is to tell failed node's neighbor to replicate content
-			processChunkReplicationPayload(socket, packet->payload);
+		case MSG_CHUNK_OPERATION: //This is to tell failed node's neighbor to replicate content
+			processChunkOperationPayload(socket, packet->payload);
 			break;
         default	:
 			    printf("\nIn process packet.. but unknown type\n");
