@@ -274,8 +274,8 @@ RC_t updateIPtoFileInfo(char IP[16], FileMetadata* fileMetaPtr) {
 
 
 void getNextIP_RR(char IP[16]) {
-	static int i = 0;
-	int j;
+	static uint64_t i = 0;
+	uint64_t j;
 	struct Node *myNodePtr;
 
 	myNodePtr = server_topology->node;
@@ -287,6 +287,41 @@ void getNextIP_RR(char IP[16]) {
 	strcpy(IP, myNodePtr->IP);
 
 	i++;
+
+	return;
+}
+
+void getIPsForFile(char *fileName, char **IPs, uint16_t *numIPs) {
+	IPtoFileInfo *ipToFilePtr = gIPToFileInfo;
+	FileMetadata *fileMetaPtr;
+	FileList *dummyFileList;
+	char *p;
+	*numIPs = 0;
+
+	p = (*IPs);
+	fileMetaPtr = getFileMetadataPtr(fileName);
+
+	if(fileMetaPtr == NULL) {
+		*numIPs = 0;
+		return;
+	} else {
+		while(ipToFilePtr != NULL) {
+			dummyFileList = ipToFilePtr->metadataPtr;
+			while(dummyFileList != NULL) {
+				if(dummyFileList->fileMetaPtr == fileMetaPtr){
+					(*IPs) = (char*)realloc((*numIPs) + 1, 16);
+					p = (*IPs);
+					p +=  16 * (*numIPs);
+					*numIPs += 1;
+					strcpy(p, ipToFilePtr->IP);
+					break;
+				}
+				dummyFileList = dummyFileList->next;
+			}
+
+			ipToFilePtr = ipToFilePtr->next;
+		}
+	}
 
 	return;
 }
