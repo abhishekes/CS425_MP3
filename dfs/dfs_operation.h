@@ -51,10 +51,11 @@ RC_t create_file_splits(char *, char *fileName , int numOfSplits);
 RC_t make_master(char *prevMasterIP);
 RC_t populateFileInfoPayload(fileInfoPayload **payload, fileOperationRequestPayload *request);
 RC_t merge_file_splits(char *fileName , char *localFileName, int numOfSplits);
-RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock);
+RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock, int port);
 RC_t receiveFileWrapper(void *tdata);
 RC_t sendFileWrapper(void *tdata);
 RC_t create_metadata_from_file(void);
 RC_t dfs_delete_file(char *fileName);
 RC_t dfs_replicate_files_of_crashed_node(char *ip);
+RC_t sendMetadataToNeighbour(void);
 #endif

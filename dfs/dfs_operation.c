@@ -338,7 +338,7 @@ RC_t receiveFileWrapper(void *tdata) {
     }
     for ( i = 0; i < dfs_data->numOfAddresses ; i++, IP++) {
     	LOG(DEBUG, "Trying to fetch file  %s from %s", dfs_data->destFileName, IP);
-    	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
+    	if ( createConnection(&nodeAddress, IP, &sock, DFS_LISTEN_PORT) == RC_SUCCESS) {
 
         	if (sendFileRequest(sock, dfs_data->destFileName) == RC_SUCCESS) {
                 while (data == NULL) {
@@ -403,7 +403,7 @@ RC_t sendFileWrapper(void *tdata ) {
         	printf("\nContinuing\n");
         	continue; //File already present on local IP
         }
-    	if ( createConnection(&nodeAddress, IP, &sock) == RC_SUCCESS) {
+    	if ( createConnection(&nodeAddress, IP, &sock, DFS_LISTEN_PORT) == RC_SUCCESS) {
             printf("\nTrying to send file %s to %s\n", dfs_data->fileName, IP);
         	if ((rc=sendFile(sock, dfs_data->destFileName, dfs_data->destFileName)) == RC_SUCCESS) {
         		printf("\nSent file %s to %s successfully\n", dfs_data->fileName, IP);
@@ -420,7 +420,7 @@ RC_t sendFileWrapper(void *tdata ) {
     return rc;
 }
 
-RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock)
+RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock, int port)
 {
 
     memset(nodeAddress, 0, sizeof(struct sockaddr_in));
@@ -676,3 +676,38 @@ RC_t dfs_delete_file(char *fileName) {
     return rc;
 }
 
+RC_t sendMetadataToNeighbour(void) {
+
+		RC_t rc;
+		int i = 0;
+
+		int sock;
+
+	    struct sockaddr_in nodeAddress;
+	    char IP[16];
+	    void *data = NULL;
+
+
+	    if (server_topology && server_topology->node) {
+	    	strcpy(IP, myself->next->IP);
+	    	LOG(DEBUG, "Trying to send meta data to %s", IP);
+	    	if ( createConnection(&nodeAddress, IP, &sock, TCP_LISTEN_PORT) == RC_SUCCESS) {
+	    	    rc = sendFile(sock, "metadata_file", "metadata_file");
+	    	    if (rc == RC_SUCCESS) {
+	    	    	LOG(DEBUG, "Sent metadata to %s", IP);
+	    	    }else {
+	    	    	(DEBUG, "Failed to send meta data to %s. Error = %d", IP, rc);
+	    	    	return RC_FAILURE;
+
+	    	    }
+
+	    	}else {
+	    		LOG(ERROR, "FATAL: Could not connect to %s to transfer metadata ", IP);
+	    	    return RC_FAILURE;
+	    	}
+
+	    }
+
+	return RC_SUCCESS;
+
+}
