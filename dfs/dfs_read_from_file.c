@@ -3,7 +3,7 @@
 
 extern FileMetadata *gFileMetaData;
 extern IPtoFileInfo *gIPToFileInfo;
-
+extern char myIP[16];
 
 RC_t dfs_read_from_file() {
 
@@ -20,7 +20,9 @@ RC_t dfs_read_from_file() {
 
 	fPtr = fopen(METADATA_FILE, "r");
 	fileMetaPtr = gFileMetaData;
-
+    if (fPtr == NULL) {
+    	LOG(DEBUG, "Could not find metadata file. Will start in a fresh state", "");
+    }
 	while(fgets(line, 128, fPtr) != NULL) {
 
 		if(strstr(line, "FILENAME") != NULL) { //New FileMetaPtr;
