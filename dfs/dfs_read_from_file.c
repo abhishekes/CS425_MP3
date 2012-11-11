@@ -20,7 +20,7 @@ RC_t dfs_read_from_file() {
 	fPtr = fopen(METADATA_FILE, "r");
 	fileMetaPtr = gFileMetaData;
 
-	while(fgets(line, 128, fPtr) != feof) {
+	while(fgets(line, 128, fPtr) != NULL) {
 
 		if(strstr(line, "FILENAME") != NULL) { //New FileMetaPtr;
 			fileMetaPtr = (FileMetadata*)calloc(1, sizeof(FileMetadata));
