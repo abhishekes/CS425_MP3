@@ -22,6 +22,7 @@ RC_t dfs_read_from_file() {
 	fileMetaPtr = gFileMetaData;
     if (fPtr == NULL) {
     	LOG(DEBUG, "Could not find metadata file. Will start in a fresh state", "");
+    	return RC_FILE_NOT_FOUND;
     }
 	while(fgets(line, 128, fPtr) != NULL) {
 
