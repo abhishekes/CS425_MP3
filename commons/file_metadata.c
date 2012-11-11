@@ -148,8 +148,9 @@ RC_t removeFileMetaEntry(char IP[16], FileMetadata *filePtr) {
 		return RC_FAILURE;
 
 	temp = ipToFileInfoPtr->metadataPtr;
-	if(ipToFileInfoPtr->metadataPtr->fileMetaPtr == filePtr) {
+	if((ipToFileInfoPtr->metadataPtr != NULL) && (ipToFileInfoPtr->metadataPtr->fileMetaPtr == filePtr)) {
 		ipToFileInfoPtr->metadataPtr = ipToFileInfoPtr->metadataPtr->next;
+		ipToFileInfoPtr->numberOfFiles--;
 	} else {
 		while(temp != NULL && temp->fileMetaPtr != filePtr) {
 			prev = temp;
@@ -309,7 +310,7 @@ void getIPsForFile(char *fileName, char **IPs, uint16_t *numIPs) {
 			dummyFileList = ipToFilePtr->metadataPtr;
 			while(dummyFileList != NULL) {
 				if(dummyFileList->fileMetaPtr == fileMetaPtr){
-					(*IPs) = (char*)realloc((*numIPs) + 1, 16);
+					(*IPs) = (char*)realloc((*IPs), ((*numIPs) + 1) * 16);
 					p = (*IPs);
 					p +=  16 * (*numIPs);
 					*numIPs += 1;
