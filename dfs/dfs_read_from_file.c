@@ -13,9 +13,10 @@ RC_t dfs_read_from_file() {
 	FileList *fileListPtr;
 	FILE *fPtr;
 	char fname[255];
+	char tempIP[16];
 
 	char line[129];
-	int i = 0;
+	unsigned i = 0;
 
 	fPtr = fopen(METADATA_FILE, "r");
 	fileMetaPtr = gFileMetaData;
@@ -26,36 +27,38 @@ RC_t dfs_read_from_file() {
 			fileMetaPtr = (FileMetadata*)calloc(1, sizeof(FileMetadata));
 			fileMetaPtr->next = gFileMetaData;
 			gFileMetaData = fileMetaPtr;
-			sscanf(line, "FILENAME : %s", fileMetaPtr->fileName);
+			sscanf(line, "FILENAME:%s", fileMetaPtr->fileName);
 		} else if(strstr(line, "SIZE") != NULL) {
-			sscanf(line, "SIZE : %u", &fileMetaPtr->size);
+			sscanf(line, "SIZE:%u", &fileMetaPtr->size);
 		} else if(strstr(line, "FLAGS") != NULL) {
-			sscanf(line, "FLAGS : %u", &fileMetaPtr->flags);
+			sscanf(line, "FLAGS:%u", &fileMetaPtr->flags);
 		} else if(strstr(line, "NCHUNKS") != NULL) {
-			sscanf(line, "NCHUNKS : %u", &fileMetaPtr->numberOfChunks);
+			sscanf(line, "NCHUNKS:%u", &fileMetaPtr->numberOfChunks);
 		} else if(strstr(line, "NREPLICAS") != NULL) {
-			sscanf(line, "NREPLICAS : %u", &fileMetaPtr->numReplicas);
+			sscanf(line, "NREPLICAS:%u", &fileMetaPtr->numReplicas);
 		} else if(strstr(line, "CHUNKNUM")) { //It is a chunk number belonging to the current fileMetaPtr
 			chunkInfo = (ChunkInfo*)calloc(1, sizeof(ChunkInfo));
 			chunkInfo->next = fileMetaPtr->chunkInfo;
 			fileMetaPtr->chunkInfo = chunkInfo;
-			sscanf(line, "CHUNKNUM : %u", &chunkInfo->chunkNumber);
-		}else if((strstr(line, "IP") != NULL) && (strstr(line, "IP :") == NULL)) {
-			sscanf(line, "IP %u : %s", &i, chunkInfo->IP[i]);
-		}else if(strstr(line, "SKIP : NEXT") != NULL) {
+			sscanf(line, "CHUNKNUM:%u", &chunkInfo->chunkNumber);
+		}else if((strstr(line, "IP") != NULL) && (strstr(line, "IP:") == NULL)) {
+			sscanf(line, "IP%u:%s", &i, tempIP);
+			strcpy(chunkInfo->IP[i], tempIP);
+			//DEBUG(("Reading i = %u, IP = %s", i, chunkInfo->IP[i]));
+		}else if(strstr(line, "SKIP:NEXT") != NULL) {
 			continue;
-		}else if((strstr(line, "IP") != NULL) && (strstr(line, "IP :") != NULL)) { // new IP entry
+		}else if((strstr(line, "IP") != NULL) && (strstr(line, "IP:") != NULL)) { // new IP entry
 			ipToFilePtr = (IPtoFileInfo*)calloc(1, sizeof(IPtoFileInfo));
 			ipToFilePtr->next = gIPToFileInfo;
 			gIPToFileInfo = ipToFilePtr;
-			sscanf(line, "IP : %s", ipToFilePtr->IP);
+			sscanf(line, "IP:%s", ipToFilePtr->IP);
 		}else if(strstr(line, "NFILES") != NULL) {
-			sscanf(line, "NFILES : %u", &ipToFilePtr->numberOfFiles);
+			sscanf(line, "NFILES:%u", &ipToFilePtr->numberOfFiles);
 		}else if(strstr(line, "FNAME") != NULL) { // new File list
 			fileListPtr = (FileList*)calloc(1, sizeof(FileList));
 			fileListPtr->next = ipToFilePtr->metadataPtr;
 			ipToFilePtr->metadataPtr = fileListPtr;
-			sscanf(line, "FNAME : %s", fname);
+			sscanf(line, "FNAME:%s", fname);
 			dummyPtr = gFileMetaData;
 
 			while((dummyPtr != NULL) && strcmp(dummyPtr->fileName, fname))
