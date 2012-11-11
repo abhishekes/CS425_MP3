@@ -481,7 +481,7 @@ RC_t merge_file_splits(char *fileName ,char *localFileName, int numOfSplits)
 RC_t make_master(char *prevMasterIP)
 {
     RC_t rc;
-    rc = create_metadata_from_file();
+    rc = dfs_read_from_file();
     if (rc != RC_SUCCESS) {
         return rc;
     }
@@ -491,9 +491,6 @@ RC_t make_master(char *prevMasterIP)
 
 }
 
-RC_t create_metadata_from_file() {
-    return RC_SUCCESS;
-}
 
 //This is to send reply to the client with the list of IPs where it can put the file into
 RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequestPayload *request) {
