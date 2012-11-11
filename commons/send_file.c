@@ -41,6 +41,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
          }
          if (!seqNo) {
              ftpBuf->statusFlag |= FTP_START;
+
          }
          if (bytesSent < (sizeof(char) * MAX_FILE_CHUNK_SIZE)) {
         	 DEBUG(("\nSending LAST CHUNK ***************************\n"));
@@ -49,6 +50,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
          ftpBuf->statusFlag = htons(ftpBuf->statusFlag);
          memcpy(ftpBuf->filePayload, ftpBuf->filePayload, bytesSent);
          rc = sendPayload(socket, MSG_FILE_TRANSFER, ftpBuf, sizeof(fileTransferPayload) + bytesSent);
+         LOG(DEBUG, "Sending %s. Sequence : %0x Flags : %0x", ftpBuf->fileName,seqNo, ftpBuf->statusFlag);
          if (rc != RC_SUCCESS) {
              DEBUG(("\nCould not send script file\n"));
              free(ftpBuf);

@@ -83,7 +83,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      }
                      close(wfp);
                      if (statusFlag & FTP_STOP) {
-
+                         LOG(DEBUG, "Received stop for %s. Flags : %0x ", ftpBuf->fileName, statusFlag);
                     	 sprintf(command, "chmod 777 %s", ftpBuf->fileName);
                     	 result = system(command);
 
