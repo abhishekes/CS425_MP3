@@ -119,7 +119,13 @@ void display_membership_list()
      printf("\nNode IP Address\t Node Timestamp\n*****************************************************************\n");
      pthread_mutex_lock(&node_list_mutex);    
      for (tmp = server_topology->node; i < server_topology->num_of_nodes ; i++, tmp=tmp->next) {
-         printf("%s\t %lu\n", tmp->IP, tmp->timestamp);
+         printf("%s\t %lu", tmp->IP, tmp->timestamp);
+         if (tmp == server_topology->node) {
+        	printf("%s", "Leader ");
+
+         }
+         printf("\n");
+
      }
      pthread_mutex_unlock(&node_list_mutex); 
      printf("\nPlease press any key to continue ...\n");

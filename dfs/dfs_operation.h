@@ -29,6 +29,15 @@ typedef enum {
 
 typedef struct {
     int numOfAddresses;
+    char ip[NUM_OF_REPLICAS][16];
+    char fileName[500];
+    char destFileName[500];
+    RC_t rc;
+
+}dfs_thread_info_new;
+
+typedef struct {
+    int numOfAddresses;
     char (*ip)[16];
     char fileName[500];
     char destFileName[500];

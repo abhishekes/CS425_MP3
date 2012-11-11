@@ -8,6 +8,8 @@ extern FileMetadata *gFileMetaData;
 extern char myIP[16];
 extern struct Head_Node *server_topology;
 extern struct Node* myself;
+
+#define MAX_DFS_THREADS 10
 //ip is the IP address of the node that has crashed.
 //This function is called by the leader
 
@@ -51,159 +53,221 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 	fileInfoPayload *payloadBuf1 = NULL;
 	fileInfoPayload *fileInfo = NULL;
 	int z=0;
+	int threadCount = 0;
 	char *p;
+	int splitsToBeTransferred = 0;
+	int skip = 0;
 
-	dfs_thread_info **file_thread;
-	pthread_t       *threads;
+	dfs_thread_info_new file_thread[MAX_DFS_THREADS];
+	pthread_t           threads[MAX_DFS_THREADS];
 	int size = 0;
 	int i = 0;
+	int j,k;
 	char suffix[] = "0000";
 	char suffix_buf[5];
 
 	if (inputFile == NULL) {
-		     printf("\nCould not find source file");
-	    	 return RC_INPUT_FILE_NOT_FOUND;
+		printf("\nCould not find source file");
+		return RC_INPUT_FILE_NOT_FOUND;
 	}else {
-	        fseek(inputFile, 0L, SEEK_END);
-	        size = ftell(inputFile);
-	        size = ceil((float)size / (1024 * 1024));
-	        printf("\n****** File Length : %d********* \n" , size);
-		    fclose(inputFile);
+		fseek(inputFile, 0L, SEEK_END);
+		size = ftell(inputFile);
+		size = ceil((float)size / (1024 * 1024));
+		printf("\n****** File Length : %d********* \n" , size);
+		fclose(inputFile);
 	}
-    if (server_topology && server_topology->node ) {
+	if (server_topology && server_topology->node ) {
 
 
-    	my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
-        (*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
+		my_data = calloc(1, sizeof(thread_data) + sizeof(fileOperationRequestPayload));
+		(*my_data).payload = calloc(1, sizeof(fileOperationRequestPayload));
 
-        memcpy((*my_data).ip, server_topology->node->IP, 16);
+		memcpy((*my_data).ip, server_topology->node->IP, 16);
 
-        (*my_data).payload_size = sizeof(fileOperationRequestPayload);
-        (*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
-        (*my_data).flags = WAIT_FOR_RESPONSE;
-        payloadBuf = my_data->payload;
-        payloadBuf->fileSize = size;
-        //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
-        strcpy(payloadBuf->fileName, destinationFileName);
-        memcpy(payloadBuf->requesterIP, myself->IP, 16);
-        payloadBuf->flags |= PUT_FILE_REQUEST;
+		(*my_data).payload_size = sizeof(fileOperationRequestPayload);
+		(*my_data).msg_type = MSG_FILE_OPERATION_REQUEST;
+		(*my_data).flags = WAIT_FOR_RESPONSE;
+		payloadBuf = my_data->payload;
+		payloadBuf->fileSize = size;
+		//memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
+		strcpy(payloadBuf->fileName, destinationFileName);
+		memcpy(payloadBuf->requesterIP, myself->IP, 16);
+		payloadBuf->flags |= PUT_FILE_REQUEST;
 
-        LOG(DEBUG,"Sending File Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
-        pthread_create(&thread, NULL, send_node_update_payload, (my_data));
-        pthread_join(thread, NULL);
+		LOG(DEBUG,"Sending File Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
+		pthread_create(&thread, NULL, send_node_update_payload, (my_data));
+		pthread_join(thread, NULL);
 
-        if (my_data->status == RC_SUCCESS) {
-        	//Sachin's function to do splitting of files.
-        	//Call all send file wrappers
-        	if (my_data->return_data == NULL) {
-        		my_data->status = RC_NO_RESPONSE_RECEIVED;
-        		//free(thread);
+		if (my_data->status == RC_SUCCESS) {
+			//Sachin's function to do splitting of files.
+			//Call all send file wrappers
+			if (my_data->return_data == NULL) {
+				my_data->status = RC_NO_RESPONSE_RECEIVED;
+				//free(thread);
 
-        		free(my_data);
-        		return RC_NO_RESPONSE_RECEIVED;
-        	}else if(!(((fileInfoPayload *)((my_data)->return_data))->flags & FILE_NAME_AVAILABLE)) {
-        		LOG(DEBUG,"Could not get valid replication details from master. Flags : %0x ", ((fileInfoPayload *)((my_data)->return_data))->flags);
-                if (((fileInfoPayload *)((my_data)->return_data))->flags & FILE_ALREADY_PRESENT) {
-                	printf("Operation failed. File name already exists");
-                }
-                //free(thread);
+				free(my_data);
+				return RC_NO_RESPONSE_RECEIVED;
+			}else if(!(((fileInfoPayload *)((my_data)->return_data))->flags & FILE_NAME_AVAILABLE)) {
+				LOG(DEBUG,"Could not get valid replication details from master. Flags : %0x ", ((fileInfoPayload *)((my_data)->return_data))->flags);
+				if (((fileInfoPayload *)((my_data)->return_data))->flags & FILE_ALREADY_PRESENT) {
+					printf("Operation failed. File name already exists");
+				}
+				//free(thread);
+				free(my_data->return_data);
+				free(my_data);
+				return RC_FAILURE;
+			}else {
+				//Transfer all parts to destinations
+				create_file_splits(localFileName, ((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
 
-                free(my_data);
-                return RC_FAILURE;
-        	}else {
-        	    //Transfer all parts to destinations
-        		create_file_splits(localFileName, ((fileInfoPayload *)((my_data)->return_data))->fileName, ((fileInfoPayload *)((my_data)->return_data))->noOfSplits);
-        		fileInfo = (fileInfoPayload *)my_data->return_data;
-        		file_thread = (dfs_thread_info **)calloc(1, (sizeof(dfs_thread_info *) * fileInfo->noOfSplits));
-        		threads = calloc(1, sizeof(pthread_t ) * fileInfo->noOfSplits);
-        		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
-        			file_thread[i] = (dfs_thread_info *)calloc(1, sizeof(dfs_thread_info));
-        			//threads[i] = calloc(1, sizeof(pthread_t));
-        			sprintf(suffix_buf, "%d", i);
-        			strcpy(suffix + 4 - strlen(suffix_buf), suffix_buf);
-        			sprintf(file_thread[i]->destFileName, "%s%s", fileInfo->fileName, suffix);
-        			DEBUG(("\nSending %s\n",suffix));
-        			file_thread[i]->numOfAddresses = fileInfo->noOfReplicas;
-        			printf("\n ******* IP::::: %s ********* \n", fileInfo->ipAddr[0][0] );
-        			file_thread[i]->ip = malloc(fileInfo->noOfReplicas * 16);
-        			memcpy(file_thread[i]->ip, fileInfo->ipAddr[i][0], fileInfo->noOfReplicas * 16);
-        			pthread_create(&threads[i], NULL, sendFileWrapper, file_thread[i]);
+				fileInfo = (fileInfoPayload *)my_data->return_data;
 
-        		}
-        		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
-        			pthread_join(threads[i], NULL);
-        		}
-        		for (i = 0; i < fileInfo->noOfSplits; i++ ) {
-        			free(file_thread[i]->ip);
-        			if (file_thread[i]->rc != RC_SUCCESS) {
-        				LOG(DEBUG,"Could not place replicas for file split %d", i+1);
+				threadCount = (fileInfo->noOfSplits > MAX_DFS_THREADS) ? MAX_DFS_THREADS : fileInfo->noOfSplits ;
+				splitsToBeTransferred = fileInfo->noOfSplits;
 
-        				break;
+				for (i=0 ; splitsToBeTransferred > 0 && !skip ; splitsToBeTransferred -= threadCount) {
+					skip = 0;
+					for (j = 0; j < threadCount && j < splitsToBeTransferred; j++ , i++) {
+						sprintf(suffix_buf, "%d", i);
+						strcpy(suffix + 4 - strlen(suffix_buf), suffix_buf);
+						sprintf(file_thread[j].destFileName, "%s%s", fileInfo->fileName, suffix);
+
+						file_thread[j].numOfAddresses = fileInfo->noOfReplicas;
+						printf("\n ******* IP::::: %s ********* \n", fileInfo->ipAddr[0][0] );
+						memcpy(file_thread[j].ip, fileInfo->ipAddr[j][0], fileInfo->noOfReplicas * 16);
+						pthread_create(&threads[j], NULL, sendFileWrapper, &file_thread[j]);
+
+					}
+					for (k = 0; k < j; k++ ) {
+						pthread_join(threads[k], NULL);
+					}
+					for (k = 0; k < j; k++ ) {
+
+						if (file_thread[k].rc != RC_SUCCESS) {
+							LOG(DEBUG,"Could not place replicas for file split %d", i);
+							break;
+						}
+					}
+					if (k != j) {
+						printf("Failed to Transfer splits to destination");
+						skip = 1;
+						break;
+
+					}
+				}
+				free(fileInfo);
+				free(my_data);
+
+				//Send finalize entry to master
+
+
+				my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
+				(*my_data).payload = calloc(1, sizeof(fileInfoPayload));
+				payloadBuf1 = my_data->payload;
+
+				if (skip == 1) {
+					payloadBuf1->flags |= (FILE_CHUNKS_PLACED_SUCCESSFULLY | FILE_INFO_UPDATE);
+
+				} else {
+					payloadBuf1->flags |= (FILE_CHUNKS_COULD_NOT_BE_PLACED | FILE_INFO_UPDATE);
+				}
+
+
+				memcpy((*my_data).ip, server_topology->node->IP, 16);
+
+				(*my_data).payload_size = sizeof(fileInfoPayload);
+				(*my_data).msg_type = MSG_FILE_INFO;
+				(*my_data).flags = RETURN_VALUE_REQUIRED;
+
+				strcpy(payloadBuf1->fileName, destinationFileName);
+
+
+
+				LOG(DEBUG,"Sending File Info Update to %s for %s", my_data->ip, payloadBuf1->fileName);
+				LOG(DEBUG,"Sending file info update payload for %s ", ((fileInfoPayload *)(my_data->payload))->fileName);
+
+
+				pthread_create(&thread, NULL, send_node_update_payload, (my_data));
+				pthread_join(thread, NULL);
+				if (my_data->status != RC_SUCCESS) {
+					LOG(ERROR, "Failed to send finalize file metadata message to leader IP %s. Error = %d ", server_topology->node->IP, my_data->status);
+				}
+
+				free(my_data);
+				if (skip == 1) {
+					return RC_FILE_REPLICA_PLACEMENT_FAILURE;
+				}else {
+					return RC_SUCCESS;
+				}
+			}
+		}else {
+			LOG(ERROR,"Failed to get file information from %s", server_topology->node->IP);
+			printf("Failed to get file information from %s", server_topology->node->IP);
+		}
+
+
+
+	}
+	return RC_FAILURE;
+}
+
+	/*file_thread = (dfs_thread_info **)calloc(1, (sizeof(dfs_thread_info *) * fileInfo->noOfSplits));
+
+
+        		threads = calloc(1, sizeof(pthread_t ) * threadCount);
+
+
+
+
+        				file_thread[j] = (dfs_thread_info *)calloc(1, sizeof(dfs_thread_info));
+
+
+        				DEBUG(("\nSending %s\n",suffix));
+
+
+
+
+
+
+        			}
+
+
+
+
+        				for (k = 0; k < j; k++) {
+        					free(file_thread[k]);
+                            skip = 1;
+                            break;
+        				}
+
+        				free(my_data);
+        				free(file_thread);
+        				free(threads);
+
+
+
+
         			}
         		}
-    			if (i != fileInfo->noOfSplits) {
-    				printf("Failed to Transfer splits to destination");
-    				for (i = 0; i <  fileInfo->noOfSplits; i++) {
-    					free(file_thread[i]);
-    					//free(threads[i]);
-    				}
-
-    				free(my_data);
-    				free(file_thread);
-    				free(threads);
-    				free(fileInfo);
-
-                    return RC_FILE_REPLICA_PLACEMENT_FAILURE;
-
-    			}
-    			free(my_data);
-    			//Send finalize entry to master
-        	    my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
-
-            	my_data = calloc(1, sizeof(thread_data) + sizeof(fileInfoPayload));
-                (*my_data).payload = calloc(1, sizeof(fileInfoPayload));
-
-                memcpy((*my_data).ip, server_topology->node->IP, 16);
-
-                (*my_data).payload_size = sizeof(fileInfoPayload);
-                (*my_data).msg_type = MSG_FILE_INFO;
-                (*my_data).flags = RETURN_VALUE_REQUIRED;
-                payloadBuf1 = my_data->payload;
-                //payloadBuf->fileSize = size;
-                //memcpy((*my_data).payload, payloadBuf, sizeof(fileOperationRequestPayload));
-                strcpy(payloadBuf1->fileName, destinationFileName);
-
-                payloadBuf1->flags |= (FILE_CHUNKS_PLACED_SUCCESSFULLY | FILE_INFO_UPDATE);
-
-                LOG(DEBUG,"Sending File Info Update to %s for %s", my_data->ip, payloadBuf1->fileName);
-                LOG(DEBUG,"Sending file info update payload for %s ", ((fileInfoPayload *)(my_data->payload))->fileName);
 
 
-                pthread_create(&thread, NULL, send_node_update_payload, (my_data));
-                pthread_join(thread, NULL);
-                if (my_data->status != RC_SUCCESS) {
-                    LOG(ERROR, "Failed to send finalize file metadata message to leader IP %s. Error = %d ", server_topology->node->IP, my_data->status);
-                }
 
         	}
 
-        }else {
-        	LOG(ERROR,"Failed to get file information from %s", server_topology->node->IP);
-        	printf("Failed to get file information from %s", server_topology->node->IP);
-        }
+
 
     }
 	for (i = 0; fileInfo && (i <  fileInfo->noOfSplits); i++) {
 		free(file_thread[i]);
-		//free(threads[i]);
-	}
 
-	free(file_thread);
-	free(threads);
-	free(fileInfo);
-	return my_data->status;
+	}*/
 
-}
+	//free(file_thread);
+	//free(threads);
+	//free(fileInfo);
+
+
+
 
 RC_t dfs_file_receive(char *localFileName, char *remoteFileName)
 {
@@ -376,7 +440,7 @@ RC_t receiveFileWrapper(void *tdata) {
 
 RC_t sendFileWrapper(void *tdata ) {
     FILE *fp;
-    dfs_thread_info *dfs_data = (dfs_thread_info *)(tdata);
+    dfs_thread_info_new *dfs_data = (dfs_thread_info_new *)(tdata);
     struct sockaddr_in nodeAddress;
     char (*IP)[16] = dfs_data->ip;
     int sock;
@@ -418,7 +482,7 @@ RC_t createConnection(struct sockaddr_in *nodeAddress, char *IP, int *sock)
     memset(nodeAddress, 0, sizeof(struct sockaddr_in));
     nodeAddress->sin_family         = AF_INET;
     nodeAddress->sin_addr.s_addr   = inet_addr(IP);
-    nodeAddress->sin_port          = htons(TCP_LISTEN_PORT);
+    nodeAddress->sin_port          = htons(DFS_LISTEN_PORT);
     if((*sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
         LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
         printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
