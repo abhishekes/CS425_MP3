@@ -1,8 +1,8 @@
 #include "send_file.h"
 extern char *myIP;
 
-#define MAX_FILE_CHUNK_PAYLOAD_SIZE 69900
-#define MAX_FILE_CHUNK_SIZE 69600
+#define MAX_FILE_CHUNK_PAYLOAD_SIZE 59900
+#define MAX_FILE_CHUNK_SIZE 59600
 /*********************************************************
 ** This function is used to send file 
 ** 
