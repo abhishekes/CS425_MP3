@@ -40,7 +40,7 @@ void processPacket(int socket, payloadBuf *packet, void ** return_data) {
                      break;
 		case MSG_ADD_DELETE_NODE:
 		        printf("\n************processPacket***************\n");
-                     processNodeAddDeletePayload(packet->payload, packet->length);
+                     processNodeAddDeletePayload(packet->payload, packet->length - sizeof(payloadBuf));
                      topology_version++;
                      close(socket);
                      break;
