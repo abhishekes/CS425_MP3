@@ -8,13 +8,18 @@
 
 #define MACHINE_ID 1
 
+
 extern FILE *log_fp;
-extern char fbuf[500];
-extern char fbuf1[200];
+
+extern char fbuffer[250];
+extern char fbuf[1000];
+extern char fbuf1[500];
+
+
 extern char fileName[500];
 
 extern time_t timer;
-extern char fbuffer[25];
+
 extern struct tm* tm_info;
 
 extern pthread_mutex_t log_mutex;

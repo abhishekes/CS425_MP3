@@ -5,12 +5,12 @@ char fileName[500] = {0};
 //char buf1[200] = {0};
 
 time_t timer;
-char fbuffer[25] = {0};
+char fbuffer[250] = {0};
 struct tm* tm_info;
 level log_level = DEBUG;
 pthread_mutex_t log_mutex;
-char fbuf[500];
-char fbuf1[200];
+char fbuf[1000];
+char fbuf1[500];
 
 void log_init()
 {

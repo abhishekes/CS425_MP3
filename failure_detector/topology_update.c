@@ -13,7 +13,7 @@ void* topology_update(void* t) {
 	struct sockaddr_in myAddress, clientAddress;
 	int i ,j, bytes, numBytes, pid;
 	pthread_t workers[NUM_WORKERS];
-	listener_thread_data connectedSocket[NUM_WORKERS];
+	listener_thread_data connectedSocket[NUM_WORKERS] = {0};
 	payloadBuf *packet;
 	int rc;
 	i = 0;
