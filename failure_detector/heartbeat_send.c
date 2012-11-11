@@ -45,7 +45,7 @@ void* heartbeat_send(void* t) {
 		//printf("\nSending Heartbeat\n");
 		sendPayloadUDP(sendToSocket, MSG_HEARTBEAT, hbPayload, sizeof(heartbeatPayload), &sendToAddr);
 		pthread_testcancel();
-		usleep(200 * 1000);
+		usleep(100 * 1000);
 	}
         pthread_exit(NULL);	
 }
