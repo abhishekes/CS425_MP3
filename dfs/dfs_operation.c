@@ -166,10 +166,10 @@ RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destination
 				payloadBuf1 = my_data->payload;
 
 				if (skip == 1) {
-					payloadBuf1->flags |= (FILE_CHUNKS_PLACED_SUCCESSFULLY | FILE_INFO_UPDATE);
+					payloadBuf1->flags |= ( FILE_CHUNKS_COULD_NOT_BE_PLACED | FILE_INFO_UPDATE);
 
 				} else {
-					payloadBuf1->flags |= (FILE_CHUNKS_COULD_NOT_BE_PLACED | FILE_INFO_UPDATE);
+					payloadBuf1->flags |= (FILE_CHUNKS_PLACED_SUCCESSFULLY | FILE_INFO_UPDATE);
 				}
 
 

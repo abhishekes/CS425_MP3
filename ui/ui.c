@@ -166,7 +166,7 @@ void parse_command(char *command)
     	 }
 
      }
-     if (!valid || i < 2) {
+     if (!valid || (!strcmp(args[1],"del") && i < 1) || (!strcmp(args[1],"del") && i < 2 )) {
     	 printf("\nInvalid Input. Command Format : <get/put/del> <local-file-name> <destination-file-name>\n");
 
     	 return;

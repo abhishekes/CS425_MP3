@@ -298,7 +298,7 @@ void getIPsForFile(char *fileName, char **IPs, uint16_t *numIPs) {
 	FileList *dummyFileList;
 	char *p;
 	*numIPs = 0;
-
+    *IPs = NULL;
 	p = (*IPs);
 	fileMetaPtr = getFileMetadataPtr(fileName);
 
