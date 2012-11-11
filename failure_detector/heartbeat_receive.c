@@ -100,7 +100,7 @@ void* heartbeat_receive(void* t) {
                         pthread_mutex_unlock(&node_list_mutex);
                         memcpy(ID, &timestamp, 4);
                         memcpy(ID + 4, myself->prev->IP, 16);  
-                        LOG(DEBUG, "********* HAD TO DELETE NODE BUT AVOIDING ****** ", ID+4);
+                        LOG(DEBUG, "********* HAD TO DELETE NODE %s BUT AVOIDING ****** ", ID+4);
                         /*
 		                sendDeleteNotification(NODE_FAILURE, ID, ttl);
 
