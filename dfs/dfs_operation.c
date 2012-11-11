@@ -575,6 +575,8 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     	if (infoPayload->flags & FILE_CHUNKS_PLACED_SUCCESSFULLY) {
     		//Chunks placed successfully. Mark entry as valid
     		tmp->flags = FILE_INFO_FINALIZED;
+    		dfs_write_to_file();
+    		sendMetadataToNeighbour();
 
     		infoPayload->flags |= ENTRY_VALID;
     		LOG(DEBUG,"Marking entry for %s as active", infoPayload->fileName);
@@ -582,6 +584,8 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     		infoPayload->flags &= ~ENTRY_VALID;
     		LOG(DEBUG, "Deleting Meta Info entry for file %s ", infoPayload->fileName);
     		removeFileMetaInfo(infoPayload->fileName);
+    		dfs_write_to_file();
+    		sendMetadataToNeighbour();
     	}
     }else {
     	LOG(DEBUG,"Received file info update payload for %s which was not found", infoPayload->fileName);
@@ -670,6 +674,8 @@ RC_t dfs_delete_file(char *fileName) {
         }
     }
     removeFileMetaInfo(fileName);
+    dfs_write_to_file();
+    sendMetadataToNeighbour();
     return rc;
 }
 
