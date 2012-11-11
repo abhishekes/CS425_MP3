@@ -83,7 +83,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
               remove_from_list(&server_topology, payload->ID[i]);
               if (server_topology && server_topology->node ) {
             	  if (server_topology->node == myself) {//Am I the leader ??
-            		  memcpy(IP, payload->ID +4 , 16);
+            		  memcpy(IP, payload->ID[0]+4 , 16);
             		  dfs_replicate_files_of_crashed_node(IP);
             	  }
               }
@@ -96,6 +96,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
  
                
           }
+          break;
        }else if (payload->flags & ADD_PAYLOAD) {
            LOG(INFO, "Node %s is being added as a member in the group", payload->ID[i]);
            printf("Node %s is being added as a member in the group", payload->ID[0] + 4);
