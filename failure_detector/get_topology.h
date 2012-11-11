@@ -11,7 +11,6 @@
 #include "../commons/message_type.h"
 #include "../commons/list.h"
 #include "failure_detector.h"
-
 RC_t form_topology();
 
 #endif

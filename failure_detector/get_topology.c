@@ -44,7 +44,7 @@ RC_t get_topology() {
 	rc = message_decode(mSocket,&packet);
 	//printf("\nAfter message decode, packet : %lu\n", (long)packet);	
 
-        processPacket(mSocket, packet, NULL);
+    processPacket(mSocket, packet, NULL);
 	
 	//process the incoming packet	
 			
@@ -61,9 +61,9 @@ RC_t get_topology() {
 		    nodeFound = 1;
 		    printf("\nFound. Setting myself\n");
 		    break;	
-                }
-		printf("Node IP = %s", node->IP);					
-		node = node->next;
+	}
+	printf("Node IP = %s", node->IP);
+	node = node->next;
 	
 	}while(node != server_topology->node);
 	
@@ -79,7 +79,12 @@ RC_t get_topology() {
 		return RC_FAILURE;	
 	}
 	//By this time, topology is formed and is present in the server_topology pointer
-	//Any changes in the topology will cause a change in the version number of the topology
+
+	if(server_topology->node == myself){
+		//I am the Master
+		dfs_read_from_file();
+	}
+
 	
 	LOG(INFO,"Received topology from admission %s ", "contact");	
 	return RC_SUCCESS;
