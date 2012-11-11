@@ -10,7 +10,7 @@ extern struct Head_Node *server_topology;
 extern struct Node* myself;
 extern pthread_attr_t attr;
 
-#define MAX_DFS_THREADS 10
+#define MAX_DFS_THREADS 5
 //ip is the IP address of the node that has crashed.
 //This function is called by the leader
 
