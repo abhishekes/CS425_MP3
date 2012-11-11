@@ -15,9 +15,10 @@
 #include "../commons/list.h"
 #include "../logging/log.h"
 #include "../ui/ui.h"
+#include "../failure_detector/topology_update.h"
 
-#define ADMISSION_CONTACT_IP "192.168.2.7"	//This is not decided yet
-#define ADMISSION_CONTACT_PORT 2000		//This is not decided yet
+#define ADMISSION_CONTACT_IP "192.168.2.7"	
+#define ADMISSION_CONTACT_PORT 2000		
 #define DFS_LISTEN_PORT 28000
 
 void* dfs_listener(void*);

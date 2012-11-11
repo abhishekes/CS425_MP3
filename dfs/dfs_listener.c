@@ -10,7 +10,7 @@ void* dfs_listener(void* t) {
 	socklen_t clientSize;
 	struct sockaddr_in myAddress, clientAddress;
 	int i,j, bytes, numBytes, pid;
-	void *tData;
+	listener_thread_data connectedSocket[NUM_WORKER_THREADS] = {0};
 	pthread_t workers[NUM_WORKER_THREADS];
 
 	payloadBuf *packet;
@@ -49,6 +49,7 @@ void* dfs_listener(void* t) {
 		return 0;
 	}
 
+	i=0;
 	for(;;) {
 		pthread_testcancel();
 		if ((connectSocket = accept(listenSocket, (struct sockaddr*)&clientAddress, &clientSize)) < 0) {
@@ -64,31 +65,34 @@ void* dfs_listener(void* t) {
 				(clientAddress.sin_addr.s_addr & 0xFF000000) >> 24
 			));
 
-		while( i >= NUM_WORKER_THREADS && !pthread_cancel(workers[i])) {
+		while( connectedSocket[i].state ) {
 			i = (i + 1) % NUM_WORKER_THREADS;
 		}
 
-		pthread_create(&workers[i], handle_request, NULL, &connectSocket);
+		connectedSocket[i].socket = connectSocket;
+		connectedSocket[i].state = 1;
+		pthread_create(&workers[i], NULL, handle_request, &connectedSocket[i]);
 		i = (i + 1) % NUM_WORKER_THREADS;
+
 	}
 
 	pthread_exit(NULL);
 }
 
 void* handle_request(void *tData) {
+	listener_thread_data *thread_info = (listener_thread_data *)(tData);
 	RC_t rc;
 	payloadBuf *packet;
-	int connectSocket = *((int*)tData);
 
 	do {
-		rc = message_decode(connectSocket, &packet);
+		rc = message_decode(thread_info->socket, &packet);
 		if (rc != RC_SUCCESS) {
 			break;
 		}
-		processPacket(connectSocket, packet, NULL);
+		processPacket(thread_info->socket, packet, NULL);
 	}while(1);
 
 	pthread_testcancel();
-
+	thread_info->state = 0;
 	pthread_exit(NULL);
 }
