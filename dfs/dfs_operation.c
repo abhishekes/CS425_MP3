@@ -485,6 +485,8 @@ RC_t make_master(char *prevMasterIP)
     if (rc != RC_SUCCESS) {
         return rc;
     }
+
+    dfs_write_to_file();
     rc = dfs_replicate_files_of_crashed_node(prevMasterIP);
 
     return rc;
