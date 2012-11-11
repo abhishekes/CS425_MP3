@@ -50,6 +50,7 @@ int sendFile(int socket, char *fileName, char *destFileName )
          ftpBuf->statusFlag = htons(ftpBuf->statusFlag);
          memcpy(ftpBuf->filePayload, ftpBuf->filePayload, bytesSent);
          rc = sendPayload(socket, MSG_FILE_TRANSFER, ftpBuf, sizeof(fileTransferPayload) + bytesSent);
+         LOG(DEBUG, "Filename : %s, seq : %d", ftpBuf->fileName, seqNo);
          //LOG(DEBUG, "Sending %s. Sequence : %d Flags : %0x", ftpBuf->fileName,seqNo, ftpBuf->statusFlag);
          if (rc != RC_SUCCESS) {
              DEBUG(("\nCould not send script file\n"));
