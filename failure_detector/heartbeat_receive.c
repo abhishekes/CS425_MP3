@@ -107,6 +107,7 @@ void* heartbeat_receive(void* t) {
 		                if (server_topology && server_topology->node == myself->prev) { //Check if the leader has gone down
 		                	make_master(myself->prev->IP);
 		                }
+		                LOG(DEBUG, "No heartbeat received from %s. Deleting node", ID+4);
 		                remove_from_list(&server_topology, ID);
 
 			            pthread_mutex_unlock(&node_list_mutex);
