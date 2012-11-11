@@ -79,6 +79,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
 
           if (payload->flags & DELETE_PAYLOAD) {
               printf("Node %s is being deleted from the group membership", payload->ID[0] + 4);
+              LOG(DEBUG, "Node %s has failed. Removing its entry", payload->ID[i]);
               remove_from_list(&server_topology, payload->ID[i]);
               if (server_topology && server_topology->node ) {
             	  if (server_topology->node == myself) {//Am I the leader ??
@@ -90,7 +91,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
           if (payload->flags & LEAVE_NOTIFICATION) {
               LOG(INFO, "Node %s is voluntarily leaving the group", payload->ID[i]);
           }
-          else if (payload->flags & LEAVE_NOTIFICATION) {
+          else if (payload->flags & NODE_FAILURE) {
               LOG(INFO, "Node %s has failed. Removing its entry", payload->ID[i]);
  
                
