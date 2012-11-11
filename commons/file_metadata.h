@@ -29,6 +29,8 @@ struct FileMetadataStruct{
 	unsigned numReplicas;
 	uint32_t numberOfChunks;
 	uint32_t flags;
+	#define FILE_INFO_FINALIZED 	0x01
+	#define FILE_INFO_TENTATIVE 	0x02
 	struct ChunkInfoStruct *chunkInfo;
 	struct FileMetadataStruct *next;
 };

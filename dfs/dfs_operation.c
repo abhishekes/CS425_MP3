@@ -579,7 +579,7 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 
 
 	if(( request->flags & GET_FILE_REQUEST )) {
-		if( ptr == NULL ) {
+		if( (ptr == NULL) || ((ptr != NULL) && (ptr->flags & FILE_INFO_TENTATIVE))) {
 			(*infoPayload) = (fileInfoPayload*)calloc(1, sizeof(fileInfoPayload));
 			(*infoPayload)->flags |= FILE_INFO_RESPONSE;
 			(*infoPayload)->flags |= FILE_NOT_FOUND;
@@ -604,7 +604,7 @@ RC_t populateFileInfoPayload(fileInfoPayload **infoPayload, fileOperationRequest
 				numChunks = 1;
 			}
 
-			addFileMetaInfo(request->fileName, request->fileSize, request->flags, numChunks, request->requesterIP);
+			addFileMetaInfo(request->fileName, request->fileSize, FILE_INFO_TENTATIVE, numChunks, request->requesterIP);
 			dfs_write_to_file();
 
 
@@ -645,29 +645,24 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     int i = 0;
     FileMetadata *tmp = gFileMetaData;
 
+    tmp = getFileMetadataPtr(infoPayload->fileName);
 
-    while (tmp != NULL) {
-    	if (!strcmp(infoPayload->fileName, tmp->fileName)) { //Entry found
-    		found = 1;
+    if(tmp != NULL) {
+    	if (infoPayload->flags & FILE_CHUNKS_PLACED_SUCCESSFULLY) {
+    		//Chunks placed successfully. Mark entry as valid
+    		tmp->flags = FILE_INFO_FINALIZED;
 
-    		if (infoPayload->flags & FILE_CHUNKS_PLACED_SUCCESSFULLY) {
-    			//Chunks placed successfully. Mark entry as valid
-
-    				infoPayload->flags |= ENTRY_VALID;
-    				LOG(DEBUG,"Marking entry for %s as active", infoPayload->fileName);
-
-    			}else {
-    				infoPayload->flags &= ~ENTRY_VALID;
-    				LOG(DEBUG,"Marking entry for %s as active", infoPayload->fileName);
-    			}
+    		infoPayload->flags |= ENTRY_VALID;
+    		LOG(DEBUG,"Marking entry for %s as active", infoPayload->fileName);
+    	}else {
+    		infoPayload->flags &= ~ENTRY_VALID;
+    		LOG(DEBUG, "Deleting Meta Info entry for file %s ", infoPayload->fileName);
+    		removeFileMetaInfo(infoPayload->fileName);
     	}
-    	tmp = tmp->next;
-
-
-    }
-    if (!found) {
+    }else {
     	LOG(DEBUG,"Received file info update payload for %s which was not found", infoPayload->fileName);
     }
+
     return rc;
 
 }
