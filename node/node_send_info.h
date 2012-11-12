@@ -11,8 +11,10 @@ typedef struct {
     int msg_type;
     char *payload;
     uint16_t flags;
-    #define WAIT_FOR_RESPONSE 0x01
+    #define WAIT_FOR_RESPONSE     0x01
     #define RETURN_VALUE_REQUIRED 0x02
+    #define FREE_PAYLOAD          0x04
+    #define USE_DFS_PORT          0x08
     RC_t status;
     void *return_data;
 

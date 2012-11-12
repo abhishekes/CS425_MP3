@@ -27,7 +27,10 @@ void send_node_update_payload(void *tdata)
         nodeAddress.sin_port          = htons(TCP_LISTEN_PORT);
         if (!strcmp(IP, ADMISSION_CONTACT_IP)) {
             nodeAddress.sin_port          = htons(ADMISSION_CONTACT_PORT);
-        }        
+        }
+        if (my_data->flags & USE_DFS_PORT) {
+        	nodeAddress.sin_port          = htons(DFS_LISTEN_PORT);
+        }
 	
 	    if((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
                 //LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
@@ -68,7 +71,7 @@ void send_node_update_payload(void *tdata)
         	}
         }
         printf("Closing socket"); //TODO REMOVE
-        if (!(my_data->flags & WAIT_FOR_RESPONSE) && !(my_data->flags & RETURN_VALUE_REQUIRED )) {
+        if ((!(my_data->flags & WAIT_FOR_RESPONSE) && !(my_data->flags & RETURN_VALUE_REQUIRED )) || (my_data->flags & FREE_PAYLOAD) ) {
             free(my_data);
         }else {
             my_data->return_data = data;
