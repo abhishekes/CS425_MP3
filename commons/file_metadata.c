@@ -112,7 +112,7 @@ RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint
 			}
 		}
 
-		 if(addChunkInfo(i+1, replicaIPs, temp) != RC_SUCCESS) 
+		 if(addChunkInfo(i, replicaIPs, temp) != RC_SUCCESS)
 			return RC_FAILURE;
 	}
 
@@ -177,9 +177,9 @@ RC_t deleteAllChunkInfo(ChunkInfo *chunkPtr, FileMetadata *fileMetaPtr) {
 	} else {
 		deleteAllChunkInfo(chunkPtr->next, fileMetaPtr);
 
-		for(i=0; i<fileMetaPtr->numReplicas; i++) {
-			removeFileMetaEntry(chunkPtr->IP[i], fileMetaPtr);
-		}
+//		for(i=0; i<fileMetaPtr->numReplicas; i++) {
+//			removeFileMetaEntry(chunkPtr->IP[i], fileMetaPtr);
+//		}
 
 		free(chunkPtr);
 
@@ -199,13 +199,14 @@ RC_t deleteFileMetaInfo(FileMetadata *fileMetaPtr) {
 RC_t removeFileMetaInfo(char fileName[NAMEMAX]) {
 	FileMetadata *ptr = gFileMetaData;
 	FileMetadata *prev = NULL;
+	IPtoFileInfo *ipToFilePtr;
+	FileList  *fileListPtr, *prevFileListPtr;
 
 	ptr = getFileMetadataPtr(fileName);
-
 	if(ptr == NULL) return RC_FAILURE;
 
 	if(ptr == gFileMetaData) {
-		gFileMetaData = gFileMetaData->next;
+			gFileMetaData = gFileMetaData->next;
 	}else{
 		prev = gFileMetaData;
 		while( prev != NULL && prev->next!=ptr )
@@ -214,7 +215,29 @@ RC_t removeFileMetaInfo(char fileName[NAMEMAX]) {
 		prev->next = ptr->next;
 	}
 
+	prevFileListPtr = NULL;
+
+	for(ipToFilePtr = gIPToFileInfo; ipToFilePtr != NULL; ipToFilePtr = ipToFilePtr->next) {
+
+		for(fileListPtr = ipToFilePtr->metadataPtr; fileListPtr != NULL; fileListPtr = fileListPtr->next) {
+			if(fileListPtr->fileMetaPtr == ptr) {
+				if(prevFileListPtr == NULL) {
+					fileListPtr->fileMetaPtr = NULL;
+					free(fileListPtr);
+				}else {
+					prevFileListPtr->next = fileListPtr->next;
+					free(fileListPtr);
+				}
+				break;
+			}
+			prevFileListPtr = fileListPtr;
+		}
+	}
+
+
 	return (deleteFileMetaInfo(ptr));
+
+
 }
 
 //This initializes and empty IPtoFileInfo structure, i.e. its FileList info is NULL
