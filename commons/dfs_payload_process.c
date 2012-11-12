@@ -137,8 +137,10 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 			}
 		    memcpy(chunkName, payload->chunkName, strlen(payload->chunkName) - 4);
 			chunkNumber = atoi(payload->chunkName + strlen(payload->chunkName) - 4);
-			payload->chunkName[strlen(payload->chunkName) - 4]= 0;
-			update_chunk_info( payload->chunkName, chunkNumber, ip, status );
+
+			//payload->chunkName[strlen(payload->chunkName) - 4]= 0;
+			printf("\nReceived Re Replicate Operation Result.  %s \n", chunkName);
+			update_chunk_info( chunkName, chunkNumber, ip, status );
 		    dfs_write_to_file();
 		    //sendMetadataToNeighbour();
 
@@ -150,7 +152,7 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 		strcpy(thread_data.fileName, payload->chunkName);
 		strcpy(thread_data.ip[0],ip);
 		thread_data.numOfAddresses = 1;
-		printf("\nPushing chunk %s to %s (Received replicate instruction from master\n", thread_data.destFileName, thread_data.ip[0]);
+		printf("\nPushing chunk %s to %s (Received replicate instruction from master)\n", thread_data.destFileName, thread_data.ip[0]);
 		pthread_create(&thread, NULL, sendFileWrapper, (&thread_data));
 		pthread_join(thread, NULL);
 		if (thread_data.rc != RC_SUCCESS) {
@@ -163,6 +165,7 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 		replicationResponse.flags |= REPLICATE_RESPONSE;
 		strcpy(replicationResponse.ip, myself->IP);
         sendPayload(socket, MSG_CHUNK_OPERATION,  &replicationResponse, sizeof(replicationResponse));
+        printf("\nSent Replicate Operation Result to master. Sending IP :%s\n", replicationResponse.ip);
         close(socket);
 
 
