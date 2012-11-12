@@ -8,6 +8,8 @@
 FileMetadata *gFileMetaData = NULL; //This is the global File Metadata Pointer
 IPtoFileInfo *gIPToFileInfo = NULL; //This is the global IP to File info Pointer
 
+extern myIP[16];
+
 extern struct Head_Node *server_topology;
 
 void* init_list_node(int type) {
