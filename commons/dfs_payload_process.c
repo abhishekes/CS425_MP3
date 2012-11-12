@@ -147,6 +147,7 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 		strcpy(thread_data.fileName, payload->chunkName);
 		thread_data.ip = ip; //TODO
 		thread_data.numOfAddresses = 1;
+		printf("\nPushing chunk %s to %s (Received replicate instruction from master\n", thread_data.destFileName, thread_data.ip);
 		pthread_create(&thread, NULL, sendFileWrapper, (&thread_data));
 		pthread_join(thread, NULL);
 		if (thread_data.rc != RC_SUCCESS) {

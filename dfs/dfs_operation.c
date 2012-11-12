@@ -65,7 +65,7 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 					}
 				}
 				if (replicationNecessary && foundReplica) {
-					tmp = myself;
+					tmp = myself->next;
 					for (ctr = 0; ctr < server_topology->num_of_nodes; ctr ++, tmp=tmp->next) {
 						chunkLoopPtr = fileListPtr->fileMetaPtr->chunkInfo;
 						if (!strcmp(chunkLoopPtr->IP, ip)) {
@@ -566,7 +566,7 @@ RC_t sendFileWrapper(void *tdata ) {
 
     fp = fopen(dfs_data->destFileName, "r");
 	if (fp == NULL) {
-        printf("File Not Found %s", dfs_data->destFileName);
+        printf("****** File Not Found %s", dfs_data->destFileName);
 		return RC_FILE_NOT_FOUND;
 	}
     rc = RC_SUCCESS;
