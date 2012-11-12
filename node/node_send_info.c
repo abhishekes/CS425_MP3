@@ -36,7 +36,10 @@ void send_node_update_payload(void *tdata)
                 //LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 free(my_data->payload);
-                free(my_data);
+                if (!(my_data->flags & RETURN_VALUE_REQUIRED )) {
+                	free(my_data);
+                }
+
                 my_data->status = RC_SOCKET_CREATION_FAILED;
                 pthread_exit(NULL);
         }
@@ -67,7 +70,7 @@ void send_node_update_payload(void *tdata)
         	printf("\nrc= %d\n", rc);
         	if (rc == RC_SUCCESS) {
         		printf("Received %0x ", packet->type);
-        		processPacket(socket, packet, &data);
+        		processPacket(sock, packet, &data);
         	}
         }
         printf("Closing socket"); //TODO REMOVE

@@ -76,6 +76,9 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     	LOG(DEBUG, "Got delete file request for %s", payload->fileName);
     	//get all the entries for deleting the file
     	sendFileDelete(payload->fileName);
+        removeFileMetaInfo(payload->fileName);
+        dfs_write_to_file();
+        sendMetadataToNeighbour();
 
 
     }else  {
@@ -129,7 +132,7 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 			LOG(ERROR, "Received Replicate %s even though I am not the leader. Dropping the message", "Response");
 		}
 		else {
-			if (payload->flags & REPLICATE_RESPONSE) {
+			if (payload->flags & REPLICATE_SUCCESSFUL) {
 				status = 1;
 			}
 		    memcpy(chunkName, payload->chunkName, strlen(payload->chunkName) - 4);

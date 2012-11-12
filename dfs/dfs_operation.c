@@ -14,12 +14,12 @@ extern pthread_attr_t attr;
 #define MAX_DFS_THREADS 5
 //ip is the IP address of the node that has crashed.
 //This function is called by the leader
+thread_data my_data_replication[5];
+pthread_t replication_thread[5];
+int threadCount = 0;
 
 RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 
-
-	/*thread_data my_data[5];
-	pthread_t thread[5];
 	RC_t rc;
 	int i, j, k;
 	chunkOperationPayload *payloadBuf = NULL;
@@ -27,8 +27,18 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 	FileMetadata *tempFileMetaPtr;
 	IPtoFileInfo *ipToFileInfo;
 	ChunkInfo	 *chunkPtr;
+	ChunkInfo	 *chunkLoopPtr;
+	char          replicaIP[16];
+	int           foundReplica = 0;
+	int           replicationNecessary =0;
+	struct Node   *tmp;
+	int  ctr = 0;
 
 	j = 0;
+	int index = 0;
+	int chunkIndex = 0;
+	char nameBuf[100];
+	char indexBuf[100];
 
 
 	ipToFileInfo = getIPtoFileInfo(ip);
@@ -40,16 +50,85 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 		while(fileListPtr != NULL) {
 			chunkPtr = fileListPtr->fileMetaPtr->chunkInfo;
 			while(chunkPtr != NULL) {
-
+				foundReplica = 0;
+				replicationNecessary = 0;
 				for(i = 0; i < NUM_OF_REPLICAS; i++) {
 					if(!strcmp(chunkPtr->IP[i], ip)) {
 						strcpy(chunkPtr->IP[i], "0.0.0.0");
+						replicationNecessary = 1;
+						if (foundReplica) {
+							break;
+						}
+					}else {
+						strcpy(replicaIP, chunkPtr->IP[i]);
+						foundReplica = 1;
 					}
 				}
-				chunkPtr = chunkPtr->next;
-			}
+				if (replicationNecessary && foundReplica) {
+					tmp = myself;
+					for (ctr = 0; ctr < server_topology->num_of_nodes; ctr ++, tmp=tmp->next) {
+						chunkLoopPtr = fileListPtr->fileMetaPtr->chunkInfo;
+						if (!strcmp(chunkLoopPtr->IP, ip)) {
+							continue;
+						}
+						while(chunkLoopPtr != NULL) {
+							if (!strcmp(chunkLoopPtr->IP, tmp->IP)) {
+								break;
+							}
+							chunkLoopPtr = chunkLoopPtr->next;
+						}
+						if (chunkLoopPtr == NULL) { //This guy does not have the replica. He can get the replica
+						threadCount++;
+						if (threadCount == 5) {
+							for (j = 0; j < 5; j++) {
+								pthread_join(replication_thread[j], NULL);
+							}
+							threadCount = 1;
+						}
+						index = threadCount - 1;
+						payloadBuf = calloc(1, sizeof(chunkOperationPayload));
+						my_data_replication[index].payload = payloadBuf;
 
-			chunkPtr = fileListPtr->fileMetaPtr->chunkInfo;
+						sprintf(indexBuf,"%d", chunkIndex);
+						strcpy(nameBuf, "0000");
+						strcpy(nameBuf + 4 - strlen(indexBuf), indexBuf);
+						sprintf(payloadBuf->chunkName, "%s%s", fileListPtr->fileMetaPtr->fileName,nameBuf);
+
+
+						/*memcpy(payloadBuf->ip, tmp->IP, 16);
+						strcpy(payloadBuf->chunkName, fileListPtr->fileMetaPtr->fileName);
+						sprintf(nameBuf,"%s", chunkIndex);
+						strcat(payloadBuf->chunkName, "0000");
+
+						memcpy(payloadBuf->chunkName )*/
+						/*sprintf(payloadBuf->chunkName,"%s" chunk);*/
+						memcpy(payloadBuf->ip, tmp->IP, 16);
+
+						printf("Trying to replicate chunk %s on %s from %s", payloadBuf->chunkName, payloadBuf->ip,replicaIP);
+						strcpy(my_data_replication[index].ip, replicaIP);
+						payloadBuf->flags = REPLICATE_INSTRUCTION;
+						my_data_replication[index].payload_size = sizeof(chunkOperationPayload);
+
+						my_data_replication[index].msg_type = MSG_CHUNK_OPERATION;
+						my_data_replication[index].flags = WAIT_FOR_RESPONSE | USE_DFS_PORT | RETURN_VALUE_REQUIRED;
+						pthread_create(&replication_thread[+index], &attr, send_node_update_payload, &(my_data_replication[index]));
+						break;
+
+
+						}
+					}
+
+
+				}
+				chunkPtr = chunkPtr->next;
+				chunkIndex++;
+			}
+			fileListPtr = fileListPtr->next;
+		}
+	}
+}
+
+			/*chunkPtr = fileListPtr->fileMetaPtr->chunkInfo;
 			while(chunkPtr != NULL) {
 				for(i = 0; i < NUM_OF_REPLICAS; i++) {
 					if(strcmp(chunkPtr->IP[i], "0.0.0.0")) {
@@ -132,8 +211,8 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 		if (my_data->status != RC_SUCCESS) {
 			LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", ip);
 		}
-	} */
-}
+	}
+}*/
 
 
 RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName)
@@ -771,9 +850,7 @@ RC_t dfs_delete_file(char *fileName) {
 
         }
     }
-    removeFileMetaInfo(fileName);
-    dfs_write_to_file();
-    sendMetadataToNeighbour();
+
     return rc;
 }
 
