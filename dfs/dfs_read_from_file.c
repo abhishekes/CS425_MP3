@@ -9,7 +9,7 @@ RC_t dfs_read_from_file() {
 
 	FileMetadata *fileMetaPtr, *dummyPtr;
 	IPtoFileInfo *ipToFilePtr;
-	ChunkInfo *chunkInfo;
+	ChunkInfo *chunkInfo, *tempChunkInfo;
 	FileList *fileListPtr;
 	FILE *fPtr;
 	char fname[255];
@@ -41,9 +41,13 @@ RC_t dfs_read_from_file() {
 			sscanf(line, "NREPLICAS:%u", &fileMetaPtr->numReplicas);
 		} else if(strstr(line, "CHUNKNUM")) { //It is a chunk number belonging to the current fileMetaPtr
 			chunkInfo = (ChunkInfo*)calloc(1, sizeof(ChunkInfo));
-			chunkInfo->next = fileMetaPtr->chunkInfo;
-			fileMetaPtr->chunkInfo = chunkInfo;
 			sscanf(line, "CHUNKNUM:%u", &chunkInfo->chunkNumber);
+			tempChunkInfo = fileMetaPtr->chunkInfo;
+			while(tempChunkInfo->next != NULL) 
+				tempChunkInfo = tempChunkInfo->next;
+
+			tempChunkInfo->next = chunkInfo;
+
 		}else if((strstr(line, "IP") != NULL) && (strstr(line, "IP:") == NULL)) {
 			sscanf(line, "IP%u:%s", &i, tempIP);
 			strcpy(chunkInfo->IP[i], tempIP);
