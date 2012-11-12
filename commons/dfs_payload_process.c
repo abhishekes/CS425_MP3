@@ -78,7 +78,7 @@ RC_t processFileOperationRequest(int socket, fileOperationRequestPayload *payloa
     	sendFileDelete(payload->fileName);
         removeFileMetaInfo(payload->fileName);
         dfs_write_to_file();
-        sendMetadataToNeighbour();
+        //sendMetadataToNeighbour();
 
 
     }else  {
@@ -138,6 +138,8 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 		    memcpy(chunkName, payload->chunkName, strlen(payload->chunkName) - 4);
 			chunkNumber = atoi(payload->chunkName + strlen(payload->chunkName) - 4);
 		    update_chunk_info( payload->chunkName, chunkNumber, ip, status );
+		    dfs_write_to_file();
+		    //sendMetadataToNeighbour();
 
 
 		}
