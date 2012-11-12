@@ -140,7 +140,7 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 
 			//payload->chunkName[strlen(payload->chunkName) - 4]= 0;
 			printf("\nReceived Re Replicate Operation Result.  %s \n", chunkName);
-			update_chunk_info( chunkName, chunkNumber, ip, status );
+			update_chunk_info( chunkName, chunkNumber, payload->ip, status );
 		    dfs_write_to_file();
 		    //sendMetadataToNeighbour();
 
