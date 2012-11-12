@@ -115,27 +115,49 @@ RC_t processFileRequest(int socket, fileRequestPayload *payload)
 RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 {
 	RC_t rc;
-	dfs_thread_info *thread_data;
+	dfs_thread_info thread_data = {0};
 	pthread_t thread;
-	char (*IP)[16];
+	char ip[16];
 	char command[500];
-	IP = payload->ip;
+	chunkOperationPayload replicationResponse;
+	int status = 0;
+	char chunkName[500]= {0};
+	int chunkNumber = 0;
+
 	if ( payload->flags & REPLICATE_RESPONSE) {
 		if (server_topology && server_topology->node && server_topology->node != myself) {
 			LOG(ERROR, "Received Replicate %s even though I am not the leader. Dropping the message", "Response");
 		}
 		else {
-			//Update the fields.
+			if (payload->flags & REPLICATE_RESPONSE) {
+				status = 1;
+			}
+		    memcpy(chunkName, payload->chunkName, strlen(payload->chunkName) - 4);
+			chunkNumber = atoi(payload->chunkName + strlen(payload->chunkName) - 4);
+		    update_chunk_info( payload->chunkName, chunkNumber, ip, status );
+
+
 		}
 	}else if (payload->flags & REPLICATE_INSTRUCTION) {
-		strcpy(thread_data->destFileName, payload->chunkName);
-		thread_data->ip = IP; //TODO
-		thread_data->numOfAddresses = payload->numOfReplicas;
-		pthread_create(&thread, NULL, receiveFileWrapper, (thread_data));
+		strcpy(ip, payload->ip);
+		strcpy(thread_data.destFileName, payload->chunkName);
+		strcpy(thread_data.fileName, payload->chunkName);
+		thread_data.ip = ip; //TODO
+		thread_data.numOfAddresses = 1;
+		pthread_create(&thread, NULL, sendFileWrapper, (&thread_data));
 		pthread_join(thread, NULL);
-		if (thread_data->rc != RC_SUCCESS) {
-			LOG(ERROR, "Could not replicate Chunk Payload %s", thread_data->ip);
+		if (thread_data.rc != RC_SUCCESS) {
+			LOG(ERROR, "Could not replicate Chunk %s to %s", payload->chunkName, thread_data.ip);
+			replicationResponse.flags = REPLICATE_FAILURE;
+		}else {
+			replicationResponse.flags |= REPLICATE_SUCCESSFUL;
 		}
+		strcpy(replicationResponse.chunkName, payload->chunkName);
+		replicationResponse.flags |= REPLICATE_RESPONSE;
+		strcpy(replicationResponse.ip, myself->IP);
+        sendPayload(socket, MSG_CHUNK_OPERATION,  &replicationResponse, sizeof(replicationResponse));
+        close(socket);
+
 
 	}else if (payload->flags & DELETE_REPLICA) {
 		sprintf(command, "rm %s????", payload->chunkName);

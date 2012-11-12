@@ -66,4 +66,6 @@ RC_t updateIPtoFileInfo(char IP[16], FileMetadata* fileMetaPtr);
 void getIPsForFile(char *fileName, char **IPs, uint16_t *numIPs);
 void getNextIP_RR(char IP[16]);
 
+RC_t update_chunk_info( char *fileName , int chunkNumber, char *ip, int status );
+
 #endif //__FILE_METADATA__

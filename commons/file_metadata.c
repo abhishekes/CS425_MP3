@@ -326,3 +326,12 @@ void getIPsForFile(char *fileName, char **IPs, uint16_t *numIPs) {
 
 	return;
 }
+//Status :
+//1 = Successful
+//0= Failure
+
+RC_t update_chunk_info( char *fileName , int chunkNumber, char *ip, int status ) {
+
+	return RC_SUCCESS;
+
+}
