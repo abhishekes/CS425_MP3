@@ -5,7 +5,7 @@ extern char myIP[16];
 extern pthread_mutex_t node_list_mutex;
 //Iterate over IPs file and get the topology
 
-
+pthread_attr_t attr;
 
 RC_t parseIPsFile(char maybeIPs[MAX_NUM_IPS][16], uint16_t *numIPs) {
 
