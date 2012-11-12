@@ -43,7 +43,7 @@ RC_t dfs_read_from_file() {
 			chunkInfo = (ChunkInfo*)calloc(1, sizeof(ChunkInfo));
 			sscanf(line, "CHUNKNUM:%u", &chunkInfo->chunkNumber);
 			tempChunkInfo = fileMetaPtr->chunkInfo;
-			while(tempChunkInfo->next != NULL) 
+			while(tempChunkInfo && tempChunkInfo->next != NULL) 
 				tempChunkInfo = tempChunkInfo->next;
 
 			tempChunkInfo->next = chunkInfo;
