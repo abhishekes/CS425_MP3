@@ -40,7 +40,10 @@ RC_t dfs_write_to_file() {
 	}
 
 	ipToFilePtr = gIPToFileInfo;
-	fprintf(fPtr, "SKIP:NEXT\n");
+
+	if(ipToFilePtr != NULL) {
+		fprintf(fPtr, "SKIP:NEXT\n");
+	}
 
 	while(ipToFilePtr != NULL) {
 		fprintf(fPtr, "IP:%s\n", ipToFilePtr->IP);
