@@ -112,7 +112,7 @@ RC_t addFileMetaInfo(char fileName[NAMEMAX], uint32_t size, uint32_t flags, uint
 			}
 		}
 
-		 if(addChunkInfo(i, replicaIPs, temp) != RC_SUCCESS)
+		 if(addChunkInfo(numberOfChunks - i - 1, replicaIPs, temp) != RC_SUCCESS)
 			return RC_FAILURE;
 	}
 
