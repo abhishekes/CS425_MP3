@@ -163,7 +163,7 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 		}
 		strcpy(replicationResponse.chunkName, payload->chunkName);
 		replicationResponse.flags |= REPLICATE_RESPONSE;
-		strcpy(replicationResponse.ip, myself->IP);
+		strcpy(replicationResponse.ip, payload->ip);
         sendPayload(socket, MSG_CHUNK_OPERATION,  &replicationResponse, sizeof(replicationResponse));
         printf("\nSent Replicate Operation Result to master. Sending IP :%s\n", replicationResponse.ip);
         close(socket);
