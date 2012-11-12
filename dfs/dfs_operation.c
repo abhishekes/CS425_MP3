@@ -661,7 +661,7 @@ RC_t make_master(char *prevMasterIP)
     }
 
     dfs_write_to_file();
-    sendMetadataToNeighbour();
+    //sendMetadataToNeighbour();
     rc = dfs_replicate_files_of_crashed_node(prevMasterIP);
 
     return rc;
@@ -753,7 +753,7 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     		//Chunks placed successfully. Mark entry as valid
     		tmp->flags = FILE_INFO_FINALIZED;
     		dfs_write_to_file();
-    		sendMetadataToNeighbour();
+    		//sendMetadataToNeighbour();
 
     		infoPayload->flags |= ENTRY_VALID;
     		LOG(DEBUG,"Marking entry for %s as active", infoPayload->fileName);
@@ -762,7 +762,7 @@ RC_t processFileInfoUpdatePayload(fileInfoPayload *infoPayload) {
     		LOG(DEBUG, "Deleting Meta Info entry for file %s ", infoPayload->fileName);
     		removeFileMetaInfo(infoPayload->fileName);
     		dfs_write_to_file();
-    		sendMetadataToNeighbour();
+    		//sendMetadataToNeighbour();
     	}
     }else {
     	LOG(DEBUG,"Received file info update payload for %s which was not found", infoPayload->fileName);
