@@ -18,7 +18,7 @@ extern pthread_attr_t attr;
 RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 
 
-	thread_data *my_data[5];
+	/*thread_data my_data[5];
 	pthread_t thread[5];
 	RC_t rc;
 	int i, j, k;
@@ -54,34 +54,34 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 				for(i = 0; i < NUM_OF_REPLICAS; i++) {
 					if(strcmp(chunkPtr->IP[i], "0.0.0.0")) {
 
-						my_data[j] = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
-						(*my_data)[j].payload = calloc(1, sizeof(chunkOperationPayload));
-						payloadBuf = (chunkOperationPayload *)((*my_data[j]).payload);
+						//my_data[j] = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
+						my_data[j].payload = calloc(1, sizeof(chunkOperationPayload));
+						payloadBuf = (chunkOperationPayload *)(my_data[j].payload);
 
 						memcpy(payloadBuf->ip, ip, 16);
 						payloadBuf->flags |= REPLICATE_INSTRUCTION;
-						my_data[j]->payload_size = sizeof(chunkOperationPayload);
+						my_data[j].payload_size = sizeof(chunkOperationPayload);
 
-						((*my_data)[j]).msg_type = MSG_CHUNK_OPERATION;
-						my_data[j]->flags = WAIT_FOR_RESPONSE | DFS_LISTEN_PORT | RETURN_VALUE_REQUIRED;
+						my_data[j].msg_type = MSG_CHUNK_OPERATION;
+						my_data[j].flags = WAIT_FOR_RESPONSE |USE_DFS_PORT | RETURN_VALUE_REQUIRED;
 
 						j++;
 
 						if( j == 5 ) {
 							for(k = 0; k < j; k ++) {
-								pthread_create(&thread[k], &attr, send_node_update_payload, &((*my_data)[k]));
+								pthread_create(&thread[k], &attr, send_node_update_payload, &my_data[k]);
 							}
 							for(k = 0; k < j; k++) {
 								pthread_join(thread[k], NULL);
 							}
 
 							for(k = 0; k < j; k++) {
-								if(my_data[k]->status != RC_SUCCESS) {
-									LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", my_data[k]->ip);
+								if(my_data[k].status != RC_SUCCESS) {
+									LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", my_data[k].ip);
 									rc = RC_FAILURE;
 								}
-								free(my_data[k]->payload);
-								free(my_data[k]);
+								free(my_data[k].payload);
+								//free(my_data[k]);
 							}
 
 							j = 0;
@@ -97,7 +97,7 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 	}
 
 	for(k = 0; k < j; k ++) {
-		pthread_create(&thread[k], &attr, send_node_update_payload, &((*my_data)[k]));
+		pthread_create(&thread[k], &attr, send_node_update_payload, &(my_data[k]));
 	}
 
 	for(k = 0; k < j; k++) {
@@ -105,14 +105,14 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 	}
 
 	for(k = 0; k < j; k++) {
-		if(my_data[k]->status != RC_SUCCESS) {
-			LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", my_data[k]->ip);
+		if(my_data[k].status != RC_SUCCESS) {
+			LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", my_data[k].ip);
 		}
-		free(my_data[k]->payload);
-		free(my_data[k]);
+		free(my_data[k].payload);
+		//free(my_data[k]);
 	}
 	return rc;
-
+*/
 
 	//	for (i = 0 ; i < 1; i++/*Other conditions->To be updated */) {
 	/*		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
