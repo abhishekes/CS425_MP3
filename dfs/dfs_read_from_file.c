@@ -45,8 +45,11 @@ RC_t dfs_read_from_file() {
 			tempChunkInfo = fileMetaPtr->chunkInfo;
 			while(tempChunkInfo && tempChunkInfo->next != NULL) 
 				tempChunkInfo = tempChunkInfo->next;
-
-			tempChunkInfo->next = chunkInfo;
+			
+			if(tempChunkInfo != NULL) 
+				tempChunkInfo->next = chunkInfo;
+			else
+				fileMetaPtr->chunkInfo = chunkInfo;
 
 		}else if((strstr(line, "IP") != NULL) && (strstr(line, "IP:") == NULL)) {
 			sscanf(line, "IP%u:%s", &i, tempIP);
