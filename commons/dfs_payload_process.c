@@ -118,7 +118,7 @@ RC_t processFileRequest(int socket, fileRequestPayload *payload)
 RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 {
 	RC_t rc;
-	dfs_thread_info thread_data = {0};
+	dfs_thread_info_new thread_data = {0};
 	pthread_t thread;
 	char ip[16];
 	char command[500];
@@ -145,9 +145,9 @@ RC_t processChunkOperationPayload(int socket, chunkOperationPayload* payload)
 		strcpy(ip, payload->ip);
 		strcpy(thread_data.destFileName, payload->chunkName);
 		strcpy(thread_data.fileName, payload->chunkName);
-		thread_data.ip = ip; //TODO
+		strcpy(thread_data.ip[0],ip);
 		thread_data.numOfAddresses = 1;
-		printf("\nPushing chunk %s to %s (Received replicate instruction from master\n", thread_data.destFileName, thread_data.ip);
+		printf("\nPushing chunk %s to %s (Received replicate instruction from master\n", thread_data.destFileName, thread_data.ip[0]);
 		pthread_create(&thread, NULL, sendFileWrapper, (&thread_data));
 		pthread_join(thread, NULL);
 		if (thread_data.rc != RC_SUCCESS) {
