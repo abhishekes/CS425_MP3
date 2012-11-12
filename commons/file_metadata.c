@@ -331,7 +331,22 @@ void getIPsForFile(char *fileName, char **IPs, uint16_t *numIPs) {
 //0= Failure
 
 RC_t update_chunk_info( char *fileName , int chunkNumber, char *ip, int status ) {
+	FileMetadata *fileMetaPtr;
+	ChunkInfo *chunkPtr;
+	int i;
 
-	return RC_SUCCESS;
+	fileMetaPtr = getFileMetadataPtr(fileName);
+	for(chunkPtr = fileMetaPtr->chunkInfo; chunkPtr != NULL; chunkPtr = chunkPtr->next) {
+		if(chunkPtr->chunkNumber == chunkNumber) {
+			for(i = 0; i < NUM_OF_REPLICAS; i++) {
+				if(!strcmp(chunkPtr->IP[i], "0.0.0.0")) {
+					strcpy(chunkPtr->IP[i], ip);
+					return RC_SUCCESS;
+				}
+			}
+		}
+	}
+
+	return RC_FAILURE;
 
 }

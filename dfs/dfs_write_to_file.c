@@ -59,5 +59,7 @@ RC_t dfs_write_to_file() {
 
 	fclose(fPtr);
 
+	sendMetadataToNeighbour();
+
 	return RC_SUCCESS;
 }
