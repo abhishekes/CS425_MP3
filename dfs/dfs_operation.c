@@ -20,7 +20,7 @@ int threadCount = 0;
 
 RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 
-	RC_t rc;
+	RC_t rc = RC_SUCCESS;
 	int i, j, k;
 	chunkOperationPayload *payloadBuf = NULL;
 	FileList	 *fileListPtr;
@@ -34,6 +34,7 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 	struct Node   *tmp;
 	int  ctr = 0;
 
+	return RC_SUCCESS;
 	j = 0;
 	int index = 0;
 	int chunkIndex = 0;
