@@ -336,6 +336,10 @@ RC_t update_chunk_info( char *fileName , int chunkNumber, char *ip, int status )
 	int i;
 
 	fileMetaPtr = getFileMetadataPtr(fileName);
+	if (fileMetaPtr == NULL) {
+		LOG(DEBUG, "Could not find meta data entry %s for updation", fileName);
+		return RC_FILE_NOT_FOUND;
+	}
 	for(chunkPtr = fileMetaPtr->chunkInfo; chunkPtr != NULL; chunkPtr = chunkPtr->next) {
 		if(chunkPtr->chunkNumber == chunkNumber) {
 			for(i = 0; i < NUM_OF_REPLICAS; i++) {
