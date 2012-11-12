@@ -1,9 +1,10 @@
 #include "dfs_operation.h"
 #include "dfs_write_to_file.h"
+#include "../commons/file_metadata.h"
 
 fileInfoPayload fileInfo ;
 extern FileMetadata *gFileMetaData;
-
+extern IPtoFileInfo *gIPToFileInfo;
 
 extern char myIP[16];
 extern struct Head_Node *server_topology;
@@ -16,16 +17,105 @@ extern pthread_attr_t attr;
 
 RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 
-	thread_data *my_data;
-	pthread_t thread;
+
+	thread_data *my_data[5];
+	pthread_t thread[5];
 	RC_t rc;
-    int i = 0;
-    chunkOperationPayload *payloadBuf = NULL;
+	int i, j, k;
+	chunkOperationPayload *payloadBuf = NULL;
+	FileList	 *fileListPtr;
+	FileMetadata *tempFileMetaPtr;
+	IPtoFileInfo *ipToFileInfo;
+	ChunkInfo	 *chunkPtr;
 
-	for (i = 0 ; i < 1; i++/*Other conditions->To be updated */) {
+	j = 0;
 
 
-		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
+	ipToFileInfo = getIPtoFileInfo(ip);
+
+	if(ipToFileInfo != NULL) {
+
+		fileListPtr = ipToFileInfo->metadataPtr;
+
+		while(fileListPtr != NULL) {
+			chunkPtr = fileListPtr->fileMetaPtr->chunkInfo;
+			while(chunkPtr != NULL) {
+
+				for(i = 0; i < NUM_OF_REPLICAS; i++) {
+					if(!strcmp(chunkPtr->IP[i], ip)) {
+						strcpy(chunkPtr->IP[i], "0.0.0.0");
+					}
+				}
+				chunkPtr = chunkPtr->next;
+			}
+
+			chunkPtr = fileListPtr->fileMetaPtr->chunkInfo;
+			while(chunkPtr != NULL) {
+				for(i = 0; i < NUM_OF_REPLICAS; i++) {
+					if(strcmp(chunkPtr->IP[i], "0.0.0.0")) {
+
+						my_data[j] = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
+						(*my_data)[j].payload = calloc(1, sizeof(chunkOperationPayload));
+						payloadBuf = (chunkOperationPayload *)((*my_data[j]).payload);
+
+						memcpy(payloadBuf->ip, ip, 16);
+						payloadBuf->flags |= REPLICATE_INSTRUCTION;
+						my_data[j]->payload_size = sizeof(chunkOperationPayload);
+
+						((*my_data)[j]).msg_type = MSG_CHUNK_OPERATION;
+						my_data[j]->flags = WAIT_FOR_RESPONSE | DFS_LISTEN_PORT | RETURN_VALUE_REQUIRED;
+
+						j++;
+
+						if( j == 5 ) {
+							for(k = 0; k < j; k ++) {
+								pthread_create(&thread[k], &attr, send_node_update_payload, &((*my_data)[k]));
+							}
+							for(k = 0; k < j; k++) {
+								pthread_join(thread[k], NULL);
+							}
+
+							for(k = 0; k < j; k++) {
+								if(my_data[k]->status != RC_SUCCESS) {
+									LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", my_data[k]->ip);
+									rc = RC_FAILURE;
+								}
+								free(my_data[k]->payload);
+								free(my_data[k]);
+							}
+
+							j = 0;
+						}
+					}
+				}
+
+				chunkPtr = chunkPtr->next;
+			}
+
+			fileListPtr = fileListPtr->next;
+		}
+	}
+
+	for(k = 0; k < j; k ++) {
+		pthread_create(&thread[k], &attr, send_node_update_payload, &((*my_data)[k]));
+	}
+
+	for(k = 0; k < j; k++) {
+		pthread_join(thread[k], NULL);
+	}
+
+	for(k = 0; k < j; k++) {
+		if(my_data[k]->status != RC_SUCCESS) {
+			LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", my_data[k]->ip);
+		}
+		free(my_data[k]->payload);
+		free(my_data[k]);
+	}
+	return rc;
+
+
+	//	for (i = 0 ; i < 1; i++/*Other conditions->To be updated */) {
+	/*		my_data = calloc(1, sizeof(thread_data) + sizeof(chunkOperationPayload));
 		(*my_data).payload = calloc(1, sizeof(chunkOperationPayload));
 		payloadBuf = (chunkOperationPayload *)((*my_data).payload);
 		memcpy( payloadBuf->ip, ip, 16);
@@ -35,15 +125,17 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 		(*my_data).msg_type = MSG_CHUNK_OPERATION;
 
 
+
 		pthread_create(&thread, &attr, send_node_update_payload, (my_data));
 		pthread_join(thread, NULL);
 
 		if (my_data->status != RC_SUCCESS) {
 			LOG(ERROR, "Failed to send replicate chunk payload for chunk present on IP %s", ip);
 		}
-	}
-	return rc;
+	} */
 }
+
+
 RC_t dfs_file_transfer (fileOperation op, char *localFileName, char *destinationFileName)
 {
 	FILE *inputFile = NULL;
@@ -670,7 +762,7 @@ RC_t dfs_delete_file(char *fileName) {
         payloadBuf->flags |= DEL_FILE_REQUEST;
 
         LOG(DEBUG,"Sending File Delete Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
-        pthread_create(&thread, NULL, send_node_update_payload, (my_data));
+        pthread_create(&thread, NULL, send_node_update_payload, (void*)(my_data));
         pthread_join(thread, NULL);
 
         if (my_data->status == RC_SUCCESS) {
