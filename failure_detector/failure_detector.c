@@ -83,7 +83,10 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 	
 	sendDeleteNodePayload(ADMISSION_CONTACT_IP, 1, nodeID, 0, reason);
 
-	numNodesToSend = server_topology->num_of_nodes - 2;
+	if (server_topology == NULL) {
+            return 0;
+        }
+        numNodesToSend = server_topology->num_of_nodes - 2;
 	/*if ( numNodesToSend < ttl)
 		ttl = numNodesToSend - 1;
 	else 

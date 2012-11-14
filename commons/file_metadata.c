@@ -191,7 +191,9 @@ RC_t deleteFileMetaInfo(FileMetadata *fileMetaPtr) {
 
 	(void)deleteAllChunkInfo(fileMetaPtr->chunkInfo, fileMetaPtr);
 	free(fileMetaPtr);
-
+    if (fileMetaPtr == gFileMetaData) {
+    	gFileMetaData = NULL;
+    }
 	return RC_SUCCESS;
 }
 
@@ -209,10 +211,11 @@ RC_t removeFileMetaInfo(char fileName[NAMEMAX]) {
 			gFileMetaData = gFileMetaData->next;
 	}else{
 		prev = gFileMetaData;
-		while( prev != NULL && prev->next!=ptr )
+		while( prev != NULL && prev->next != ptr )
 			prev = prev->next;
-
-		prev->next = ptr->next;
+        if (prev != NULL) {
+        	prev->next = ptr->next;
+        }
 	}
 
 	prevFileListPtr = NULL;
@@ -224,10 +227,12 @@ RC_t removeFileMetaInfo(char fileName[NAMEMAX]) {
 				if(prevFileListPtr == NULL) {
 					fileListPtr->fileMetaPtr = NULL;
 					free(fileListPtr);
+					ipToFilePtr->metadataPtr = NULL;
 				}else {
 					prevFileListPtr->next = fileListPtr->next;
 					free(fileListPtr);
 				}
+				ipToFilePtr->numberOfFiles--;
 				break;
 			}
 			prevFileListPtr = fileListPtr;
@@ -235,7 +240,10 @@ RC_t removeFileMetaInfo(char fileName[NAMEMAX]) {
 	}
 
 
-	return (deleteFileMetaInfo(ptr));
+	(deleteFileMetaInfo(ptr));
+	/*if (ptr == gFileMetaData)  {
+		gFileMetaData = NULL;
+	}*/
 
 
 }

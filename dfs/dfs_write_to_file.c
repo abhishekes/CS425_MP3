@@ -29,7 +29,7 @@ RC_t dfs_write_to_file() {
 
 		while(chunkInfo != NULL) {
 			fprintf(fPtr, "CHUNKNUM:%u\n", chunkInfo->chunkNumber);
-			for(i=0; i<fileMetaPtr->numReplicas; i++) {
+			for(i = 0; i < fileMetaPtr->numReplicas; i++) {
 				fprintf(fPtr, "IP%d:%s\n", i, chunkInfo->IP[i]);
 			}
 
@@ -49,7 +49,7 @@ RC_t dfs_write_to_file() {
 		fprintf(fPtr, "IP:%s\n", ipToFilePtr->IP);
 		fprintf(fPtr, "NFILES:%u\n", ipToFilePtr->numberOfFiles);
 		fileListPtr = ipToFilePtr->metadataPtr;
-		for(j=0; j<ipToFilePtr->numberOfFiles; j++ ) {
+		for(j=0; j < ipToFilePtr->numberOfFiles && fileListPtr && fileListPtr->fileMetaPtr != NULL; j++ ) {
 			fprintf(fPtr, "FNAME:%s\n", fileListPtr->fileMetaPtr->fileName);
 			fileListPtr = fileListPtr->next;
 		}

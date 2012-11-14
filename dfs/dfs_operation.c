@@ -840,7 +840,7 @@ RC_t dfs_delete_file(char *fileName) {
         strcpy(payloadBuf->fileName, fileName);
         memcpy(payloadBuf->requesterIP, myself->IP, 16);
         payloadBuf->flags |= DEL_FILE_REQUEST;
-
+        my_data->flags |= RETURN_VALUE_REQUIRED;
         LOG(DEBUG,"Sending File Delete Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
         pthread_create(&thread, NULL, send_node_update_payload, (void*)(my_data));
         pthread_join(thread, NULL);
@@ -848,8 +848,10 @@ RC_t dfs_delete_file(char *fileName) {
         if (my_data->status == RC_SUCCESS) {
         	LOG(DEBUG,"Sent File Delete Operation Request to %s for %s", my_data->ip, payloadBuf->fileName);
             rc = RC_SUCCESS;
+            free(my_data);
 
         }
+        dfs_write_to_file();
     }
 
     return rc;
