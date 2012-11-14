@@ -32,8 +32,10 @@ void* heartbeat_receive(void* t) {
 	int rv;
 	int heartbeatNotReceived;
 	ssize_t recvFromAddrLen;
+	pthread_t *thread;
 			
 	char *IPList, *ptr;
+	char *crashedIP;
 	int numNodesToSend, i, j;
         char ID[ID_SIZE];
         uint32_t timestamp =0;		
@@ -111,7 +113,13 @@ void* heartbeat_receive(void* t) {
 		                }
 		                LOG(DEBUG, "No heartbeat received from %s. Deleting node", ID+4);
 		                remove_from_list(&server_topology, ID);
-
+                        //If I am the master, I need to replicate files of the crashed node.
+                        if (server_topology && server_topology->node && (myself == server_topology)) {
+                            crashedIP = calloc(1, 16);
+                            strcpy(crashedIP, ID+4 );
+                            thread = calloc(1, sizeof(thread));
+                            pthread_create(thread, NULL, dfs_replicate_files_of_crashed_node, crashedIP);
+                        }
 			            pthread_mutex_unlock(&node_list_mutex);
                         pthread_mutex_lock(&timestamp_mutex);
                         strcpy(savedHeartbeat[0].ipAddr, myself->prev->IP); 
