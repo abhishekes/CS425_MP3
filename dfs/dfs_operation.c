@@ -33,6 +33,7 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 	int           replicationNecessary =0;
 	struct Node   *tmp;
 	int  ctr = 0;
+	int ctr1 = 0;
 
 	return RC_SUCCESS;
 	j = 0;
@@ -67,18 +68,18 @@ RC_t dfs_replicate_files_of_crashed_node(char *ip) {
 				}
 				if (replicationNecessary && foundReplica) {
 					tmp = myself->next;
-					for (ctr = 0; ctr < server_topology->num_of_nodes; ctr ++, tmp=tmp->next) {
-						chunkLoopPtr = fileListPtr->fileMetaPtr->chunkInfo;
-						if (!strcmp(chunkLoopPtr->IP, ip)) {
+					for (ctr = 0; ctr < server_topology->num_of_nodes; ctr ++, tmp = tmp->next) {
+						//chunkLoopPtr = fileListPtr->fileMetaPtr->chunkInfo;
+						if (!strcmp(tmp->IP, ip)) {
 							continue;
 						}
-						while(chunkLoopPtr != NULL) {
-							if (!strcmp(chunkLoopPtr->IP, tmp->IP)) {
+						for (ctr1 = 0; ctr1 < fileListPtr->fileMetaPtr->numReplicas; ctr1++) {
+							if (!strcmp(chunkLoopPtr->IP[ctr1], tmp->IP)) {
 								break;
 							}
-							chunkLoopPtr = chunkLoopPtr->next;
+
 						}
-						if (chunkLoopPtr == NULL) { //This guy does not have the replica. He can get the replica
+						if (ctr1 == fileListPtr->fileMetaPtr->numReplicas) { //This guy does not have the replica. He can get the replica
 						threadCount++;
 						if (threadCount == 5) {
 							for (j = 0; j < 5; j++) {
